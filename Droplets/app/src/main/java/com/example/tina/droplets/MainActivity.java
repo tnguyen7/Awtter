@@ -5,11 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -61,6 +63,9 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
     int[] random = new int[3];
     Random randomGenerator;
+    boolean touchedBefore = false;
+
+    Paint mPaint = new Paint();
 
     public Drops(Context context) {
         super(context);
@@ -88,9 +93,10 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
         initialX = screenW13;
         initialY = screenH14;
 
-        umb = Bitmap.createScaledBitmap(origUmb, screenW13, screenH14 - 10, true);
-        drop = Bitmap.createScaledBitmap(origDrop, screenW13, screenH14 - 10, true);
+        umb = Bitmap.createScaledBitmap(origUmb, screenW13 - 40, screenH14 - 60, true);
+        drop = Bitmap.createScaledBitmap(origDrop, screenW13 - 40, screenH14 - 40, true);
 
+        randomGenerator = new Random();
         // Generate random location for drops
         for (int index = 0; index < 3; ++index) {
             int randomInt = randomGenerator.nextInt(3);
@@ -98,7 +104,7 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         umbX = screenW13;
-        umbY = screenH34;
+        umbY = screenH34 + 15;
     }
 
     //***************************************
@@ -109,35 +115,52 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
         x = ev.getX();
 
-        // Position 0
-        if (x <= screenW13) {
+        if (!touchedBefore) {
+            // Position 0
+            if (x <= screenW13) {
 
-            if (random[2] == 0) {
-                move();
+                if (random[2] == 0) {
+                    move();
+                }
+
+                //Move umbrella
+                umbX = 0;
+
+                // Position 1
+            } else if (x > screenW13 && x <= screenW23) {
+
+                if (random[2] == 1) {
+                    move();
+                }
+
+                //Move umbrella
+                umbX = screenW13;
+
+                // Position 2
+            } else {
+
+                if (random[2] == 2) {
+                    move();
+                }
+
+                //Move umbrella
+                umbX = screenW23;
+
+            }
+        }
+
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                touchedBefore = true;
+                break;
             }
 
-            //Move umbrella
-            umbX = 0;
 
-        // Position 1
-        } else if (x > screenW13 && x <= screenW23) {
+            case MotionEvent.ACTION_UP: {
+                touchedBefore = false;
 
-            if (random[2] == 1) {
-                move();
+                break;
             }
-
-            //Move umbrella
-            umbX = screenW13;
-
-        // Position 2
-        } else {
-
-            if (random[2] == 2) {
-                move();
-            }
-
-            //Move umbrella
-            umbX = screenW23;
 
         }
 
@@ -146,9 +169,9 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
     // Move each drop and umbrella
     private void move() {
-
+        Log.v("drops", "in move");
         // Move drops through array
-        for(int index = random.length - 2; index >= 0; ++index) {
+        for(int index = random.length - 2; index >= 0; --index) {
             random[index + 1] = random[index];
         }
 
@@ -161,19 +184,30 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        // prepare a paint
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeWidth(5);
+        mPaint.setAntiAlias(true);
+
+        // draw a rectangle
+        mPaint.setColor(Color.WHITE);
+        mPaint.setStyle(Paint.Style.FILL); //fill the background with blue color
+        canvas.drawRect(0, 0, screenW, screenH, mPaint);
+
+
         // Place umbrella on canvas
-        canvas.drawBitmap(umb, screenW13, screenH34, null); //Draw the ball by applying the canvas rotated matrix.
+        canvas.drawBitmap(umb, umbX + 10, umbY, null); //Draw the ball by applying the canvas rotated matrix.
 
         // Place drops on canvas
         for (int index = 0; index < 3; ++index) {
-            dropY = (index+1)*screenW13;
+            dropY = (index)*screenH14;
 
             if (random[index] == 0) {
-                canvas.drawBitmap(drop, 0, dropY, null);
+                canvas.drawBitmap(drop, 20, dropY + 20, null);
             } else if (random[index] == 1) {
-                canvas.drawBitmap(drop, screenW13, dropY, null);
+                canvas.drawBitmap(drop, screenW13 + 20, dropY + 20, null);
             } else if (random[index] == 2) {
-                canvas.drawBitmap(drop, screenW23, dropY, null);
+                canvas.drawBitmap(drop, screenW23 + 20, dropY + 20, null);
             }
         }
     }
