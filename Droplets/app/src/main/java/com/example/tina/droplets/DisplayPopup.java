@@ -42,7 +42,6 @@ public class DisplayPopup extends Activity {
 
             }
         });
-
     }
 
 }

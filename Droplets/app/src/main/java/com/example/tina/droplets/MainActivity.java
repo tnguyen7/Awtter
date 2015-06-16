@@ -48,10 +48,7 @@ import java.util.Random;
 public class MainActivity extends Activity {
     Drops drops;
     boolean inGame = false;
-    LinearLayout layoutOfPopup;
-    PopupWindow popupMessage;
-    Button insidePopupButton;
-    TextView popupText;
+    boolean inHowToPlay = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,18 +63,31 @@ public class MainActivity extends Activity {
         inGame = true;
     }
 
+    public void howToPlay(View view) {
+        setContentView(R.layout.how_to_play);
+        inHowToPlay = true;
+    }
+
     @Override
     public void onBackPressed() {
         if(inGame) {
+
             Intent intent = new Intent(this, DisplayPopup.class);
             startActivity(intent);
             Drops.isPaused();
 
+        } else if (inHowToPlay) {
+
+            setContentView(R.layout.activity_main);
+            inHowToPlay = false;
 
         } else {
+
             finish();
+
         }
     }
+
 
     @Override
     protected void onResume() {
@@ -94,7 +104,7 @@ public class MainActivity extends Activity {
 class Drops extends SurfaceView implements SurfaceHolder.Callback {
     static Context mContext;
     GameThread thread;
-    int screenW; //Device's screen width.
+    static int screenW; //Device's screen width.
     int screenW13; //1/3 screen width
     int screenW23; //2/3 screen widthint screenW; //Device's screen width.
     int screenH; //Devices's screen height.
@@ -102,15 +112,10 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
     int screenH24; //2/3 screen width
     int screenH34; //2/3 screen width
 
-
-    int dropX; //Ball x position.
     int dropY; //Drop y position.
     int initialX;
     int initialY;
-    float dY; //Ball vertical speed.
-    int dropW, umbW;
-    int dropH, umbH;
-    float x, y; //Coordinates of user touch
+    float x; //Coordinates of user touch
     float umbX, umbY;
     static int score = 0;
 
@@ -224,6 +229,8 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
         umbX = screenW13;
         umbY = screenH34 + 15;
+
+
     }
 
     //***************************************
@@ -373,7 +380,7 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
 
             // Place umbrella on canvas
-            canvas.drawBitmap(umb, umbX + 10, umbY, null); //Draw the ball by applying the canvas rotated matrix.
+            canvas.drawBitmap(umb, umbX + 10, umbY, null);
 
             // Place drops on canvas
             for (int index = 0; index < 3; ++index) {
