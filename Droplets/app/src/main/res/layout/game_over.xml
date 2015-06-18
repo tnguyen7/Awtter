@@ -4,14 +4,17 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bgr">
 
-    <EditText
+    <TextView
         android:layout_width="385dp"
         android:layout_height="40dp"
         android:id="@+id/gameOver"
         android:background="#ff468eff"
         android:textColor="#ffffffff"
-        android:text="                                 Game Over"
-        android:layout_gravity="center_horizontal" />
+        android:text="                                      Game Over"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:paddingTop="10dp"
+        android:textSize="17dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -60,18 +63,17 @@
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="Retry"
-            android:id="@+id/retry"
+            android:text="Quit"
+            android:id="@+id/quit"
             android:layout_weight="0.5"
             android:layout_gravity="center_vertical" />
 
         <Button
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:text="Quit"
-            android:id="@+id/quit"
-            android:layout_weight="0.5"
-            android:layout_gravity="center_vertical" />
+            android:text="Retry"
+            android:id="@+id/retry"
+            android:layout_weight="0.5" />
     </LinearLayout>
 
 </LinearLayout>

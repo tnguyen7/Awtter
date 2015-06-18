@@ -1,5 +1,6 @@
 package com.example.tina.droplets;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -16,8 +17,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -41,18 +44,24 @@ import java.util.Random;
 
 
 // Width of screen 1080
-// Hieght of screen 1920
-// implement drops
-// make it so it's faster dialog
+// Height of screen 1920
 //game over dimensions all of the dimensions in fact are killing me
 public class MainActivity extends Activity {
     Drops drops;
     boolean inGame = false;
     boolean inHowToPlay = false;
+    private static MediaPlayer mediaPlayer;
+    public static boolean inDialog = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*
+        Context context = getApplicationContext();
+        mediaPlayer = MediaPlayer.create(context, R.raw.rain);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+        */
         setContentView(R.layout.activity_main);
         inGame = false;
     }
@@ -68,9 +77,9 @@ public class MainActivity extends Activity {
         inHowToPlay = true;
     }
 
-    @Override
-    public void onBackPressed() {
-        if(inGame) {
+        @Override
+        public void onBackPressed() {
+            if (inGame) {
 
             Intent intent = new Intent(this, DisplayPopup.class);
             startActivity(intent);
@@ -81,7 +90,9 @@ public class MainActivity extends Activity {
             setContentView(R.layout.activity_main);
             inHowToPlay = false;
 
-        } else {
+        } else if (inDialog) {
+
+        }   else {
 
             finish();
 
@@ -105,18 +116,18 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
     static Context mContext;
     GameThread thread;
     static int screenW; //Device's screen width.
-    int screenW13; //1/3 screen width
-    int screenW23; //2/3 screen widthint screenW; //Device's screen width.
-    int screenH; //Devices's screen height.
-    int screenH14; //1/3 screen width
-    int screenH24; //2/3 screen width
-    int screenH34; //2/3 screen width
+    static int screenW13; //1/3 screen width
+    static int screenW23; //2/3 screen widthint screenW; //Device's screen width.
+    static int screenH; //Devices's screen height.
+    static int screenH14; //1/3 screen width
+    static int screenH24; //2/3 screen width
+    static int screenH34; //2/3 screen width
 
-    int dropY; //Drop y position.
-    int initialX;
-    int initialY;
-    float x; //Coordinates of user touch
-    float umbX, umbY;
+    static int dropY; //Drop y position.
+    static int initialX;
+    static int initialY;
+    static float x; //Coordinates of user touch
+    static float umbX, umbY;
     static int score = 0;
 
     public static boolean isPaused = false;
@@ -150,6 +161,8 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public static void reset() {
+        umbX = screenW13;
+        umbY = screenH34 + 15;
         score = 0;
         if (timer != null) {
             timer.cancel();
@@ -176,6 +189,7 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
                 final AlertDialog finishDialog = builder.create();
                 finishDialog.show();
+                MainActivity.inDialog = true;
 
                 closeButton.setOnClickListener(new OnClickListener() {
                     @Override
@@ -333,6 +347,7 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
 
                     final AlertDialog finishDialog = builder.create();
                     finishDialog.show();
+                    MainActivity.inDialog = true;
 
                     closeButton.setOnClickListener(new OnClickListener() {
                         @Override
@@ -450,6 +465,7 @@ class Drops extends SurfaceView implements SurfaceHolder.Callback {
             return surfaceHolder;
         }
 
+        @SuppressLint("WrongCall")
         @Override
         public void run() {
             Canvas c;
