@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">MyRevealTest</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="readme">1 AccelerateDecelerateInterpolator\n
+2 AccelerateInterpolator\n
+3 AnticipateInterpolator\n
+4 AnticipateOvershootInterpolator\n
+5 BounceInterpolator\n
+6 CycleInterpolator\n
+7 DecelerateInterpolator\n
+8 FastOutLinearInInterpolator\n
+9 FastOutSlowInInterpolator\n
+10 LinearInterpolator\n
+11 LinearOutSlowInInterpolator\n
+12 OvershootInterpolator\n
+13 PathInterpolator </string>
+</resources>
