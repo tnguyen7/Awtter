@@ -1,4 +1,4 @@
-package com.example.tina.cuteapp;
+package com.example.tina.awtter;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
