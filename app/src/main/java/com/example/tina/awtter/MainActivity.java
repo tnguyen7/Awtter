@@ -88,6 +88,10 @@ public class MainActivity extends ActionBarActivity {
 
                 //TODO
                 return true;
+
+            } case (R.id.action_add): {
+                //TODO
+                return true;
             }
         }
         return super.onOptionsItemSelected(item);

@@ -16,6 +16,12 @@
 
         <include layout="@layout/toolbar"/>
 
+        <AdapterViewFlipper
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/adapterViewFlipper"
+            android:layout_gravity="right|top" />
+
     </FrameLayout>
 
     <android.support.design.widget.NavigationView
