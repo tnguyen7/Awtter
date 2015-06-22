@@ -16,14 +16,9 @@
             android:title="@string/favorite"/>
 
         <item
-            android:id="@+id/drawer_downloaded"
+            android:id="@+id/drawer_my_pictures"
             android:icon="@drawable/ic_file_download_black_24dp"
-            android:title="Downloaded"/>
-
-        <item
-            android:id="@+id/drawer_more"
-            android:icon="@drawable/ic_more_horiz_black_24dp"
-            android:title="More"/>
+            android:title="@string/my_pictures"/>
 
         <item
             android:id="@+id/drawer_settings"
