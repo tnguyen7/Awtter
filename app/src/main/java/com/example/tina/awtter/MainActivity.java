@@ -84,20 +84,23 @@ public class MainActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
 
                 return true;
-            } case (R.id.action_add): {
+            }
+            case (R.id.action_add): {
 
                 // TODO
                 // openAdd();
                 return true;
 
-            // If settings was selected, ...
-            }/* case (R.id.action_settings): {
+                // If settings was selected, ...
+            /*} case (R.id.action_settings): {
 
                 // TODO
                 // openSettings();
-                return true;
-            }*/
+                return true;*/
+
+            }
         }
+
         return super.onOptionsItemSelected(item);
     }
 }
