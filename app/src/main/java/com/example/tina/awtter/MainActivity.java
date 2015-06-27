@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     .commit();
 
         }
+        Intent intent = new Intent(this, UploadImage.class);
+        startActivity(intent);
 
     }
 
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
                 // TODO
                 //   openAdd();
-                return true;
+
 
                 // If settings was selected, ...
             }
