@@ -130,9 +130,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
             }
             case (R.id.action_settings): {
-                // openSettings();
-                return true;
-
                 // TODO
                 //   openAdd();
                 return true;
