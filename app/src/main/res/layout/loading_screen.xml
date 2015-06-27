@@ -1,25 +1,16 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" 	android:gravity="center" android:orientation="vertical"
+    android:layout_height="fill_parent" android:background="#E5E5E5">
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent" 	android:gravity="center" android:orientation="vertical"
-        android:layout_height="fill_parent" android:background="#E5E5E5">
+    <TextView android:text="Please wait while your data gets loaded..."
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:textColor="#000000">
+    </TextView>
+    <ProgressBar android:id="@+id/mainSpinner1" android:layout_gravity="center"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:indeterminate="true"
+        style="?android:attr/progressBarStyleInverse">
+    </ProgressBar>
 
-        <TextView android:text="Please wait while your data gets loaded..."
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="#000000">
-        </TextView>
-        <ProgressBar android:id="@+id/mainSpinner1" android:layout_gravity="center"
-            android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:indeterminate="true"
-            style="?android:attr/progressBarStyleInverse">
-        </ProgressBar>
-
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>

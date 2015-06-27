@@ -7,22 +7,25 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
-
-    <FrameLayout
-        android:id="@+id/content"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/root"
+        tools:context=".MainActivity">
 
-        <include layout="@layout/toolbar"/>
+    <include
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
-        <AdapterViewFlipper
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/adapterViewFlipper"
-            android:layout_gravity="right|top" />
+        <!-- The main content view -->
+        <FrameLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    </FrameLayout>
+    </LinearLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/navigation_view"
@@ -32,5 +35,4 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer"/>
-
 </android.support.v4.widget.DrawerLayout>
