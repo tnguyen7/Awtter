@@ -1,14 +1,9 @@
 package com.example.tina.awtter;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -24,37 +19,35 @@ import android.widget.Toast;
 
 public class UploadImage extends Activity {
     InputStream inputStream;
-    String res = "";
+    @SuppressWarnings( "deprecation" )
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.activity_main);
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.drawer_background);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.large);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream); //compress to which format you want.
         byte [] byte_arr = stream.toByteArray();
-        String image_str;
-        image_str = Base64.encodeBytes(byte_arr);
-        HashMap<String,String> nameValuePairs = new HashMap<String,String>();
+        String image_str = Base64.encodeBytes(byte_arr);
+        final ArrayList<NameValuePair> nameValuePairs = new  ArrayList<NameValuePair>();
 
-        nameValuePairs.put("image", image_str);
+        nameValuePairs.add(new BasicNameValuePair("image",image_str));
 
         Thread t = new Thread(new Runnable() {
 
             @Override
             public void run() {
-
                 try{
-
-                    HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://76.244.35.83/upload_image.php").openConnection();
-                    InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-                    final String the_string_response = convertResponseToString(urlConnection);
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httppost = new HttpPost("http://76.244.35.83/upload_image.php");
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    HttpResponse response = httpclient.execute(httppost);
+                    final String the_string_response = convertResponseToString(response);
                     runOnUiThread(new Runnable() {
 
                         @Override
                         public void run() {
-                            Toast.makeText(UploadImage.this, "Response " + the_string_response, Toast.LENGTH_LONG).show();
+                            Toast.makeText(UploadImage.this, "Response : " + the_string_response, Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -73,11 +66,13 @@ public class UploadImage extends Activity {
         t.start();
     }
 
-    public String convertResponseToString(HttpURLConnection response) throws IllegalStateException, IOException{
+    @SuppressWarnings( "deprecation" )
+    public String convertResponseToString(HttpResponse response) throws IllegalStateException, IOException{
 
+        String res = "";
         StringBuffer buffer = new StringBuffer();
-       // inputStream = response.getContent();
-        final int contentLength = (int) response.getContentLength(); //getting content length…..
+        inputStream = response.getEntity().getContent();
+        final int contentLength = (int) response.getEntity().getContentLength(); //getting content length…..
         runOnUiThread(new Runnable() {
 
             @Override
@@ -112,11 +107,12 @@ public class UploadImage extends Activity {
             }
             res = buffer.toString();     // converting stringbuffer to string…..
 
+            final String finalRes = res;
             runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
-                    Toast.makeText(UploadImage.this, "Result : " + res, Toast.LENGTH_LONG).show();
+                    Toast.makeText(UploadImage.this, "Result : " + finalRes, Toast.LENGTH_LONG).show();
                 }
             });
             //System.out.println("Response => " +  EntityUtils.toString(response.getEntity()));

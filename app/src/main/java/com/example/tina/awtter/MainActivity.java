@@ -2,7 +2,6 @@ package com.example.tina.awtter;
 
 import android.net.Uri;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
@@ -19,8 +18,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,43 +63,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
             setUpDrawer();
 
-
-        currentFragment = getSupportFragmentManager().findFragmentByTag(getString(R.string.home));
-
-        if (currentFragment == null) {
-
-            homeFragment = new HomeFragment();
-            favoritesFragment = new FavoritesFragment();
-            myPicturesFragment = new MyPicturesFragment();
-            settingsFragment = new SettingsFragment();
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content, settingsFragment, getString(R.string.settings))
-                    .hide(settingsFragment)
-                    .add(R.id.content, myPicturesFragment, getString(R.string.my_pictures))
-                    .hide(myPicturesFragment)
-                    .add(R.id.content, favoritesFragment, getString(R.string.favorite))
-                    .hide(favoritesFragment)
-                    .add(R.id.content, homeFragment, getString(R.string.home))
-                    .commit();
-            currentFragment = homeFragment;
-        } else {
-
-            homeFragment = (HomeFragment) currentFragment;
-            myPicturesFragment = (MyPicturesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.my_pictures));
-            favoritesFragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.favorite));
-            settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.settings));
-
-            getSupportFragmentManager().beginTransaction()
-                    .hide(settingsFragment)
-                    .hide(myPicturesFragment)
-                    .hide(favoritesFragment)
-                    .commit();
-
-        }
-        Intent intent = new Intent(this, UploadImage.class);
-        startActivity(intent);
-
+            setUpFragments();
     }
 
     @Override
@@ -144,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     }
 
 
-    public void setUpToolbar() {
+    private void setUpToolbar() {
         // Enable toolbar as action bar
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -158,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         }
     }
 
-    public void setUpDrawer() {
+    private void setUpDrawer() {
 
         // Set content view to actual content/FrameLayout ( for snackbar )
         content = findViewById(R.id.content);
@@ -221,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
     }
 
-    void switchTo (Fragment fragment, String name) {
+    private void switchTo (Fragment fragment, String name) {
         if (fragment.isVisible())
             return;
 
@@ -243,6 +204,43 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         // so that user can use the back button
         t.addToBackStack(null);
         t.commit();
+    }
+
+
+    private void setUpFragments() {
+        currentFragment = getSupportFragmentManager().findFragmentByTag(getString(R.string.home));
+
+        if (currentFragment == null) {
+
+            homeFragment = new HomeFragment();
+            favoritesFragment = new FavoritesFragment();
+            myPicturesFragment = new MyPicturesFragment();
+            settingsFragment = new SettingsFragment();
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content, settingsFragment, getString(R.string.settings))
+                    .hide(settingsFragment)
+                    .add(R.id.content, myPicturesFragment, getString(R.string.my_pictures))
+                    .hide(myPicturesFragment)
+                    .add(R.id.content, favoritesFragment, getString(R.string.favorite))
+                    .hide(favoritesFragment)
+                    .add(R.id.content, homeFragment, getString(R.string.home))
+                    .commit();
+            currentFragment = homeFragment;
+        } else {
+
+            homeFragment = (HomeFragment) currentFragment;
+            myPicturesFragment = (MyPicturesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.my_pictures));
+            favoritesFragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.favorite));
+            settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.settings));
+
+            getSupportFragmentManager().beginTransaction()
+                    .hide(settingsFragment)
+                    .hide(myPicturesFragment)
+                    .hide(favoritesFragment)
+                    .commit();
+
+        }
     }
 
     @Override

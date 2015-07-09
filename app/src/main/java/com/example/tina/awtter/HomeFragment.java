@@ -53,7 +53,7 @@ public class HomeFragment extends Fragment {
         //Loading image from below url into imageView
 
         Picasso.with(getActivity())
-                .load("http://76.244.35.83/images/tina.jpg")
+                .load("http://76.244.35.83/images/grapefruit")
                 .into(imageView);
         // Inflate the layout for this fragment
         return view;
