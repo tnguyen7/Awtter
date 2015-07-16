@@ -26,7 +26,7 @@
     android:id="@+id/hi">
 
     <ImageView
-        android:id="@+id/d"
+        android:id="@+id/drawerPicture"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="@dimen/spacing_large"
@@ -41,6 +41,7 @@
         android:layout_marginStart="@dimen/spacing_large"
         android:text="Username"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+
     <TextView
         android:id="@+id/email"
         android:layout_width="wrap_content"

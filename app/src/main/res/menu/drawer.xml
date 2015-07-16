@@ -8,7 +8,8 @@
             android:id="@+id/drawer_home"
             android:checked="true"
             android:icon="@drawable/ic_dashboard"
-            android:title="@string/home"/>
+            android:title="@string/home"
+            android:actionMenuTextColor="@color/accent"/>
 
         <item
             android:id="@+id/drawer_favourite"

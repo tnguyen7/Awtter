@@ -3,6 +3,7 @@
     package="com.example.tina.awtter" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +26,14 @@
         <activity
             android:name=".UploadImage"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".UseCamera"
+            android:label="@string/title_activity_use_camera" >
+        </activity>
+        <activity
+            android:name=".PickImage"
+            android:label="@string/title_activity_pick_image" >
         </activity>
     </application>
 
