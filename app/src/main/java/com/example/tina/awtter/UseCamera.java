@@ -57,7 +57,9 @@ public class UseCamera extends AppCompatActivity {
                 startActivity(intent);
 
             } else if (resultCode == RESULT_CANCELED) {
-                Toast.makeText(this, "User cancelled the image capture", Toast.LENGTH_LONG).show();
+                finish();
+                //for debugging:
+                //Toast.makeText(this, "User cancelled the image capture", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Image capture failed", Toast.LENGTH_LONG).show();
             }

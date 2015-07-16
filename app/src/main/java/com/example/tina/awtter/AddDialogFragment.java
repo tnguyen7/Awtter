@@ -3,6 +3,7 @@ package com.example.tina.awtter;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -20,16 +21,19 @@ public class AddDialogFragment extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position
                         // of the selected item
-                        switch(which) {
+                        switch (which) {
                             case 0:
+                                ((MainActivity)getActivity()).useCamera();
                                 return;
                             case 1:
+                                ((MainActivity)getActivity()).pickImage();
                                 return;
                         }
                     }
                 });
         return builder.create();
     }
+
 
 
 }
