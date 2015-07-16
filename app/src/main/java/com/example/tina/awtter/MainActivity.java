@@ -1,5 +1,6 @@
 package com.example.tina.awtter;
 
+import android.content.Context;
 import android.net.Uri;
 import android.content.Intent;
 import android.os.Environment;
@@ -17,6 +18,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
 import java.io.File;
 
 import org.json.JSONException;
@@ -28,6 +33,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener, MyPicturesFragment.OnFragmentInteractionListener,
@@ -42,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     FavoritesFragment favoritesFragment;
     MyPicturesFragment myPicturesFragment;
     SettingsFragment settingsFragment;
+    AddDialogFragment addFragment;
 
     Fragment currentFragment;
 
@@ -64,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             setUpDrawer();
 
             setUpFragments();
+
+
     }
 
     @Override
@@ -88,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             }
             case (R.id.action_add): {
                  // TODO
-               useCamera();
+                addFragment.show(getSupportFragmentManager(), "Add a Picture");
                 return true;
 
             }
@@ -163,6 +174,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                         switchTo(settingsFragment, title);
                         break;
 
+
                     }
 
                 }
@@ -216,6 +228,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             favoritesFragment = new FavoritesFragment();
             myPicturesFragment = new MyPicturesFragment();
             settingsFragment = new SettingsFragment();
+            addFragment = new AddDialogFragment();
+
 
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.content, settingsFragment, getString(R.string.settings))
