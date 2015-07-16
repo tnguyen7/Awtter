@@ -83,19 +83,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             }
             case (R.id.action_add): {
                 //TODO: move this to dialogfragment
-                useCamera();
                 addFragment.show(getSupportFragmentManager(), "Add a Picture");
-
                 return true;
-
             }
             case (R.id.action_settings): {
-                //TODO: move this to dialogfragment
-                Intent intentPickImage = new Intent(this, PickImage.class);
-                startActivity(intentPickImage);
-                // TODO
-                //   openAdd();
-
 
                 // If settings was selected, ...
             }
@@ -259,11 +250,16 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
     }*/
 
-    private boolean useCamera() {
+    public boolean useCamera() {
 
         Intent intentCamera = new Intent(this, UseCamera.class);
         startActivity(intentCamera);
+        return true;
+    }
 
+    public boolean pickImage() {
+        Intent intentPickImage = new Intent(this, PickImage.class);
+        startActivity(intentPickImage);
         return true;
     }
 
