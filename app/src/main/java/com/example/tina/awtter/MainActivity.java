@@ -15,10 +15,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     FavoritesFragment favoritesFragment;
     MyPicturesFragment myPicturesFragment;
     SettingsFragment settingsFragment;
+    AddDialogFragment addFragment;
 
     Fragment currentFragment;
 
@@ -58,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             setUpDrawer();
 
             setUpFragments();
+
+
     }
 
     @Override
@@ -81,13 +82,15 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 return true;
             }
             case (R.id.action_add): {
-                 // TODO
+                //TODO: move this to dialogfragment
+                useCamera();
+                addFragment.show(getSupportFragmentManager(), "Add a Picture");
 
-               useCamera();
                 return true;
 
             }
             case (R.id.action_settings): {
+                //TODO: move this to dialogfragment
                 Intent intentPickImage = new Intent(this, PickImage.class);
                 startActivity(intentPickImage);
                 // TODO
@@ -160,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                         switchTo(settingsFragment, title);
                         break;
 
+
                     }
 
                 }
@@ -213,6 +217,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             favoritesFragment = new FavoritesFragment();
             myPicturesFragment = new MyPicturesFragment();
             settingsFragment = new SettingsFragment();
+            addFragment = new AddDialogFragment();
+
 
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.content, settingsFragment, getString(R.string.settings))
@@ -260,8 +266,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         return true;
     }
-
-
 
 }
 

@@ -32,10 +32,14 @@
         app:itemTextColor="@drawable/background_selector"
         app:itemIconTint="@drawable/background_selector"
         android:id="@+id/navigation_view"
+        app:itemTextColor="@color/primary_dark"
+        app:itemIconTint="@color/primary"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/drawer_header"
         app:menu="@menu/drawer"/>
+
+
 </android.support.v4.widget.DrawerLayout>

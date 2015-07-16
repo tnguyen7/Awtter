@@ -12,19 +12,9 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-
-<!--
-
-    <color name="primary">#7e57c2</color>
-    <color name="primary_dark">#673ab7</color>
-    <color name="accent">#2196f3</color>
-    <color name="accent_translucent">#bbdefb</color>
-    <color name="accent_bright">#2196f3</color>-->
-
-    <color name="primary">#7e57c2</color>
-    <color name="primary_dark">#673ab7</color>
-    <color name="accent">#2196f3</color>
-    <color name="accent_translucent">#bbdefb</color>
-    <color name="accent_bright">#2196f3</color>
-
+    <color name="primary">#C5CAE9</color>
+    <color name="primary_dark">#7986CB</color>
+    <color name="accent">#FF8A80</color>
+    <color name="accent_translucent">#E0E0E0</color>
+    <color name="accent_bright">#FFCDD2</color>
 </resources>
