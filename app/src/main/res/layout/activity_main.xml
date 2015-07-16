@@ -29,8 +29,6 @@
     </LinearLayout>
 
     <android.support.design.widget.NavigationView
-        app:itemTextColor="@drawable/background_selector"
-        app:itemIconTint="@drawable/background_selector"
         android:id="@+id/navigation_view"
         app:itemTextColor="@color/primary_dark"
         app:itemIconTint="@color/primary"

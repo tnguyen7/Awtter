@@ -30,7 +30,5 @@ public class AddDialogFragment extends DialogFragment {
                 });
         return builder.create();
     }
-
-
 }
 
