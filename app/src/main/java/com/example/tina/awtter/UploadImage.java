@@ -23,29 +23,31 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
 public class UploadImage extends Activity {
     InputStream inputStream;
     Bitmap bitmap, rotatedBitmap;
+    int bitmapWidth, bitmapHeight;
+    double scale;
 
     @SuppressWarnings( "deprecation" )
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-
-
         Intent intent = getIntent();
         Uri uri = intent.getParcelableExtra("imageUri");
+
         try {
             if (bitmap != null) {
                 bitmap.recycle();
             }
             InputStream stream = getContentResolver().openInputStream(
                     uri);
-            BitmapFactory.Options options = new BitmapFactory.Options(); options.inPurgeable = true;
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPurgeable = true;
             bitmap = BitmapFactory.decodeStream(stream);
             stream.close();
         } catch (FileNotFoundException e) {
@@ -54,22 +56,62 @@ public class UploadImage extends Activity {
             e.printStackTrace();
         }
 
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int height = displaymetrics.heightPixels;
+        int width = displaymetrics.widthPixels;
+        Log.v("SCALE", "HEIGHT = " + height);
+        Log.v("SCALE", "WIDTH = " + width);
 
-        //Correct orientation
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(uri.getPath());
-        } catch (IOException e) {
-            e.printStackTrace();
+        // Get the correct orientaiton uploaded
+        String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
+        Cursor cur = managedQuery(uri, orientationColumn, null, null, null);
+        int orientation = -1;
+        if (cur != null && cur.moveToFirst()) {
+            orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
         }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(orientation);
 
-        int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_UNDEFINED);
-        Log.v("HI", "ORIENTATION = " + orientation);
-        rotatedBitmap = rotateBitmap(bitmap, orientation);
+        Log.v("SCALE", "ORIENTATION = " + orientation);
+
+
+        bitmapHeight = bitmap.getHeight();
+        bitmapWidth  = bitmap.getWidth();
+        Log.v("SCALE", "BITMAPHEIGHT = " + bitmapHeight);
+        Log.v("SCALE", "BITMAPWIDTH = " + bitmapWidth);
+
+        if (orientation == 90 || orientation == 270) {
+            //actually landscape
+            if (bitmapHeight > bitmapWidth) {
+                scale = ((double) width)/bitmapWidth;
+
+                Log.v("SCALE", "SCALE = " + scale);
+                bitmap = Bitmap.createScaledBitmap(bitmap, width, (int) (scale * bitmapHeight), true);
+            } else {
+                scale = ((double) height)/bitmapHeight;
+
+                Log.v("SCALE", "SCALE = " + scale);
+                bitmap = Bitmap.createScaledBitmap(bitmap, (int) (scale * bitmapWidth), height, true);
+            }
+        } else {
+            if (bitmapHeight < bitmapWidth) {
+                scale = ((double) width)/bitmapWidth;
+
+                Log.v("SCALE", "SCALE = " + scale);
+                bitmap = Bitmap.createScaledBitmap(bitmap, width, (int) (scale * bitmapHeight), true);
+            } else {
+                scale = ((double) height)/bitmapHeight;
+
+                Log.v("SCALE", "SCALE = " + scale);
+                bitmap = Bitmap.createScaledBitmap(bitmap, (int) (scale * bitmapWidth), height, true);
+            }
+        }
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream); //compress to which format you want.
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream); //compress to which format you want.
         byte [] byte_arr = stream.toByteArray();
         String image_str = Base64.encodeBytes(byte_arr);
         final ArrayList<NameValuePair> nameValuePairs = new  ArrayList<NameValuePair>();
@@ -163,50 +205,5 @@ public class UploadImage extends Activity {
         }
         return res;
     }
-
-    public static Bitmap rotateBitmap(Bitmap bitmap, int orientation) {
-
-        Matrix matrix = new Matrix();
-        switch (orientation) {
-            case ExifInterface.ORIENTATION_NORMAL:
-                return bitmap;
-            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
-                matrix.setScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_180:
-                matrix.setRotate(180);
-                break;
-            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
-                matrix.setRotate(180);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_TRANSPOSE:
-                matrix.setRotate(90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_90:
-                matrix.setRotate(90);
-                break;
-            case ExifInterface.ORIENTATION_TRANSVERSE:
-                matrix.setRotate(-90);
-                matrix.postScale(-1, 1);
-                break;
-            case ExifInterface.ORIENTATION_ROTATE_270:
-                matrix.setRotate(-90);
-                break;
-            default:
-                return bitmap;
-        }
-        try {
-            Bitmap bmRotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-            bitmap.recycle();
-            return bmRotated;
-        }
-        catch (OutOfMemoryError e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 
 }

@@ -1,7 +1,9 @@
 package com.example.tina.awtter;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -40,6 +42,7 @@ public class UseCamera extends AppCompatActivity {
 
     }
 
+    @SuppressWarnings( "deprecation" )
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Bitmap bitmap = null;
@@ -49,6 +52,9 @@ public class UseCamera extends AppCompatActivity {
                 Toast.makeText(this, "Image saved to:\n" +
                         fileUri, Toast.LENGTH_LONG).show();
                 finish();
+
+
+
 
                 Uri uri = data.getData();
 
