@@ -7,12 +7,14 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
@@ -48,9 +50,10 @@ public class UseCamera extends AppCompatActivity {
         Bitmap bitmap = null;
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                View view = findViewById(android.R.id.content);
                 // Image captured and saved to fileUri specified in the Intent
-                Toast.makeText(this, "Image saved to:\n" +
-                        fileUri, Toast.LENGTH_LONG).show();
+                Snackbar.make(view, "Image saved to:\n" +
+                        fileUri, Snackbar.LENGTH_LONG).show();
                 finish();
 
 
@@ -67,7 +70,8 @@ public class UseCamera extends AppCompatActivity {
                 //for debugging:
                 //Toast.makeText(this, "User cancelled the image capture", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "Image capture failed", Toast.LENGTH_LONG).show();
+                View view = findViewById(android.R.id.content);
+                Snackbar.make(view, "Image capture failed", Snackbar.LENGTH_LONG).show();
             }
 
 
