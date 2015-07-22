@@ -38,11 +38,10 @@ public class PickImage extends AppCompatActivity {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
 
-            Intent intent = new Intent(this, UploadImage.class);
-            intent.putExtra("imageUri", uri);
-            startActivity(intent);
+            new UploadImage(this, uri).execute();
 
         }
+        finish();
         super.onActivityResult(requestCode, resultCode, data);
     }
     @Override

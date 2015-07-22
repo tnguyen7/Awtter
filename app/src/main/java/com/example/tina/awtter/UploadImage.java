@@ -21,30 +21,37 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
-public class UploadImage extends Activity {
+import static com.google.android.gms.internal.zzhl.runOnUiThread;
+
+public class UploadImage extends AsyncTask<String, String, String> {
     InputStream inputStream;
     Bitmap bitmap, rotatedBitmap;
     int bitmapWidth, bitmapHeight;
     double scale;
+    Uri uri;
+    Context context;
+
+    public UploadImage (Context context, Uri imageUri) {
+        this.context = context;
+        this.uri = imageUri;
+    }
 
     @SuppressWarnings( "deprecation" )
     @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-        Intent intent = getIntent();
-        Uri uri = intent.getParcelableExtra("imageUri");
+    protected String doInBackground(String... args) {
 
         try {
             if (bitmap != null) {
                 bitmap.recycle();
             }
-            InputStream stream = getContentResolver().openInputStream(
+            InputStream stream = context.getContentResolver().openInputStream(
                     uri);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPurgeable = true;
@@ -57,7 +64,7 @@ public class UploadImage extends Activity {
         }
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         int height = displaymetrics.heightPixels;
         int width = displaymetrics.widthPixels;
         Log.v("SCALE", "HEIGHT = " + height);
@@ -65,7 +72,7 @@ public class UploadImage extends Activity {
 
         // Get the correct orientaiton uploaded
         String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
-        Cursor cur = managedQuery(uri, orientationColumn, null, null, null);
+        Cursor cur = ((Activity)context).managedQuery(uri, orientationColumn, null, null, null);
         int orientation = -1;
         if (cur != null && cur.moveToFirst()) {
             orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
@@ -117,7 +124,7 @@ public class UploadImage extends Activity {
         final ArrayList<NameValuePair> nameValuePairs = new  ArrayList<NameValuePair>();
 
 
-        nameValuePairs.add(new BasicNameValuePair("image",image_str));
+        nameValuePairs.add(new BasicNameValuePair("image", image_str));
 
         Thread t = new Thread(new Runnable() {
 
@@ -133,7 +140,7 @@ public class UploadImage extends Activity {
 
                         @Override
                         public void run() {
-                            Toast.makeText(UploadImage.this, "Response : " + the_string_response, Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "Response : " + the_string_response, Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -142,7 +149,7 @@ public class UploadImage extends Activity {
 
                         @Override
                         public void run() {
-                            Toast.makeText(UploadImage.this, "ERROR " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "ERROR " + e.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
                     System.out.println("Error in http connection "+e.toString());
@@ -150,6 +157,8 @@ public class UploadImage extends Activity {
             }
         });
         t.start();
+
+        return null;
     }
 
     @SuppressWarnings( "deprecation" )
@@ -163,7 +172,7 @@ public class UploadImage extends Activity {
 
             @Override
             public void run() {
-                Toast.makeText(UploadImage.this, "contentLength : " + contentLength, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, "contentLength : " + contentLength, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -198,7 +207,7 @@ public class UploadImage extends Activity {
 
                 @Override
                 public void run() {
-                    Toast.makeText(UploadImage.this, "Result : " + finalRes, Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Result : " + finalRes, Toast.LENGTH_LONG).show();
                 }
             });
             //System.out.println("Response => " +  EntityUtils.toString(response.getEntity()));

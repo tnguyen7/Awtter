@@ -54,19 +54,13 @@ public class UseCamera extends AppCompatActivity {
                 // Image captured and saved to fileUri specified in the Intent
                 Snackbar.make(view, "Image saved to:\n" +
                         fileUri, Snackbar.LENGTH_LONG).show();
-                finish();
-
-
-
 
                 Uri uri = data.getData();
 
-                Intent intent = new Intent(this, UploadImage.class);
-                intent.putExtra("imageUri", uri);
-                startActivity(intent);
+                new UploadImage(this, uri).execute();
+
 
             } else if (resultCode == RESULT_CANCELED) {
-                finish();
                 //for debugging:
                 //Toast.makeText(this, "User cancelled the image capture", Toast.LENGTH_LONG).show();
             } else {
@@ -89,6 +83,8 @@ public class UseCamera extends AppCompatActivity {
                 // Video capture failed, advise user
             }
         } **/
+
+        finish();
     }
 
 

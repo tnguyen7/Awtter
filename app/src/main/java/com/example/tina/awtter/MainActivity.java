@@ -11,18 +11,9 @@ import android.support.v7.app.ActionBar;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener, MyPicturesFragment.OnFragmentInteractionListener,
@@ -44,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     String title;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             setUpDrawer();
 
             setUpFragments();
-
 
     }
 
@@ -263,49 +251,4 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         return true;
     }
 
-}
-
-class JSONfunctions {
-
-    public static JSONObject getJSONfromURL(String url) {
-        HttpURLConnection conn = null;
-        String result = "";
-        JSONObject jArray = null;
-        InputStream is = null;
-
-        try {
-            conn = (HttpURLConnection) new URL("http://sql3.freemysqlhosting.net").openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            is = conn.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Convert response to string
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "iso-8859-1"), 8);
-            StringBuilder sb = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            is.close();
-            result = sb.toString();
-        } catch (Exception e) {
-            Log.e("log_tag", "Error converting result " + e.toString());
-        }
-
-        try {
-
-            jArray = new JSONObject(result);
-        } catch (JSONException e) {
-            Log.e("log_tag", "Error parsing data " + e.toString());
-        }
-
-        return jArray;
-    }
 }
