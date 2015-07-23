@@ -327,7 +327,57 @@ public class HomeFragment extends Fragment {
 
 
     }
+    class LoadPics extends AsyncTask<String, String, String> {
 
+        @Override
+        protected String doInBackground(String... params) {
+            animals = new ArrayList<>();
+            String id;
+            Bitmap bitmap;
+            int imageHeight, imageWidth;
+            String src;
+            porOrLan = new ArrayList<ArrayList<Object>>();
+
+            for (int index = 0; index < threeAnimals.size(); index++) {
+                id = threeAnimals.get(index).get(TAG_ID);
+                Log.v("wassup", "" + id);
+                src = url + id;
+
+                try {
+
+                    //TODO: Move this to async task eventually
+                    URL url = new URL(src);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    bitmap = BitmapFactory.decodeStream(input);
+
+                    imageHeight = bitmap.getHeight();
+                    imageWidth = bitmap.getWidth();
+                    boolean isPortrait = false;
+
+                    if(imageHeight > imageWidth) {
+                        isPortrait = true;
+                    }
+
+                    ArrayList<Object> toAdd = new ArrayList<Object>();
+                    toAdd.set(0,isPortrait);
+                    toAdd.set(1, bitmap);
+                    porOrLan.add(toAdd);
+
+                } catch (IOException e) {
+                    // Log exception
+                }
+
+            }
+
+            reorganize();
+
+
+            return null;
+        }
+    }
     /**
      * Background Async Task to Load all product by making HTTP Request
      * */
@@ -351,7 +401,7 @@ public class HomeFragment extends Fragment {
 
         /**
          * Before starting background thread Show Progress Dialog
-         * */
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -359,8 +409,8 @@ public class HomeFragment extends Fragment {
 
         /**
          * getting All products from url
-         * */
-        @SuppressWarnings( "deprecation" )
+         */
+        @SuppressWarnings("deprecation")
         protected String doInBackground(String... args) {
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -414,12 +464,55 @@ public class HomeFragment extends Fragment {
                 e.printStackTrace();
             }
 
+            final RVAdapter adapter = new RVAdapter(animals, context, glm);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rv.setAdapter(adapter);
+                    SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+                    rv.addItemDecoration(spaces);
+
+
+                    rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                        @Override
+                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                            visibleItemCount = glm.getChildCount();
+                            totalItemCount = glm.getItemCount();
+                            pastVisiblesItems = glm.findFirstVisibleItemPosition();
+
+                            if (loading) {
+                                if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                                    loading = false;
+                                    Log.v("...", "Last Item Wow !");
+                                }
+                            }
+                        }
+                    });
+
+
+                    rv.addOnItemTouchListener( // and the click is handled
+                            new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(View view, int position) {
+                                    // STUB:
+                                    // The click on the item must be handled
+                                    Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
+
+                                }
+                            }));
+
+                }
+            });
+
+
             return null;
         }
 
         /**
          * After completing background task Dismiss the progress dialog
-         * **/
+         * *
+         */
         protected void onPostExecute(String file_url) {
 
             threeAnimals = new ArrayList<HashMap<String, String>>();
@@ -433,42 +526,9 @@ public class HomeFragment extends Fragment {
             threeAnimals.add(animal2);
             threeAnimals.add(animal3);
 
-            initializeData();
 
-            RVAdapter adapter = new RVAdapter(animals, context, glm);
-            rv.setAdapter(adapter);
-            SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-            rv.addItemDecoration(spaces);
+            new LoadPics().execute();
 
-
-            rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-                    visibleItemCount = glm.getChildCount();
-                    totalItemCount = glm.getItemCount();
-                    pastVisiblesItems = glm.findFirstVisibleItemPosition();
-
-                    if (loading) {
-                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                            loading = false;
-                            Log.v("...", "Last Item Wow !");
-                        }
-                    }
-                }
-            });
-
-
-            rv.addOnItemTouchListener( // and the click is handled
-                    new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            // STUB:
-                            // The click on the item must be handled
-                            Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-
-                        }
-                    }));
 
         }
 
