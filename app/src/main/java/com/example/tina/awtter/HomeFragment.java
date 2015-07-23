@@ -79,6 +79,8 @@ public class HomeFragment extends Fragment {
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
     ArrayList<HashMap<String, String>> threeAnimals;
+    RecyclerView rv;
+    GridLayoutManager glm;
 
 
     // JSON Node names
@@ -117,11 +119,10 @@ public class HomeFragment extends Fragment {
         height = displaymetrics.heightPixels;
         width = displaymetrics.widthPixels;
 
-        initializeData();
 
-        RecyclerView rv = (RecyclerView) view.findViewById(R.id.rv);
+        rv = (RecyclerView) view.findViewById(R.id.rv);
 
-        final GridLayoutManager glm = new GridLayoutManager(context, 3);
+        glm = new GridLayoutManager(context, 3);
         rv.setLayoutManager(glm);
 
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -141,39 +142,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        RVAdapter adapter = new RVAdapter(animals, context, glm);
-        rv.setAdapter(adapter);
-        SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-        rv.addItemDecoration(spaces);
 
-
-        rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-                visibleItemCount = glm.getChildCount();
-                totalItemCount = glm.getItemCount();
-                pastVisiblesItems = glm.findFirstVisibleItemPosition();
-
-                if (loading) {
-                    if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                        loading = false;
-                        Log.v("...", "Last Item Wow !");
-                    }
-                }
-            }
-        });
-
-
-        rv.addOnItemTouchListener( // and the click is handled
-                new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
-                        // STUB:
-                        // The click on the item must be handled
-                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-
-                    }
-                }));
 
 
         // Inflate the layout for this fragment
@@ -230,7 +199,7 @@ public class HomeFragment extends Fragment {
 
         for (int index = 0; index < threeAnimals.size(); index++) {
             id = threeAnimals.get(index).get(TAG_ID);
-
+            Log.v("wassup", "" + id);
             src = url + id;
 
             try {
@@ -378,7 +347,7 @@ public class HomeFragment extends Fragment {
         private HashMap<String, String> map;
 
         // products JSONArray
-        JSONArray animals = null;
+        JSONArray animals_all = null;
 
         /**
          * Before starting background thread Show Progress Dialog
@@ -401,8 +370,6 @@ public class HomeFragment extends Fragment {
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url_all_products, "GET", params);
 
-
-
             // Check your log cat for JSON response
             Log.d("All Products: ", json.toString());
 
@@ -418,11 +385,11 @@ public class HomeFragment extends Fragment {
                 if (success == 1) {
                     // products found
                     // Getting Array of Animals
-                    animals = json.getJSONArray(TAG_ANIMALS);
+                    animals_all = json.getJSONArray(TAG_ANIMALS);
 
                     // looping through All Panimals
-                    for (int i = 0; i < animals.length(); i++) {
-                        JSONObject c = animals.getJSONObject(i);
+                    for (int i = 0; i < animals_all.length(); i++) {
+                        JSONObject c = animals_all.getJSONObject(i);
 
                         // Storing each json item in variable
                         String id = c.getString(TAG_ID);
@@ -465,6 +432,43 @@ public class HomeFragment extends Fragment {
             threeAnimals.add(animal1);
             threeAnimals.add(animal2);
             threeAnimals.add(animal3);
+
+            initializeData();
+
+            RVAdapter adapter = new RVAdapter(animals, context, glm);
+            rv.setAdapter(adapter);
+            SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+            rv.addItemDecoration(spaces);
+
+
+            rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                    visibleItemCount = glm.getChildCount();
+                    totalItemCount = glm.getItemCount();
+                    pastVisiblesItems = glm.findFirstVisibleItemPosition();
+
+                    if (loading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            loading = false;
+                            Log.v("...", "Last Item Wow !");
+                        }
+                    }
+                }
+            });
+
+
+            rv.addOnItemTouchListener( // and the click is handled
+                    new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            // STUB:
+                            // The click on the item must be handled
+                            Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
+
+                        }
+                    }));
 
         }
 
