@@ -252,7 +252,8 @@ public class HomeFragment extends Fragment {
                 if(imageHeight > imageWidth) {
                     isPortrait = true;
                 }
-                porOrLan[index] = isPortrait;
+
+                porOrLan.put(isPortrait, bitmap);
 
             } catch (IOException e) {
                 // Log exception
@@ -268,7 +269,7 @@ public class HomeFragment extends Fragment {
         animals = new ArrayList<Animal>();
         boolean firstRow = false;
 
-        if(porOrLan[0] == true && porOrLan[1] == true && porOrLan[2] == true) {
+        if(porOrLan.get(0, 0) == true && porOrLan[1] == true && porOrLan[2] == true) {
             // PPP
             Log.v("HERE", "P,P,P");
             Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
