@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
@@ -154,6 +155,8 @@ public class HomeFragment extends Fragment {
         // url to get all products list
         private String url_all_products = "http://76.244.35.83/get_animals.php";
 
+        private HashMap<String, String> map;
+
         // JSON Node names
         private static final String TAG_SUCCESS = "success";
         private static final String TAG_FILTER = "filter";
@@ -216,7 +219,7 @@ public class HomeFragment extends Fragment {
                         String date = c.getString(TAG_CREATEDAT);
 
                         // creating new HashMap
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        map = new HashMap<String, String>();
 
                         // adding each child node to HashMap key => value
                         map.put(TAG_ID, id);
@@ -241,6 +244,19 @@ public class HomeFragment extends Fragment {
          * **/
         protected void onPostExecute(String file_url) {
 
+            ArrayList<HashMap<String, String>> threeAnimals = new ArrayList<HashMap<String, String>>();
+            HashMap<String, String> animal1 = animalsList.get(0);
+            HashMap<String, String> animal2 = animalsList.get(1);
+            HashMap<String, String> animal3 = animalsList.get(2);
+
+            threeAnimals.add(animal1);
+            threeAnimals.add(animal2);
+            threeAnimals.add(animal3);
+
+            Intent intent = new Intent (context, RecyclerMainActivity.class);
+            intent.putExtra("3 animals", threeAnimals);
+            startActivity(intent);
+
             // updating UI from Background Thread
             runOnUiThread(new Runnable() {
                 public void run() {
@@ -249,13 +265,15 @@ public class HomeFragment extends Fragment {
                      * */
                     ListAdapter adapter = new SimpleAdapter(
                             context, animalsList,
-                            R.layout.list_item, new String[] { TAG_ID,
+                            R.layout.list_item, new String[]{TAG_ID,
                             TAG_UPAWS, TAG_CREATEDAT},
-                            new int[] { R.id.id, R.id.upAws, R.id.createdAt });
+                            new int[]{R.id.id, R.id.upAws, R.id.createdAt});
                     // updating listview
                     lv.setAdapter(adapter);
                 }
             });
+
+
 
         }
 
