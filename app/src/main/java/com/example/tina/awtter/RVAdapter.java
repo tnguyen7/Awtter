@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -88,7 +87,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     @Override
     public AnimalViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) { //specifying layout of eachu
 
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
         AnimalViewHolder pvh = new AnimalViewHolder(v);
         return pvh;
     }
@@ -101,43 +100,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         animalViewHolder.photo.requestLayout();
 
-        switch (sizeOrient) {
-            case 1:
-
-                animalViewHolder.photo.getLayoutParams().height = portraitHeight;
-                animalViewHolder.photo.getLayoutParams().width = portraitWidth;
-
-                Picasso.with(context)
-                        .load(R.drawable.cuteturtle)
-                        .resize(portraitWidth, portraitHeight)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
-                break;
-
-            case 2:
-
-                animalViewHolder.photo.getLayoutParams().height = landscape1Height;
-                animalViewHolder.photo.getLayoutParams().width = landscape1Width;
-
-                Picasso.with(context)
-                        .load(R.drawable.kappa)
-                        .resize(landscape1Width, landscape1Height)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
-                break;
-
-            case 3:
-                animalViewHolder.photo.getLayoutParams().height = landscape2Height;
-                animalViewHolder.photo.getLayoutParams().width = landscape2Width;
-
-                Picasso.with(context)
-                        .load(R.drawable.richelle)
-                        .resize(landscape2Width, landscape2Height)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
-                break;
-
-        }
+        animalViewHolder.photo.setImageBitmap(animals.get(0).image);
     }
 
     @Override
