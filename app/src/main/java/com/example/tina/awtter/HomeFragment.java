@@ -73,8 +73,7 @@ public class HomeFragment extends Fragment {
 
     List<Animal> animals;
     Animal[] posts = new Animal[3];
-    HashMap<Boolean, Bitmap> porOrLan = new HashMap<Boolean, Bitmap>();
-
+    ArrayList<ArrayList<Object>> porOrLan;
     public int height;
     public int width;
     private boolean loading = true;
@@ -230,8 +229,10 @@ public class HomeFragment extends Fragment {
         Bitmap bitmap;
         int imageHeight, imageWidth;
         String src;
+        porOrLan = new ArrayList<ArrayList<Object>>();
+
         for (int index = 0; index < threeAnimals.size(); index++) {
-            id = threeAnimals.get(0).get(TAG_ID);
+            id = threeAnimals.get(index).get(TAG_ID);
 
             src = url + id;
 
@@ -253,7 +254,10 @@ public class HomeFragment extends Fragment {
                     isPortrait = true;
                 }
 
-                porOrLan.put(isPortrait, bitmap);
+                ArrayList<Object> toAdd = new ArrayList<Object>();
+                toAdd.set(0,isPortrait);
+                toAdd.set(1, bitmap);
+                porOrLan.add(toAdd);
 
             } catch (IOException e) {
                 // Log exception
@@ -269,97 +273,90 @@ public class HomeFragment extends Fragment {
         animals = new ArrayList<Animal>();
         boolean firstRow = false;
 
-        if(porOrLan.get(0, 0) == true && porOrLan[1] == true && porOrLan[2] == true) {
+        if((boolean)(porOrLan.get(0).get(0)) == true && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == true) {
             // PPP
             Log.v("HERE", "P,P,P");
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, false, true));
-            ///////////////////
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, true, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, true, false));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, false));
 
 
-        } else if(porOrLan[0] == true && porOrLan[1] == true && porOrLan[2] == false) {
+        } else if(porOrLan.get(0).get(0) == true && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "P1L,P2");
             //P1 L
             //P2
-        } else if(porOrLan[0] == true && porOrLan[1] == false && porOrLan[2] == false) {
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 2, true, true, true));
+
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 3, false, false, true));
+
+        } else if(porOrLan.get(0).get(0) == true && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "PL,L");
             //PL
             //L
 
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, true, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
 
-
-        } else if(porOrLan[0] == true && porOrLan[1] == false && porOrLan[2] == true) {
+        } else if(porOrLan.get(0).get(0) == true && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == true) {
             Log.v("HERE", "PL,P3");
             // PL
             // P3
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, true, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
 
-
-        } else if(porOrLan[0] == false && porOrLan[1] == false && porOrLan[2] == false) {
+        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "L,L,L");
             //L
             //L
             //L
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, true, true));
+            animals.add(new Animal((Bitmap) (porOrLan.get(0).get(1)), 1, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, false, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, false, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
 
-
-        } else if(porOrLan[0] == false && porOrLan[1] == false && porOrLan[2] == true) {
+        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == true) {
             Log.v("HERE", "L,LP");
             //L
             //LP
 
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, false, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, false, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
 
-
-        } else if(porOrLan[0] == false && porOrLan[1] == true && porOrLan[2] == false) {
+        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "LP,L");
             //LP
             //L
 
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, true, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
 
-
-        } else if(porOrLan[0] == false && porOrLan[1] == true && porOrLan[2] == true) {
+        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == true) {
             Log.v("HERE", "LP,P3");
             //LP
             //P3
 
-            Bitmap icon = BitmapFactory.decodeResource(this.getResources(), R.drawable.cuteturtle);
-            animals.add(new Animal(icon, 1, true, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.kappa), 2, true, true, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
 
-            animals.add(new Animal(BitmapFactory.decodeResource(this.getResources(), R.drawable.richelle), 3, false, false, true));
+            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
         }
 
 
