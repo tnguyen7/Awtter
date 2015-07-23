@@ -13,6 +13,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 /**
@@ -33,6 +35,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
     int portraitWidth, portraitHeight, landscape1Width, landscape1Height, landscape2Width, landscape2Height;
     double portraitScale = 1.3333333333333333;
+    private static final String url = "http://76.244.35.83/media/";
 
     GridLayoutManager glm;
 
@@ -100,7 +103,39 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         animalViewHolder.photo.requestLayout();
 
-        animalViewHolder.photo.setImageBitmap(animals.get(0).image);
+        switch (sizeOrient) {
+            case 1:
+                animalViewHolder.photo.getLayoutParams().height = portraitHeight;
+                animalViewHolder.photo.getLayoutParams().width = portraitWidth;
+
+                Picasso.with(context)
+                        .load(url+String.valueOf(animals.get(i).id))
+                        .resize(portraitWidth, portraitHeight)
+                        .centerCrop()
+                        .into(animalViewHolder.photo);
+                break;
+
+            case 2:
+                animalViewHolder.photo.getLayoutParams().height = landscape1Height;
+                animalViewHolder.photo.getLayoutParams().width = landscape1Width;
+
+                Picasso.with(context)
+                        .load(url+String.valueOf(animals.get(i).id))
+                        .resize(landscape1Width, landscape1Height)
+                        .centerCrop()
+                        .into(animalViewHolder.photo);
+                break;
+            case 3:
+                animalViewHolder.photo.getLayoutParams().height = landscape2Height;
+                animalViewHolder.photo.getLayoutParams().width = landscape2Width;
+
+                Picasso.with(context)
+                        .load(url+String.valueOf(animals.get(i).id))
+                        .resize(landscape2Width, landscape2Height)
+                        .centerCrop()
+                        .into(animalViewHolder.photo);
+                break;
+        }
     }
 
     @Override

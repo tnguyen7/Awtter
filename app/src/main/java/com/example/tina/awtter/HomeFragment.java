@@ -45,7 +45,6 @@ import java.util.Map;
 
 import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -110,6 +109,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.recycler, container, false);
 
+        // Holds results from database
         animalsList = new ArrayList<HashMap<String, String>>();
 
         new LoadAnimals().execute();
@@ -142,8 +142,34 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+                visibleItemCount = glm.getChildCount();
+                totalItemCount = glm.getItemCount();
+                pastVisiblesItems = glm.findFirstVisibleItemPosition();
+
+                if (loading) {
+                    if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                        loading = false;
+                        Log.v("...", "Last Item Wow !");
+                    }
+                }
+            }
+        });
 
 
+        rv.addOnItemTouchListener( // and the click is handled
+                new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        // STUB:
+                        // The click on the item must be handled
+                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
+
+                    }
+                }));
 
         // Inflate the layout for this fragment
         return view;
@@ -188,198 +214,10 @@ public class HomeFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    // This method creates an ArrayList that has three Animal objects
-    private void initializeData() {
-        this.animals = new ArrayList<>();
-        String id;
-        Bitmap bitmap;
-        int imageHeight, imageWidth;
-        String src;
-        porOrLan = new ArrayList<ArrayList<Object>>();
+    /**********************************************************************************************/
 
-        for (int index = 0; index < threeAnimals.size(); index++) {
-            id = threeAnimals.get(index).get(TAG_ID);
-            Log.v("wassup", "" + id);
-            src = url + id;
-
-            try {
-
-                //TODO: Move this to async task eventually
-                URL url = new URL(src);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setDoInput(true);
-                connection.connect();
-                InputStream input = connection.getInputStream();
-                bitmap = BitmapFactory.decodeStream(input);
-
-                imageHeight = bitmap.getHeight();
-                imageWidth = bitmap.getWidth();
-                boolean isPortrait = false;
-
-                if(imageHeight > imageWidth) {
-                    isPortrait = true;
-                }
-
-                ArrayList<Object> toAdd = new ArrayList<Object>();
-                toAdd.set(0,isPortrait);
-                toAdd.set(1, bitmap);
-                porOrLan.add(toAdd);
-
-            } catch (IOException e) {
-                // Log exception
-            }
-
-        }
-
-        reorganize();
-
-    }
-
-    private void reorganize() {
-        animals = new ArrayList<Animal>();
-        boolean firstRow = false;
-
-        if((boolean)(porOrLan.get(0).get(0)) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
-            // PPP
-            Log.v("HERE", "P,P,P");
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, false));
-
-
-        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "P1L,P2");
-            //P1 L
-            //P2
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 2, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 3, false, false, true));
-
-        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "PL,L");
-            //PL
-            //L
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
-
-        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
-            Log.v("HERE", "PL,P3");
-            // PL
-            // P3
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
-
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "L,L,L");
-            //L
-            //L
-            //L
-            animals.add(new Animal((Bitmap) (porOrLan.get(0).get(1)), 1, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, false, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
-
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
-            Log.v("HERE", "L,LP");
-            //L
-            //LP
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, false, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
-
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "LP,L");
-            //LP
-            //L
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
-
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
-            Log.v("HERE", "LP,P3");
-            //LP
-            //P3
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
-
-            animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
-        }
-
-
-    }
-    class LoadPics extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            animals = new ArrayList<>();
-            String id;
-            Bitmap bitmap;
-            int imageHeight, imageWidth;
-            String src;
-            porOrLan = new ArrayList<ArrayList<Object>>();
-
-            for (int index = 0; index < threeAnimals.size(); index++) {
-                id = threeAnimals.get(index).get(TAG_ID);
-                Log.v("wassup", "" + id);
-                src = url + id;
-
-                try {
-
-                    //TODO: Move this to async task eventually
-                    URL url = new URL(src);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(input);
-
-                    imageHeight = bitmap.getHeight();
-                    imageWidth = bitmap.getWidth();
-                    boolean isPortrait = false;
-
-                    if(imageHeight > imageWidth) {
-                        isPortrait = true;
-                    }
-
-                    ArrayList<Object> toAdd = new ArrayList<Object>();
-                    toAdd.set(0,isPortrait);
-                    toAdd.set(1, bitmap);
-                    porOrLan.add(toAdd);
-
-                } catch (IOException e) {
-                    // Log exception
-                }
-
-            }
-
-            reorganize();
-
-
-            return null;
-        }
-    }
     /**
-     * Background Async Task to Load all product by making HTTP Request
+     * Background Async Task to Load all animals by making HTTP Request
      * */
     class LoadAnimals extends AsyncTask<String, String, String> {
 
@@ -464,48 +302,6 @@ public class HomeFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            final RVAdapter adapter = new RVAdapter(animals, context, glm);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    rv.setAdapter(adapter);
-                    SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-                    rv.addItemDecoration(spaces);
-
-
-                    rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
-                        @Override
-                        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-                            visibleItemCount = glm.getChildCount();
-                            totalItemCount = glm.getItemCount();
-                            pastVisiblesItems = glm.findFirstVisibleItemPosition();
-
-                            if (loading) {
-                                if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                                    loading = false;
-                                    Log.v("...", "Last Item Wow !");
-                                }
-                            }
-                        }
-                    });
-
-
-                    rv.addOnItemTouchListener( // and the click is handled
-                            new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View view, int position) {
-                                    // STUB:
-                                    // The click on the item must be handled
-                                    Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-
-                                }
-                            }));
-
-                }
-            });
-
-
             return null;
         }
 
@@ -514,23 +310,184 @@ public class HomeFragment extends Fragment {
          * *
          */
         protected void onPostExecute(String file_url) {
-
+            // TODO: Fix to keep getting three until load certain amount of pictures
+            // Holds three animals to be organized
             threeAnimals = new ArrayList<HashMap<String, String>>();
             HashMap<String, String> animal1 = animalsList.get(0);
             HashMap<String, String> animal2 = animalsList.get(1);
             HashMap<String, String> animal3 = animalsList.get(2);
 
-            Log.v("HERE", "hi");
-            Log.v("HERE", animal1.get(TAG_ID));
+            Log.v("HERE animals", "hi");
+            Log.v("HERE animals", animal1.get(TAG_ID));
             threeAnimals.add(animal1);
             threeAnimals.add(animal2);
             threeAnimals.add(animal3);
 
-
+            // Get the pictures from the three animals
             new LoadPics().execute();
 
+        }
+
+    }
+
+    class LoadPics extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            animals = new ArrayList<>();
+            String id;
+            Bitmap bitmap;
+            int imageHeight, imageWidth;
+            String src;
+            porOrLan = new ArrayList<ArrayList<Object>>();
+
+            for (int index = 0; index < threeAnimals.size(); index++) {
+                id = threeAnimals.get(index).get(TAG_ID);
+
+                src = url + id;
+                Log.v("wassup", src);
+
+                try {
+
+                    URL url = new URL(src);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setDoInput(true);
+                    connection.connect();
+                    InputStream input = connection.getInputStream();
+                    bitmap = BitmapFactory.decodeStream(input);
+
+                    imageHeight = bitmap.getHeight();
+                    imageWidth = bitmap.getWidth();
+                    boolean isPortrait = false;
+
+                    if(imageHeight > imageWidth) {
+                        isPortrait = true;
+                    }
+
+                    ArrayList<Object> toAdd = new ArrayList<Object>();
+                    toAdd.add(isPortrait);
+                    toAdd.add(bitmap);
+                    toAdd.add(Integer.valueOf(id));
+                    porOrLan.add(toAdd);
+
+                } catch (IOException e) {
+                    // Log exception
+                }
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+
+            reorganize();
+
+            final RVAdapter adapter = new RVAdapter(animals, context, glm);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rv.setAdapter(adapter);
+                    SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+                    rv.addItemDecoration(spaces);
+
+                }
+            });
 
         }
+    }
+
+    private void reorganize() {
+        animals = new ArrayList<Animal>();
+        boolean firstRow = false;
+
+        if((boolean)(porOrLan.get(0).get(0)) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
+            // PPP
+            Log.v("HERE", "P,P,P");
+            animals.add(new Animal((int)porOrLan.get(0).get(2), (Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, true, true, true));
+
+
+        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
+            Log.v("HERE", "P1L,P2");
+            //P1 L aka PPL
+            //P2
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 2, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, false, false, true));
+
+        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
+            Log.v("HERE", "PL,L");
+            //PL
+            //L
+
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
+
+        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
+            Log.v("HERE", "PL,P3");
+            // PL
+            // P3
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, false, false, true));
+
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
+            Log.v("HERE", "L,L,L");
+            //L
+            //L
+            //L
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 3, false, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
+
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
+            Log.v("HERE", "L,LP");
+            //L
+            //LP
+
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 3, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 2, false, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, false, true, true));
+
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
+            Log.v("HERE", "LP,L");
+            //LP
+            //L
+
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 2, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
+
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
+            Log.v("HERE", "LP,P3");
+            //LP
+            //P3
+
+            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 2, true, false, true));
+
+            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, true, true, true));
+
+            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, false, false, true));
+        }
+
 
     }
 }

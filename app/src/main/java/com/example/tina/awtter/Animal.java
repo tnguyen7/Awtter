@@ -17,8 +17,10 @@ class Animal {
     boolean right;
     boolean left;
     boolean top;
+    int id;
 
-    Animal(Bitmap image, int sizeOrient, boolean top, boolean right, boolean left) {
+    Animal(int id, Bitmap image, int sizeOrient, boolean top, boolean right, boolean left) {
+        this.id = id;
         this.image = image;
         upAws = 0;
         this.sizeOrient = sizeOrient;
