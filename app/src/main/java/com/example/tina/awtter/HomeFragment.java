@@ -112,9 +112,6 @@ public class HomeFragment extends Fragment {
 
         new LoadAnimals().execute();
 
-
-
-
         DisplayMetrics displaymetrics = new DisplayMetrics();
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         height = displaymetrics.heightPixels;
@@ -273,7 +270,7 @@ public class HomeFragment extends Fragment {
         animals = new ArrayList<Animal>();
         boolean firstRow = false;
 
-        if((boolean)(porOrLan.get(0).get(0)) == true && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == true) {
+        if((boolean)(porOrLan.get(0).get(0)) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
             // PPP
             Log.v("HERE", "P,P,P");
             animals.add(new Animal((Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
@@ -283,7 +280,7 @@ public class HomeFragment extends Fragment {
             animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, false));
 
 
-        } else if(porOrLan.get(0).get(0) == true && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == false) {
+        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "P1L,P2");
             //P1 L
             //P2
@@ -293,7 +290,7 @@ public class HomeFragment extends Fragment {
 
             animals.add(new Animal((Bitmap)(porOrLan.get(1).get(1)), 3, false, false, true));
 
-        } else if(porOrLan.get(0).get(0) == true && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == false) {
+        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "PL,L");
             //PL
             //L
@@ -304,7 +301,7 @@ public class HomeFragment extends Fragment {
 
             animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
 
-        } else if(porOrLan.get(0).get(0) == true && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == true) {
+        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
             Log.v("HERE", "PL,P3");
             // PL
             // P3
@@ -314,7 +311,7 @@ public class HomeFragment extends Fragment {
 
             animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
 
-        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == false) {
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "L,L,L");
             //L
             //L
@@ -325,7 +322,7 @@ public class HomeFragment extends Fragment {
 
             animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
 
-        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == false && porOrLan.get(2).get(0) == true) {
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
             Log.v("HERE", "L,LP");
             //L
             //LP
@@ -336,7 +333,7 @@ public class HomeFragment extends Fragment {
 
             animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
 
-        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == false) {
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
             Log.v("HERE", "LP,L");
             //LP
             //L
@@ -347,7 +344,7 @@ public class HomeFragment extends Fragment {
 
             animals.add(new Animal((Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
 
-        } else if(porOrLan.get(0).get(0) == false && porOrLan.get(1).get(0) == true && porOrLan.get(2).get(0) == true) {
+        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
             Log.v("HERE", "LP,P3");
             //LP
             //P3
@@ -463,10 +460,11 @@ public class HomeFragment extends Fragment {
             HashMap<String, String> animal2 = animalsList.get(1);
             HashMap<String, String> animal3 = animalsList.get(2);
 
+            Log.v("HERE", "hi");
+            Log.v("HERE", animal1.get(TAG_ID));
             threeAnimals.add(animal1);
             threeAnimals.add(animal2);
-            threeAnimals.add(animal3);;
-
+            threeAnimals.add(animal3);
 
         }
 
