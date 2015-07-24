@@ -319,7 +319,6 @@ public class HomeFragment extends Fragment {
             threeAnimals = new ArrayList<HashMap<String, String>>();
             int index = 0;
 
-
             while(index < animalsList.size()) {
 
                 HashMap<String, String> animal1 = animalsList.get(index);
