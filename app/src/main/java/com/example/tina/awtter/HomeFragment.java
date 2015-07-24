@@ -92,6 +92,9 @@ public class HomeFragment extends Fragment {
     private static final String TAG_ANIMALS = "animals";
     private static final String url = "http://76.244.35.83/media/";
 
+    public boolean runOnce = false;
+
+    int indexThreeAnimals = 0;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -317,16 +320,14 @@ public class HomeFragment extends Fragment {
             // TODO: Fix to keep getting three until load certain amount of pictures
             // Holds three animals to be organized
             threeAnimals = new ArrayList<HashMap<String, String>>();
-            int index = 0;
 
-            while(index < animalsList.size()) {
 
-                HashMap<String, String> animal1 = animalsList.get(index);
+                HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
                 threeAnimals.add(animal1);
 
-                if (animalsList.size() > index + 1) {
+                if (animalsList.size() > indexThreeAnimals + 1) {
 
-                    HashMap<String, String> animal2 = animalsList.get(index + 1);
+                    HashMap<String, String> animal2 = animalsList.get(indexThreeAnimals + 1);
                     threeAnimals.add(animal2);
 
                 }
@@ -334,23 +335,25 @@ public class HomeFragment extends Fragment {
                 // if por or lan still has a pic left then only add two animals and increment the index by two
                 if (porOrLan.size() == 0) {
 
-                    if (animalsList.size() > index + 2) {
+                    if (animalsList.size() > indexThreeAnimals + 2) {
 
-                        HashMap<String, String> animal3 = animalsList.get(index + 2);
+                        HashMap<String, String> animal3 = animalsList.get(indexThreeAnimals + 2);
                         threeAnimals.add(animal3);
 
                     }
 
-                    index = index + 3;
+                    indexThreeAnimals = indexThreeAnimals + 3;
 
                 } else {
-                    index = index + 2;
+
+                    indexThreeAnimals = indexThreeAnimals + 2;
+
                 }
 
-                // Get the pictures from the three animals
                 new LoadPics().execute();
 
-            }
+                // Get the pictures from the three animals
+
 
         }
 
@@ -358,7 +361,6 @@ public class HomeFragment extends Fragment {
 
     class LoadPics extends AsyncTask<String, String, String> {
 
-        private boolean runOnce = false;
 
         @Override
         protected String doInBackground(String... params) {
@@ -366,6 +368,8 @@ public class HomeFragment extends Fragment {
             Bitmap bitmap;
             int imageHeight, imageWidth;
             String src;
+
+            Log.v("threeanimals", String.valueOf(threeAnimals.size()));
 
             for (int index = 0; index < threeAnimals.size(); index++) {
                 id = threeAnimals.get(index).get(TAG_ID);
@@ -426,6 +430,43 @@ public class HomeFragment extends Fragment {
                 runOnce = true;
             }
 
+            int i = threeAnimals.size();
+            while (threeAnimals.size() > 0) {
+                threeAnimals.remove(--i);
+            }
+
+
+            if (indexThreeAnimals < animalsList.size()) {
+                HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
+                threeAnimals.add(animal1);
+
+                if (animalsList.size() > indexThreeAnimals + 1) {
+
+                    HashMap<String, String> animal2 = animalsList.get(indexThreeAnimals + 1);
+                    threeAnimals.add(animal2);
+
+                }
+
+                // if por or lan still has a pic left then only add two animals and increment the index by two
+                if (porOrLan.size() == 0) {
+
+                    if (animalsList.size() > indexThreeAnimals + 2) {
+
+                        HashMap<String, String> animal3 = animalsList.get(indexThreeAnimals + 2);
+                        threeAnimals.add(animal3);
+
+                    }
+
+                    indexThreeAnimals = indexThreeAnimals + 3;
+
+                } else {
+
+                    indexThreeAnimals = indexThreeAnimals + 2;
+
+                }
+
+                new LoadPics().execute();
+            }
         }
     }
 
@@ -545,6 +586,7 @@ public class HomeFragment extends Fragment {
                 porOrLan.remove(1);
             }
         } else if (porOrLan.size() == 2) {
+            Log.v("HERE", "size = 2");
 
             if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
 
@@ -573,14 +615,15 @@ public class HomeFragment extends Fragment {
             }
 
         } else if (porOrLan.size() == 1) {
+            Log.v("HERE", "size = 1");
 
             if ((boolean) porOrLan.get(0).get(0)) {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(0), (Bitmap) (porOrLan.get(0).get(1)), 1, false, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, false, false, true));
 
             } else {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(0), (Bitmap) (porOrLan.get(0).get(1)), 3, false, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, false, false, true));
 
             }
         }
