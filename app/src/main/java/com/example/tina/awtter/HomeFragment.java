@@ -112,6 +112,10 @@ public class HomeFragment extends Fragment {
         // Holds results from database
         animalsList = new ArrayList<HashMap<String, String>>();
 
+        animals = new ArrayList<>();
+
+        porOrLan = new ArrayList<ArrayList<Object>>();
+
         new LoadAnimals().execute();
 
         DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -313,18 +317,41 @@ public class HomeFragment extends Fragment {
             // TODO: Fix to keep getting three until load certain amount of pictures
             // Holds three animals to be organized
             threeAnimals = new ArrayList<HashMap<String, String>>();
-            HashMap<String, String> animal1 = animalsList.get(0);
-            HashMap<String, String> animal2 = animalsList.get(1);
-            HashMap<String, String> animal3 = animalsList.get(2);
+            int index = 0;
 
-            Log.v("HERE animals", "hi");
-            Log.v("HERE animals", animal1.get(TAG_ID));
-            threeAnimals.add(animal1);
-            threeAnimals.add(animal2);
-            threeAnimals.add(animal3);
 
-            // Get the pictures from the three animals
-            new LoadPics().execute();
+            while(index < animalsList.size()) {
+
+                HashMap<String, String> animal1 = animalsList.get(index);
+                threeAnimals.add(animal1);
+
+                if (animalsList.size() > index + 1) {
+
+                    HashMap<String, String> animal2 = animalsList.get(index + 1);
+                    threeAnimals.add(animal2);
+
+                }
+
+                // if por or lan still has a pic left then only add two animals and increment the index by two
+                if (porOrLan.size() == 0) {
+
+                    if (animalsList.size() > index + 2) {
+
+                        HashMap<String, String> animal3 = animalsList.get(index + 2);
+                        threeAnimals.add(animal3);
+
+                    }
+
+                    index = index + 3;
+
+                } else {
+                    index = index + 2;
+                }
+
+                // Get the pictures from the three animals
+                new LoadPics().execute();
+
+            }
 
         }
 
@@ -332,14 +359,14 @@ public class HomeFragment extends Fragment {
 
     class LoadPics extends AsyncTask<String, String, String> {
 
+        private boolean runOnce = false;
+
         @Override
         protected String doInBackground(String... params) {
-            animals = new ArrayList<>();
             String id;
             Bitmap bitmap;
             int imageHeight, imageWidth;
             String src;
-            porOrLan = new ArrayList<ArrayList<Object>>();
 
             for (int index = 0; index < threeAnimals.size(); index++) {
                 id = threeAnimals.get(index).get(TAG_ID);
@@ -368,6 +395,7 @@ public class HomeFragment extends Fragment {
                     toAdd.add(isPortrait);
                     toAdd.add(bitmap);
                     toAdd.add(Integer.valueOf(id));
+
                     porOrLan.add(toAdd);
 
                 } catch (IOException e) {
@@ -384,110 +412,179 @@ public class HomeFragment extends Fragment {
 
             reorganize();
 
-            final RVAdapter adapter = new RVAdapter(animals, context, glm);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    rv.setAdapter(adapter);
-                    SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-                    rv.addItemDecoration(spaces);
+            if (!runOnce) {
+                final RVAdapter adapter = new RVAdapter(animals, context, glm);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rv.setAdapter(adapter);
+                        SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+                        rv.addItemDecoration(spaces);
 
-                }
-            });
+                    }
+                });
+
+                runOnce = true;
+            }
 
         }
     }
 
     private void reorganize() {
-        animals = new ArrayList<Animal>();
-        boolean firstRow = false;
 
-        if((boolean)(porOrLan.get(0).get(0)) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
-            // PPP
-            Log.v("HERE", "P,P,P");
-            animals.add(new Animal((int)porOrLan.get(0).get(2), (Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+        if (porOrLan.size() == 3) {
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, true, false, true));
+            if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
+                // PPP
+                Log.v("HERE", "P,P,P");
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, false, true));
+
+                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 1, true, true, true));
+
+                porOrLan.remove(2);
+                porOrLan.remove(1);
+                porOrLan.remove(0);
 
 
-        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "P1L,P2");
-            //P1 L aka PPL
-            //P2
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+            } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
+                Log.v("HERE", "P1L,P2");
+                //P1 L aka PPL
+                //P2
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 2, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 2, true, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, false, false, true));
+                porOrLan.set(0, porOrLan.get(1));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
 
-        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "PL,L");
-            //PL
-            //L
+            } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
+                Log.v("HERE", "PL,L");
+                //PL
+                //L
 
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, true, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 3, false, true, true));
 
-        } else if((boolean)porOrLan.get(0).get(0) == true && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
-            Log.v("HERE", "PL,P3");
-            // PL
-            // P3
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 1, true, false, true));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
+                porOrLan.remove(0);
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 2, true, true, true));
+            } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
+                Log.v("HERE", "PL,P3");
+                // PL
+                // P3
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, false, false, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, true, true, true));
 
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "L,L,L");
-            //L
-            //L
-            //L
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
+                porOrLan.set(0, porOrLan.get(2));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 3, false, true, true));
+            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
+                Log.v("HERE", "L,L,L");
+                //L
+                //L
+                //L
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 3, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 3, false, true, true));
 
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == false && (boolean)porOrLan.get(2).get(0) == true) {
-            Log.v("HERE", "L,LP");
-            //L
-            //LP
+                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 3, false, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 3, true, true, true));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
+                porOrLan.remove(0);
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 2, false, true, true));
+            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
+                Log.v("HERE", "L,LP");
+                //L
+                //LP
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
 
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == false) {
-            Log.v("HERE", "LP,L");
-            //LP
-            //L
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, false, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 2, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 1, false, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, true, true, true));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
+                porOrLan.remove(0);
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 3, false, false, true));
+            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
+                Log.v("HERE", "LP,L");
+                //LP
+                //L
 
-        } else if((boolean)porOrLan.get(0).get(0) == false && (boolean)porOrLan.get(1).get(0) == true && (boolean)porOrLan.get(2).get(0) == true) {
-            Log.v("HERE", "LP,P3");
-            //LP
-            //P3
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 2, true, false, true));
 
-            animals.add(new Animal((int)porOrLan.get(0).get(2),(Bitmap)(porOrLan.get(0).get(1)), 2, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, true, true));
 
-            animals.add(new Animal((int)porOrLan.get(1).get(2),(Bitmap)(porOrLan.get(1).get(1)), 1, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 3, false, false, true));
 
-            animals.add(new Animal((int)porOrLan.get(2).get(2),(Bitmap)(porOrLan.get(2).get(1)), 1, false, false, true));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
+                porOrLan.remove(0);
+
+            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
+                Log.v("HERE", "LP,P3");
+                //LP
+                //P3
+
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 2, true, false, true));
+
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, true, true));
+
+                porOrLan.set(0, porOrLan.get(2));
+                porOrLan.remove(2);
+                porOrLan.remove(1);
+            }
+        } else if (porOrLan.size() == 2) {
+
+            if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
+
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, false, true));
+
+            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
+
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
+
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 3, false, true, true));
+
+            } else if ((boolean) porOrLan.get(0).get(0) == true){
+
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, true, true, true));
+
+            } else {
+
+                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 2, true, false, true));
+
+                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, true, true));
+
+            }
+
+        } else if (porOrLan.size() == 1) {
+
+            if ((boolean) porOrLan.get(0).get(0)) {
+
+                animals.add(new Animal((int) porOrLan.get(0).get(0), (Bitmap) (porOrLan.get(0).get(1)), 1, false, false, true));
+
+            } else {
+
+                animals.add(new Animal((int) porOrLan.get(0).get(0), (Bitmap) (porOrLan.get(0).get(1)), 3, false, false, true));
+
+            }
         }
-
 
     }
 }

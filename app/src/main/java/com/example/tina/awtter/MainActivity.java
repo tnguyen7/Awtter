@@ -41,11 +41,13 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
             setContentView(R.layout.activity_main);
 
+            setUpFragments();
+
             setUpToolbar();
 
             setUpDrawer();
 
-            setUpFragments();
+
 
     }
 
@@ -192,11 +194,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         if (currentFragment == null) {
 
+            addFragment = new AddDialogFragment();
             homeFragment = new HomeFragment();
             favoritesFragment = new FavoritesFragment();
             myPicturesFragment = new MyPicturesFragment();
             settingsFragment = new SettingsFragment();
-            addFragment = new AddDialogFragment();
 
 
             getSupportFragmentManager().beginTransaction()
