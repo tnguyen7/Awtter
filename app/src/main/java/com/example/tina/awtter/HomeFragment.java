@@ -81,6 +81,7 @@ public class HomeFragment extends Fragment {
     RecyclerView rv;
     GridLayoutManager glm;
 
+    RVAdapter adapter;
 
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
@@ -416,7 +417,7 @@ public class HomeFragment extends Fragment {
             reorganize();
 
             if (!runOnce) {
-                final RVAdapter adapter = new RVAdapter(animals, context, glm);
+                adapter = new RVAdapter(animals, context, glm);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -626,6 +627,10 @@ public class HomeFragment extends Fragment {
                 animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, false, false, true));
 
             }
+        }
+
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
         }
 
     }

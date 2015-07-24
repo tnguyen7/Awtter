@@ -16,7 +16,7 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
 
     public SpacesItemDecoration(int space, List<Animal> animals) {
         this.space = space;
-        this.animals = new ArrayList<Animal>(animals);
+        this.animals = animals;
     }
 
     @Override
