@@ -39,7 +39,13 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
     GridLayoutManager glm;
 
-    RVAdapter(List<Animal> animals, Context context, GridLayoutManager glm) {
+    private static final String homeFragment = "homeFragment";
+    private static final String favoriteFragment = "favoriteFragment";
+    private static final String myPicturesFragment = "myPicturesFragment";
+
+    static String currentFragment;
+
+    RVAdapter(List<Animal> animals, Context context, GridLayoutManager glm, String fragment) {
 
         this.glm = glm;
         this.animals = animals;
@@ -67,7 +73,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         Log.v("ADAPT", "RegLandscapeWidth = " +  landscape1Width);
         Log.v("ADAPT", "BigLandscapeWidth = " + landscape2Width);
 
-
+        currentFragment = fragment;
     }
 
     public static class AnimalViewHolder extends RecyclerView.ViewHolder {
@@ -76,7 +82,8 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         AnimalViewHolder(View itemView) {
             super(itemView);
-            photo = (ImageView)itemView.findViewById(R.id.photo);
+
+            photo = (ImageView) itemView.findViewById(R.id.photo);
         }
     }
 
@@ -89,9 +96,17 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
  */
     @Override
     public AnimalViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) { //specifying layout of eachu
+        View v = null;
+        if (currentFragment == homeFragment) {
+            v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
+        } else if (currentFragment == favoriteFragment) {
+            v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_favorites, viewGroup, false);
+        } else if (currentFragment == myPicturesFragment) {
+            v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_my_pictures, viewGroup, false);
+        }
 
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
         AnimalViewHolder pvh = new AnimalViewHolder(v);
+
         return pvh;
     }
 

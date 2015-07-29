@@ -20,7 +20,6 @@ import java.io.InputStream;
 
 public class PickImage extends AppCompatActivity {
     private static final int REQUEST_CODE = 1;
-    private Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +43,7 @@ public class PickImage extends AppCompatActivity {
         finish();
         super.onActivityResult(requestCode, resultCode, data);
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

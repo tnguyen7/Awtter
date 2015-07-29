@@ -12,8 +12,6 @@ import android.os.Parcelable;
  * Created by richellevital on 7/19/15.
  */
 class Animal {
-    Bitmap image;
-    int time;
     int upAws;
     int sizeOrient;
     boolean right;
