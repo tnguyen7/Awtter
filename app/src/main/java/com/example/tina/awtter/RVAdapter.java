@@ -34,7 +34,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     int paddingL = padding*2;
 
     int portraitWidth, portraitHeight, landscape1Width, landscape1Height, landscape2Width, landscape2Height;
-    double portraitScale = 1.3333333333333333;
+    double portraitScale = 1.8;
     private static final String url = "http://76.244.35.83/media/";
 
     GridLayoutManager glm;
@@ -105,6 +105,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         switch (sizeOrient) {
             case 1:
+
                 animalViewHolder.photo.getLayoutParams().height = portraitHeight;
                 animalViewHolder.photo.getLayoutParams().width = portraitWidth;
 
@@ -116,6 +117,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 break;
 
             case 2:
+
                 animalViewHolder.photo.getLayoutParams().height = landscape1Height;
                 animalViewHolder.photo.getLayoutParams().width = landscape1Width;
 
@@ -124,7 +126,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                         .resize(landscape1Width, landscape1Height)
                         .centerCrop()
                         .into(animalViewHolder.photo);
+
                 break;
+
             case 3:
                 animalViewHolder.photo.getLayoutParams().height = landscape2Height;
                 animalViewHolder.photo.getLayoutParams().width = landscape2Width;
@@ -134,7 +138,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                         .resize(landscape2Width, landscape2Height)
                         .centerCrop()
                         .into(animalViewHolder.photo);
+
                 break;
+
         }
     }
 

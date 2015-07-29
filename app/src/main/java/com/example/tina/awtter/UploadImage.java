@@ -14,15 +14,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -32,11 +29,12 @@ import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
 public class UploadImage extends AsyncTask<String, String, String> {
     InputStream inputStream;
-    Bitmap bitmap, rotatedBitmap;
+    Bitmap bitmap;
     int bitmapWidth, bitmapHeight;
     double scale;
     Uri uri;
     Context context;
+    boolean portrait;
 
     public UploadImage (Context context, Uri imageUri) {
         this.context = context;
@@ -91,11 +89,13 @@ public class UploadImage extends AsyncTask<String, String, String> {
         if (orientation == 90 || orientation == 270) {
             //actually landscape
             if (bitmapHeight > bitmapWidth) {
+                portrait = false;
                 scale = ((double) width)/bitmapWidth;
 
                 Log.v("SCALE", "SCALE = " + scale);
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, (int) (scale * bitmapHeight), true);
             } else {
+                portrait = true;
                 scale = ((double) height)/bitmapHeight;
 
                 Log.v("SCALE", "SCALE = " + scale);
@@ -103,11 +103,13 @@ public class UploadImage extends AsyncTask<String, String, String> {
             }
         } else {
             if (bitmapHeight < bitmapWidth) {
+                portrait = false;
                 scale = ((double) width)/bitmapWidth;
 
                 Log.v("SCALE", "SCALE = " + scale);
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, (int) (scale * bitmapHeight), true);
             } else {
+                portrait = true;
                 scale = ((double) height)/bitmapHeight;
 
                 Log.v("SCALE", "SCALE = " + scale);
@@ -123,8 +125,8 @@ public class UploadImage extends AsyncTask<String, String, String> {
         String image_str = Base64.encodeBytes(byte_arr);
         final ArrayList<NameValuePair> nameValuePairs = new  ArrayList<NameValuePair>();
 
-
         nameValuePairs.add(new BasicNameValuePair("image", image_str));
+        nameValuePairs.add(new BasicNameValuePair("portrait", String.valueOf(portrait)));
 
         Thread t = new Thread(new Runnable() {
 

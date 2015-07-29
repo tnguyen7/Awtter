@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.internal.widget.AdapterViewCompat;
 import android.support.v7.widget.GridLayoutManager;
@@ -90,6 +91,7 @@ public class HomeFragment extends Fragment {
     private static final String TAG_ID = "__id";
     private static final String TAG_UPAWS = "__upAws";
     private static final String TAG_CREATEDAT = "__createdAt";
+    private static final String TAG_PORTRAIT = "__portrait";
     private static final String TAG_ANIMALS = "animals";
     private static final String url = "http://76.244.35.83/media/";
 
@@ -174,7 +176,12 @@ public class HomeFragment extends Fragment {
                     public void onItemClick(View view, int position) {
                         // STUB:
                         // The click on the item must be handled
+
                         Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(context, FullPicture.class);
+                        intent.putExtra("animalid", animals.get(position).id);
+                        startActivity(intent);
+
 
                     }
                 }));
@@ -291,7 +298,13 @@ public class HomeFragment extends Fragment {
                         String id = c.getString(TAG_ID);
                         String upAws = c.getString(TAG_UPAWS);
                         String date = c.getString(TAG_CREATEDAT);
-
+                        int portrait = c.getInt(TAG_PORTRAIT);
+                        boolean isPortrait;
+                        if (portrait == 1) {
+                            isPortrait = true;
+                        } else {
+                            isPortrait = false;
+                        }
                         // creating new HashMap
                         map = new HashMap<String, String>();
 
@@ -299,6 +312,7 @@ public class HomeFragment extends Fragment {
                         map.put(TAG_ID, id);
                         map.put(TAG_UPAWS, upAws);
                         map.put(TAG_CREATEDAT, date);
+                        map.put(TAG_PORTRAIT, String.valueOf(isPortrait));
 
                         // adding HashList to ArrayList
                         animalsList.add(map);
@@ -354,11 +368,9 @@ public class HomeFragment extends Fragment {
                 new LoadPics().execute();
 
                 // Get the pictures from the three animals
-
-
         }
-
     }
+
 
     class LoadPics extends AsyncTask<String, String, String> {
 
@@ -366,46 +378,19 @@ public class HomeFragment extends Fragment {
         @Override
         protected String doInBackground(String... params) {
             String id;
-            Bitmap bitmap;
-            int imageHeight, imageWidth;
-            String src;
+            boolean isPortrait;
 
             Log.v("threeanimals", String.valueOf(threeAnimals.size()));
 
             for (int index = 0; index < threeAnimals.size(); index++) {
                 id = threeAnimals.get(index).get(TAG_ID);
+                isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
 
-                src = url + id;
-                Log.v("wassup", src);
+                ArrayList<Object> toAdd = new ArrayList<Object>();
+                toAdd.add(isPortrait);
+                toAdd.add(Integer.valueOf(id));
 
-                try {
-
-                    URL url = new URL(src);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setDoInput(true);
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(input);
-
-                    imageHeight = bitmap.getHeight();
-                    imageWidth = bitmap.getWidth();
-                    boolean isPortrait = false;
-
-                    if(imageHeight > imageWidth) {
-                        isPortrait = true;
-                    }
-
-                    ArrayList<Object> toAdd = new ArrayList<Object>();
-                    toAdd.add(isPortrait);
-                    toAdd.add(bitmap);
-                    toAdd.add(Integer.valueOf(id));
-
-                    porOrLan.add(toAdd);
-
-                } catch (IOException e) {
-                    // Log exception
-                }
-
+                porOrLan.add(toAdd);
             }
 
             return null;
@@ -478,11 +463,11 @@ public class HomeFragment extends Fragment {
             if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                 // PPP
                 Log.v("HERE", "P,P,P");
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 1, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(1), 1, true, true, true));
 
                 porOrLan.remove(2);
                 porOrLan.remove(1);
@@ -493,9 +478,9 @@ public class HomeFragment extends Fragment {
                 Log.v("HERE", "P1L,P2");
                 //P1 L aka PPL
                 //P2
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 2, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(1), 2, true, true, true));
 
                 porOrLan.set(0, porOrLan.get(1));
                 porOrLan.remove(2);
@@ -506,11 +491,11 @@ public class HomeFragment extends Fragment {
                 //PL
                 //L
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, true, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 3, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
 
                 porOrLan.remove(2);
                 porOrLan.remove(1);
@@ -520,9 +505,9 @@ public class HomeFragment extends Fragment {
                 Log.v("HERE", "PL,P3");
                 // PL
                 // P3
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, true, true, true));
 
                 porOrLan.set(0, porOrLan.get(2));
                 porOrLan.remove(2);
@@ -533,11 +518,11 @@ public class HomeFragment extends Fragment {
                 //L
                 //L
                 //L
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, true, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 3, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 3, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
 
                 porOrLan.remove(2);
                 porOrLan.remove(1);
@@ -548,11 +533,11 @@ public class HomeFragment extends Fragment {
                 //L
                 //LP
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, true, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, false, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 1, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
 
                 porOrLan.remove(2);
                 porOrLan.remove(1);
@@ -563,11 +548,11 @@ public class HomeFragment extends Fragment {
                 //LP
                 //L
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 2, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 2, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(2).get(2), (Bitmap) (porOrLan.get(2).get(1)), 3, false, false, true));
+                animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, false, true));
 
                 porOrLan.remove(2);
                 porOrLan.remove(1);
@@ -578,9 +563,9 @@ public class HomeFragment extends Fragment {
                 //LP
                 //P3
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 2, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 2, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, true, true));
 
                 porOrLan.set(0, porOrLan.get(2));
                 porOrLan.remove(2);
@@ -591,27 +576,27 @@ public class HomeFragment extends Fragment {
 
             if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, false, true));
 
             } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, true, true, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 3, false, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
 
             } else if ((boolean) porOrLan.get(0).get(0) == true){
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 2, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, true, true, true));
 
             } else {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 2, true, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 2, true, false, true));
 
-                animals.add(new Animal((int) porOrLan.get(1).get(2), (Bitmap) (porOrLan.get(1).get(1)), 1, true, true, true));
+                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, true, true));
 
             }
 
@@ -620,11 +605,11 @@ public class HomeFragment extends Fragment {
 
             if ((boolean) porOrLan.get(0).get(0)) {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 1, false, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, false, false, true));
 
             } else {
 
-                animals.add(new Animal((int) porOrLan.get(0).get(2), (Bitmap) (porOrLan.get(0).get(1)), 3, false, false, true));
+                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, false, false, true));
 
             }
         }

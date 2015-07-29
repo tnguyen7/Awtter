@@ -35,6 +35,11 @@
             android:name=".PickImage"
             android:label="@string/title_activity_pick_image" >
         </activity>
+        <activity
+            android:name=".FullPicture"
+            android:label="@string/title_activity_full_picture"
+            android:theme="@style/Theme.Transparent">
+        </activity>
     </application>
 
 </manifest>

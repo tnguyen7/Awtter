@@ -5,6 +5,8 @@ package com.example.tina.awtter;
  */
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by richellevital on 7/19/15.
@@ -19,16 +21,15 @@ class Animal {
     boolean top;
     int id;
 
-    Animal(int id, Bitmap image, int sizeOrient, boolean top, boolean right, boolean left) {
+    public Animal(int id, int sizeOrient, boolean top, boolean right, boolean left)
+
+    {
         this.id = id;
-        this.image = image;
         upAws = 0;
         this.sizeOrient = sizeOrient;
         this.top = top;
         this.right = right;
         this.left = left;
     }
-
-
 
 }

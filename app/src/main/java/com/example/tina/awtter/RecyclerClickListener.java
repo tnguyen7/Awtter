@@ -16,7 +16,7 @@ public class RecyclerClickListener implements RecyclerView.OnItemTouchListener {
 
 
     public interface OnItemClickListener {
-        public void onItemClick(View view, int position);
+        void onItemClick(View view, int position);
     }
 
     public RecyclerClickListener(Context context, OnItemClickListener listener) {
@@ -25,7 +25,7 @@ public class RecyclerClickListener implements RecyclerView.OnItemTouchListener {
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override public boolean onSingleTapConfirmed(MotionEvent e) {
                 //Toast.makeText(mcontext,"single", Toast.LENGTH_SHORT).show();
-                return super.onSingleTapConfirmed(e);
+                return true;
             }
             @Override public boolean onDoubleTapEvent(MotionEvent e) {
                 //Toast.makeText(mcontext, "double", Toast.LENGTH_SHORT).show();
