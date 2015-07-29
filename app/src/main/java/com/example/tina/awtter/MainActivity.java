@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
     String title;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,9 +45,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             setUpToolbar();
 
             setUpDrawer();
-
-
-
     }
 
     @Override

@@ -4,14 +4,10 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.support.v7.internal.widget.AdapterViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -19,15 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.squareup.picasso.Picasso;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -35,32 +24,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
-/**
+/*
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * {@link HomeFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  */
 public class HomeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    // TODO:May be unecessary
+    private static final String homeFragment = "homeFragment";
 
     public Context context;
     private OnFragmentInteractionListener mListener;
@@ -69,13 +47,10 @@ public class HomeFragment extends Fragment {
     ListView lv;
     String startPoint;
 
-
+    boolean topPadding = true;
 
     List<Animal> animals;
-    Animal[] posts = new Animal[3];
     ArrayList<ArrayList<Object>> porOrLan;
-    public int height;
-    public int width;
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
     ArrayList<HashMap<String, String>> threeAnimals;
@@ -123,12 +98,6 @@ public class HomeFragment extends Fragment {
         porOrLan = new ArrayList<ArrayList<Object>>();
 
         new LoadAnimals().execute();
-
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        height = displaymetrics.heightPixels;
-        width = displaymetrics.widthPixels;
-
 
         rv = (RecyclerView) view.findViewById(R.id.rv);
 
@@ -320,95 +289,12 @@ public class HomeFragment extends Fragment {
         protected void onPostExecute(String file_url) {
             // TODO: Fix to keep getting three until load certain amount of pictures
             // Holds three animals to be organized
-            threeAnimals = new ArrayList<HashMap<String, String>>();
-
-
-                HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
-                threeAnimals.add(animal1);
-
-                if (animalsList.size() > indexThreeAnimals + 1) {
-
-                    HashMap<String, String> animal2 = animalsList.get(indexThreeAnimals + 1);
-                    threeAnimals.add(animal2);
-
-                }
-
-                // if por or lan still has a pic left then only add two animals and increment the index by two
-                if (porOrLan.size() == 0) {
-
-                    if (animalsList.size() > indexThreeAnimals + 2) {
-
-                        HashMap<String, String> animal3 = animalsList.get(indexThreeAnimals + 2);
-                        threeAnimals.add(animal3);
-
-                    }
-
-                    indexThreeAnimals = indexThreeAnimals + 3;
-
-                } else {
-
-                    indexThreeAnimals = indexThreeAnimals + 2;
-
-                }
-
-                new LoadPics().execute();
-
-                // Get the pictures from the three animals
-        }
-    }
-
-
-    class LoadPics extends AsyncTask<String, String, String> {
-
-
-        @Override
-        protected String doInBackground(String... params) {
             String id;
             boolean isPortrait;
 
-            Log.v("threeanimals", String.valueOf(threeAnimals.size()));
+            threeAnimals = new ArrayList<HashMap<String, String>>();
 
-            for (int index = 0; index < threeAnimals.size(); index++) {
-                id = threeAnimals.get(index).get(TAG_ID);
-                isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
-
-                ArrayList<Object> toAdd = new ArrayList<Object>();
-                toAdd.add(isPortrait);
-                toAdd.add(Integer.valueOf(id));
-
-                porOrLan.add(toAdd);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-
-            reorganize();
-
-            if (!runOnce) {
-                adapter = new RVAdapter(animals, context, glm);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        rv.setAdapter(adapter);
-                        SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-                        rv.addItemDecoration(spaces);
-
-                    }
-                });
-
-                runOnce = true;
-            }
-
-            int i = threeAnimals.size();
-            while (threeAnimals.size() > 0) {
-                threeAnimals.remove(--i);
-            }
-
-
-            if (indexThreeAnimals < animalsList.size()) {
+            while (indexThreeAnimals < animalsList.size()) {
                 HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
                 threeAnimals.add(animal1);
 
@@ -437,172 +323,211 @@ public class HomeFragment extends Fragment {
 
                 }
 
-                new LoadPics().execute();
-            }
-        }
-    }
+                Log.v("threeanimals", String.valueOf(threeAnimals.size()));
 
-    private void reorganize() {
+                for (int index = 0; index < threeAnimals.size(); index++) {
+                    id = threeAnimals.get(index).get(TAG_ID);
+                    isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
 
-        if (porOrLan.size() == 3) {
+                    ArrayList<Object> toAdd = new ArrayList<Object>();
+                    toAdd.add(isPortrait);
+                    toAdd.add(Integer.valueOf(id));
 
-            if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
-                // PPP
-                Log.v("HERE", "P,P,P");
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
+                    porOrLan.add(toAdd);
+                }
 
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, false, true));
+                reorganize();
 
-                animals.add(new Animal((int) porOrLan.get(2).get(1), 1, true, true, true));
+                if (!runOnce) {
+                    adapter = new RVAdapter(animals, context, glm, homeFragment);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            rv.setAdapter(adapter);
+                            SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+                            rv.addItemDecoration(spaces);
 
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-                porOrLan.remove(0);
+                        }
+                    });
 
+                    runOnce = true;
+                }
 
-            } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
-                Log.v("HERE", "P1L,P2");
-                //P1 L aka PPL
-                //P2
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
+                int i = threeAnimals.size();
+                while (threeAnimals.size() > 0) {
+                    threeAnimals.remove(--i);
+                }
 
-                animals.add(new Animal((int) porOrLan.get(2).get(1), 2, true, true, true));
-
-                porOrLan.set(0, porOrLan.get(1));
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-
-            } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
-                Log.v("HERE", "PL,L");
-                //PL
-                //L
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, true, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
-
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-                porOrLan.remove(0);
-
-            } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
-                Log.v("HERE", "PL,P3");
-                // PL
-                // P3
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, true, true, true));
-
-                porOrLan.set(0, porOrLan.get(2));
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-
-            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
-                Log.v("HERE", "L,L,L");
-                //L
-                //L
-                //L
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, true, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
-
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-                porOrLan.remove(0);
-
-            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
-                Log.v("HERE", "L,LP");
-                //L
-                //LP
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, true, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, false, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
-
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-                porOrLan.remove(0);
-
-            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
-                Log.v("HERE", "LP,L");
-                //LP
-                //L
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 2, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, false, true));
-
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-                porOrLan.remove(0);
-
-            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
-                Log.v("HERE", "LP,P3");
-                //LP
-                //P3
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 2, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, true, true));
-
-                porOrLan.set(0, porOrLan.get(2));
-                porOrLan.remove(2);
-                porOrLan.remove(1);
-            }
-        } else if (porOrLan.size() == 2) {
-            Log.v("HERE", "size = 2");
-
-            if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, false, true));
-
-            } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, true, true, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
-
-            } else if ((boolean) porOrLan.get(0).get(0) == true){
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 2, true, true, true));
-
-            } else {
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 2, true, false, true));
-
-                animals.add(new Animal((int) porOrLan.get(1).get(1), 1, true, true, true));
-
-            }
-
-        } else if (porOrLan.size() == 1) {
-            Log.v("HERE", "size = 1");
-
-            if ((boolean) porOrLan.get(0).get(0)) {
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 1, false, false, true));
-
-            } else {
-
-                animals.add(new Animal((int) porOrLan.get(0).get(1), 3, false, false, true));
 
             }
         }
 
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
+        private void reorganize() {
 
+            if (porOrLan.size() == 3) {
+
+                if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
+                    // PPP
+                    Log.v("HERE", "P,P,P");
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, topPadding, true, true));
+
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
+
+                } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
+                    Log.v("HERE", "P1L,P2");
+                    //P1 L aka PPL
+                    //P2
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), 2, topPadding, true, true));
+
+                    porOrLan.set(0, porOrLan.get(1));
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+
+                } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
+                    Log.v("HERE", "PL,L");
+                    //PL
+                    //L
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
+
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
+                } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
+                    Log.v("HERE", "PL,P3");
+                    // PL
+                    // P3
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+
+                    porOrLan.set(0, porOrLan.get(2));
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+
+                } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
+                    Log.v("HERE", "L,L,L");
+                    //L
+                    //L
+                    //L
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
+
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
+                } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
+                    Log.v("HERE", "L,LP");
+                    //L
+                    //LP
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, false, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
+                } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
+                    Log.v("HERE", "LP,L");
+                    //LP
+                    //L
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, false, true));
+
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
+                } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
+                    Log.v("HERE", "LP,P3");
+                    //LP
+                    //P3
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+
+                    porOrLan.set(0, porOrLan.get(2));
+                    porOrLan.remove(2);
+                    porOrLan.remove(1);
+                }
+            } else if (porOrLan.size() == 2) {
+                Log.v("HERE", "size = 2");
+
+                if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
+
+                } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+
+                } else if ((boolean) porOrLan.get(0).get(0) == true) {
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+
+                } else {
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+
+                }
+
+            } else if (porOrLan.size() == 1) {
+                Log.v("HERE", "size = 1");
+
+                if ((boolean) porOrLan.get(0).get(0)) {
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+
+                } else {
+
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
+
+                }
+            }
+
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+
+            if (topPadding == true) {
+                topPadding = false;
+            }
+
+        }
     }
 }

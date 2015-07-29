@@ -30,7 +30,6 @@ public class FullPicture extends Activity implements View.OnTouchListener {
 
     boolean isImageFitToScreen;
 
-
     private static final String TAG = "Touch" ;
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
@@ -60,18 +59,6 @@ public class FullPicture extends Activity implements View.OnTouchListener {
         ;
 
         imageView = (ImageView) findViewById(R.id.imageView);
-
-
-
-        if (isImageFitToScreen) {
-            isImageFitToScreen=false;
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            imageView.setAdjustViewBounds(true);
-        } else {
-            isImageFitToScreen=true;
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        }
 
         Picasso.with(this)
                 .load(url+animalid)

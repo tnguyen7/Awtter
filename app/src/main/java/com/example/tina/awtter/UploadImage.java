@@ -35,15 +35,18 @@ public class UploadImage extends AsyncTask<String, String, String> {
     Uri uri;
     Context context;
     boolean portrait;
+    DatabaseHandler databaseHandler;
 
     public UploadImage (Context context, Uri imageUri) {
         this.context = context;
         this.uri = imageUri;
+        databaseHandler = new DatabaseHandler(context);
     }
 
     @SuppressWarnings( "deprecation" )
     @Override
     protected String doInBackground(String... args) {
+
 
         try {
             if (bitmap != null) {
@@ -146,6 +149,8 @@ public class UploadImage extends AsyncTask<String, String, String> {
                         }
                     });
 
+                    databaseHandler.createMyPicture(databaseHandler.getMyPictureCount(), Integer.valueOf(the_string_response));
+
                 }catch(final Exception e){
                     runOnUiThread(new Runnable() {
 
@@ -215,6 +220,21 @@ public class UploadImage extends AsyncTask<String, String, String> {
             //System.out.println("Response => " +  EntityUtils.toString(response.getEntity()));
         }
         return res;
+    }
+
+    public String getRealPathFromURI(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
 }

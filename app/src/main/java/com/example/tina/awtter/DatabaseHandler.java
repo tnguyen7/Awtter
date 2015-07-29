@@ -54,24 +54,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public int getFavorite(int id) {
+        int result;
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor cursor  = db.query(TABLE_FAVORITES, new String[] {KEY_ID, KEY_FAV}, KEY_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
+        Cursor cursor  = db.query(TABLE_FAVORITES, new String[]{KEY_ID, KEY_FAV}, KEY_ID + "=?", new String[]{String.valueOf(id)}, null, null, null, null);
 
         if (cursor != null) {
             cursor.moveToFirst();
         }
 
-        cursor.close();
         db.close();
 
-        return Integer.parseInt(cursor.getString(1));
+        if (cursor.getCount() > 0) {
+            result = Integer.parseInt(cursor.getString(1));
+        } else {
+            result = -1;
+        }
+
+        cursor.close();
+
+        return result;
     }
 
     public void deleteFavorite(int id) {
         SQLiteDatabase db = getWritableDatabase();
 
-        db.delete(TABLE_FAVORITES, KEY_ID + "=?", new String[] {String.valueOf(id)});
+        db.delete(TABLE_FAVORITES, KEY_ID + "=?", new String[]{String.valueOf(id)});
         db.close();
     }
 
@@ -117,6 +125,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public int getMyPicture(int id) {
+        int result;
         SQLiteDatabase db = getReadableDatabase();
 
         Cursor cursor  = db.query(TABLE_MY_PICTURES, new String[] {KEY_ID, KEY_MY_PIC}, KEY_ID + "=?", new String[] {String.valueOf(id)}, null, null, null, null);
@@ -125,10 +134,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.moveToFirst();
         }
 
-        cursor.close();
         db.close();
 
-        return Integer.parseInt(cursor.getString(1));
+        if (cursor.getCount() > 0) {
+            result = Integer.parseInt(cursor.getString(1));
+        } else {
+            result = -1;
+        }
+
+        cursor.close();
+
+        return result;
     }
 
     public void deleteMyPicture(int id) {
