@@ -170,21 +170,7 @@ public class HomeFragment extends Fragment {
         });
 
 
-        rv.addOnItemTouchListener( // and the click is handled
-                new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        // STUB:
-                        // The click on the item must be handled
 
-                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(context, FullPicture.class);
-                        intent.putExtra("animalid", animals.get(position).id);
-                        startActivity(intent);
-
-
-                    }
-                }));
 
         // Inflate the layout for this fragment
         return view;

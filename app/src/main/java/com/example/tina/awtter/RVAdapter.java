@@ -1,6 +1,7 @@
 package com.example.tina.awtter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 
 import com.squareup.picasso.Picasso;
@@ -92,6 +94,24 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
         AnimalViewHolder pvh = new AnimalViewHolder(v);
+
+        pvh.photo.setOnClickListener( // and the click is handled
+                (View.OnClickListener) new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        // STUB:
+                        // The click on the item must be handled
+
+                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(context, FullPicture.class);
+                        intent.putExtra("animalid", animals.get(position).id);
+                        context.startActivity(intent);
+
+
+                    }
+                }));
+
+
         return pvh;
     }
 

@@ -27,10 +27,10 @@ public class RecyclerClickListener implements RecyclerView.OnItemTouchListener {
                 //Toast.makeText(mcontext,"single", Toast.LENGTH_SHORT).show();
                 return true;
             }
-            @Override public boolean onDoubleTapEvent(MotionEvent e) {
+            //@Override public boolean onDoubleTapEvent(MotionEvent e) {
                 //Toast.makeText(mcontext, "double", Toast.LENGTH_SHORT).show();
-                return true;
-            }
+            //    return true;
+           // }
 
         });
     }
