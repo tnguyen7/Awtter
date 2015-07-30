@@ -1,5 +1,8 @@
 package com.example.tina.awtter;
 
+import android.support.v7.app.ActionBar;
+
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Matrix;
@@ -23,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class FullPicture extends Activity implements View.OnTouchListener {
+public class FullPicture extends AppCompatActivity implements View.OnTouchListener {
 
 
     ImageView imageView;
@@ -54,6 +57,9 @@ public class FullPicture extends Activity implements View.OnTouchListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         int animalid = intent.getIntExtra("animalid", -1);
         ;
@@ -63,6 +69,8 @@ public class FullPicture extends Activity implements View.OnTouchListener {
         Picasso.with(this)
                 .load(url+animalid)
                 .into(imageView);
+//www.volgistics.com/ex/portal.dll/ap?AP=895519826.
+
 
 
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
