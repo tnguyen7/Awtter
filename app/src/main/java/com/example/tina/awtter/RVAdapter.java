@@ -210,6 +210,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         }
 
         @Override
+
         public boolean equals(Object o) {
             return imageView.equals(o);
         }

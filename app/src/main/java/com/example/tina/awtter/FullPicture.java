@@ -2,8 +2,10 @@ package com.example.tina.awtter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,13 +63,49 @@ public class FullPicture extends Activity implements View.OnTouchListener {
 
         imageView = (ImageView) findViewById(R.id.imageView);
 
+        Target target = new CustomTarget(imageView);
+
         Picasso.with(this)
                 .load(url+animalid)
-                .into(imageView);
+                .into(target);
+        imageView.setTag(target);
 
 
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    class CustomTarget implements Target {
+        private ImageView imageView;
+
+        public CustomTarget(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+            imageView.setImageBitmap(bitmap);
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+            imageView.setImageDrawable(errorDrawable);
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+            imageView.setImageDrawable(placeHolderDrawable);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return imageView.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return imageView.hashCode();
+        }
     }
 
     @Override
