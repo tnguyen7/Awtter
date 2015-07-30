@@ -24,10 +24,6 @@
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name=".UploadImage"
-            android:label="@string/app_name" >
-        </activity>
-        <activity
             android:name=".UseCamera"
             android:label="@string/title_activity_use_camera" >
         </activity>
@@ -38,11 +34,7 @@
         <activity
             android:name=".FullPicture"
             android:label="@string/title_activity_full_picture"
-            android:theme="@style/Theme.Transparent"
-            android:uiOptions="splitActionBarWhenNarrow">
-            <meta-data android:name="android.support.FullPicture"
-                android:theme="@style/Theme.Transparent"
-                android:value="splitActionBarWhenNarrow" />
+            android:theme="@style/Theme.Transparent">
         </activity>
     </application>
 

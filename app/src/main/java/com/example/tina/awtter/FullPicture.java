@@ -1,5 +1,6 @@
 package com.example.tina.awtter;
 
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 
 
@@ -12,12 +13,16 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -55,17 +60,24 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
 
     ArrayList<Animal> animals;
 
+    Toolbar toolbarBottom;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
 
+
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        // have a otter logo heheheehehehehehhe
+        //actionBar.setLogo();
+        initToolbar();
 
         Intent intent = getIntent();
         int animalid = intent.getIntExtra("animalid", -1);
-        ;
 
         imageView = (ImageView) findViewById(R.id.imageView);
 
@@ -75,7 +87,6 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
                 .load(url+animalid)
                 .into(target);
         imageView.setTag(target);
-
 
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
@@ -111,6 +122,29 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
         @Override
         public int hashCode() {
             return imageView.hashCode();
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+            toggleActionBar();
+        }
+        return true;
+    }
+
+    private void toggleActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+
+        if(actionBar != null) {
+            if(actionBar.isShowing()) {
+                actionBar.hide();
+                toolbarBottom.animate().translationY(toolbarBottom.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+            }
+            else {
+                actionBar.show();
+                toolbarBottom.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
+            }
         }
     }
 
@@ -202,13 +236,32 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initToolbar() {
+
+        toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
+        toolbarBottom.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.action_settings:
+                        // TODO
+                        break;
+                    // TODO: Other cases
+                }
+                return true;
+            }
+        });
+        // Inflate a menu to be displayed in the toolbar
+        toolbarBottom.inflateMenu(R.menu.menu_full_picture_bottom);
     }
 }
