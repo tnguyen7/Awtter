@@ -126,7 +126,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 }));
 
 
-
         return pvh;
     }
 
