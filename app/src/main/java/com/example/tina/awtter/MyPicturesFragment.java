@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -75,6 +76,10 @@ public class MyPicturesFragment extends Fragment {
 
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
+
+    SwipeRefreshLayout mySwipeRefreshLayout;
+
+    boolean refresh = false;
 
     public MyPicturesFragment() {
         // Required empty public constructor
@@ -158,6 +163,41 @@ public class MyPicturesFragment extends Fragment {
 
                     }
                 })
+        );
+
+        mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i("refresh", "onRefresh called from SwipeRefreshLayout");
+
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        int i = animalsList.size();
+                        while (animalsList.size() > 0) {
+                            animalsList.remove(--i);
+                        }
+
+                        i = animals.size();
+                        while (animals.size() > 0) {
+                            animals.remove(--i);
+                        }
+
+                        i = porOrLan.size();
+                        while (porOrLan.size() > 0) {
+                            porOrLan.remove(--i);
+                        }
+
+                        topPadding = true;
+                        indexThreeAnimals = 0;
+                        runOnce = false;
+                        refresh = true;
+                        new LoadAnimals().execute();
+
+                    }
+                }
         );
 
         return view;
@@ -367,28 +407,32 @@ public class MyPicturesFragment extends Fragment {
 
                 reorganize();
 
-                if (!runOnce) {
-                    adapter = new RVAdapter(animals, context, glm, myPicturesFragment);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            rv.setAdapter(adapter);
-                            SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-                            rv.addItemDecoration(spaces);
-
-                        }
-                    });
-
-                    runOnce = true;
-                }
-
                 int i = threeAnimals.size();
                 while (threeAnimals.size() > 0) {
                     threeAnimals.remove(--i);
                 }
 
-
             }
+
+            if (!refresh) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter = new RVAdapter(animals, context, glm, myPicturesFragment);
+                        rv.setAdapter(adapter);
+                        SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+                        rv.addItemDecoration(spaces);
+
+                    }
+                });
+            } else {
+                Log.v("refres", "newadapter" + String.valueOf(animals.size()));
+                rv.swapAdapter(new RVAdapter(animals, context, glm, myPicturesFragment), true);
+                refresh = false;
+            }
+
+
+            mySwipeRefreshLayout.setRefreshing(false);
         }
 
         private void reorganize() {

@@ -3,14 +3,11 @@ package com.example.tina.awtter;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 
-
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,17 +19,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 
 public class FullPicture extends AppCompatActivity implements View.OnTouchListener {
 
@@ -139,11 +131,11 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
         if(actionBar != null) {
             if(actionBar.isShowing()) {
                 actionBar.hide();
-                toolbarBottom.animate().translationY(toolbarBottom.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+                toolbarBottom.animate().setDuration(250).translationY(toolbarBottom.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
             }
             else {
                 actionBar.show();
-                toolbarBottom.animate().translationY(0).setInterpolator(new LinearInterpolator()).start();
+                toolbarBottom.animate().setDuration(250).translationY(0).setInterpolator(new DecelerateInterpolator()).start();
             }
         }
     }
@@ -194,6 +186,7 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
                         matrix.postScale(scale, scale, mid.x, mid.y);
                     }
                 }
+
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -249,19 +242,5 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
     private void initToolbar() {
 
         toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-        toolbarBottom.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_settings:
-                        // TODO
-                        break;
-                    // TODO: Other cases
-                }
-                return true;
-            }
-        });
-        // Inflate a menu to be displayed in the toolbar
-        toolbarBottom.inflateMenu(R.menu.menu_full_picture_bottom);
     }
 }

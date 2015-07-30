@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -37,6 +38,7 @@ import static com.google.android.gms.internal.zzhl.runOnUiThread;
  * to handle interaction events.
  */
 public class HomeFragment extends Fragment {
+
     // TODO:May be unecessary
     private static final String homeFragment = "homeFragment";
 
@@ -59,6 +61,8 @@ public class HomeFragment extends Fragment {
 
     RVAdapter adapter;
 
+    boolean refresh = false;
+
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_FILTER = "filter";
@@ -72,7 +76,9 @@ public class HomeFragment extends Fragment {
 
     public boolean runOnce = false;
 
-    int indexThreeAnimals = 0;
+    int indexThreeAnimals;
+
+    SwipeRefreshLayout mySwipeRefreshLayout;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -90,12 +96,49 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.recycler, container, false);
 
+        mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i("refresh", "onRefresh called from SwipeRefreshLayout");
+
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        int i = animalsList.size();
+                        while (animalsList.size() > 0) {
+                            animalsList.remove(--i);
+                        }
+
+                        i = animals.size();
+                        while (animals.size() > 0) {
+                            animals.remove(--i);
+                        }
+
+                        i = porOrLan.size();
+                        while (porOrLan.size() > 0) {
+                            porOrLan.remove(--i);
+                        }
+
+                        topPadding = true;
+                        indexThreeAnimals = 0;
+                        runOnce = false;
+                        refresh = true;
+                        new LoadAnimals().execute();
+
+                    }
+                }
+        );
+
         // Holds results from database
         animalsList = new ArrayList<HashMap<String, String>>();
 
         animals = new ArrayList<>();
 
         porOrLan = new ArrayList<ArrayList<Object>>();
+
+        indexThreeAnimals = 0;
 
         new LoadAnimals().execute();
 
@@ -338,21 +381,6 @@ public class HomeFragment extends Fragment {
 
                 reorganize();
 
-                if (!runOnce) {
-                    adapter = new RVAdapter(animals, context, glm, homeFragment);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            rv.setAdapter(adapter);
-                            SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
-                            rv.addItemDecoration(spaces);
-
-                        }
-                    });
-
-                    runOnce = true;
-                }
-
                 int i = threeAnimals.size();
                 while (threeAnimals.size() > 0) {
                     threeAnimals.remove(--i);
@@ -360,6 +388,26 @@ public class HomeFragment extends Fragment {
 
 
             }
+
+            if (!refresh) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter = new RVAdapter(animals, context, glm, homeFragment);
+                        rv.setAdapter(adapter);
+                        SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
+                        rv.addItemDecoration(spaces);
+
+                    }
+                });
+            } else {
+                Log.v("refres", "newadapter" + String.valueOf(animals.size()));
+                rv.swapAdapter(new RVAdapter(animals, context, glm, homeFragment), true);
+                refresh = false;
+            }
+
+
+            mySwipeRefreshLayout.setRefreshing(false);
         }
 
         private void reorganize() {
