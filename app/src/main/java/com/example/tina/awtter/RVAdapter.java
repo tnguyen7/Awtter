@@ -2,7 +2,9 @@ package com.example.tina.awtter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.List;
 
@@ -86,6 +89,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
             super(itemView);
 
             photo = (ImageView) itemView.findViewById(R.id.photo);
+
+
+
         }
     }
 
@@ -109,21 +115,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         AnimalViewHolder pvh = new AnimalViewHolder(v);
 
-        pvh.photo.setOnClickListener( // and the click is handled
-                (View.OnClickListener) new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        // STUB:
-                        // The click on the item must be handled
-
-                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(context, FullPicture.class);
-                        intent.putExtra("animalid", animals.get(position).id);
-                        context.startActivity(intent);
-
-
-                    }
-                }));
 
 
 
@@ -134,6 +125,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     @Override
     public void onBindViewHolder(AnimalViewHolder animalViewHolder, int i) {
 
+        final int index = i;
         int sizeOrient = animals.get(i).sizeOrient;
 
         animalViewHolder.photo.requestLayout();
@@ -144,11 +136,13 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 animalViewHolder.photo.getLayoutParams().height = portraitHeight;
                 animalViewHolder.photo.getLayoutParams().width = portraitWidth;
 
+                Target target = new CustomTarget(animalViewHolder.photo);
                 Picasso.with(context)
                         .load(url+String.valueOf(animals.get(i).id))
                         .resize(portraitWidth, portraitHeight)
                         .centerCrop()
-                        .into(animalViewHolder.photo);
+                        .into(target);
+                animalViewHolder.photo.setTag(target);
                 break;
 
             case 2:
@@ -177,6 +171,15 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 break;
 
         }
+
+        animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), FullPicture.class);
+                intent.putExtra("animalid", animals.get(index).id);
+                view.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -184,6 +187,38 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    class CustomTarget implements Target {
+        private ImageView imageView;
+
+        public CustomTarget(ImageView imageView) {
+            this.imageView = imageView;
+        }
+
+        @Override
+        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+            imageView.setImageBitmap(bitmap);
+        }
+
+        @Override
+        public void onBitmapFailed(Drawable errorDrawable) {
+            imageView.setImageDrawable(errorDrawable);
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+            imageView.setImageDrawable(placeHolderDrawable);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return imageView.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return imageView.hashCode();
+        }
+    }
 }
 
 
