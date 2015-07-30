@@ -38,7 +38,11 @@
         <activity
             android:name=".FullPicture"
             android:label="@string/title_activity_full_picture"
-            android:theme="@style/Theme.Transparent">
+            android:theme="@style/Theme.Transparent"
+            android:uiOptions="splitActionBarWhenNarrow">
+            <meta-data android:name="android.support.FullPicture"
+                android:theme="@style/Theme.Transparent"
+                android:value="splitActionBarWhenNarrow" />
         </activity>
     </application>
 

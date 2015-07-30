@@ -115,7 +115,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
         AnimalViewHolder pvh = new AnimalViewHolder(v);
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> c0055f658f0663347de3c10a27261b6fac5dc3af
 
 
         return pvh;

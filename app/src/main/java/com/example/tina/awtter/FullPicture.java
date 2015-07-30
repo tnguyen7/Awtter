@@ -1,5 +1,8 @@
 package com.example.tina.awtter;
 
+import android.support.v7.app.ActionBar;
+
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -26,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class FullPicture extends Activity implements View.OnTouchListener {
+public class FullPicture extends AppCompatActivity implements View.OnTouchListener {
 
 
     ImageView imageView;
@@ -56,6 +59,9 @@ public class FullPicture extends Activity implements View.OnTouchListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         int animalid = intent.getIntExtra("animalid", -1);
