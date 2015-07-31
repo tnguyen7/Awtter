@@ -34,7 +34,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:text="Favorite"
-                android:textColor="@drawable/background_selector"/>
+                android:textColor="#FFF"/>
             <Button
                 android:id="@+id/commentButton"
                 android:layout_width="match_parent"
@@ -42,7 +42,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:text="Comment"
-                android:textColor="@drawable/background_selector"/>
+                android:textColor="#FFF"/>
             <Button
                 android:id="@+id/shareButton"
                 android:layout_width="match_parent"
@@ -50,7 +50,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:text="Share"
-                android:textColor="@drawable/background_selector"/>
+                android:textColor="#FFF"/>
         </LinearLayout>
     </android.support.v7.widget.Toolbar>
 
