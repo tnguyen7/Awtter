@@ -13,6 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -90,6 +93,8 @@ public class MyPicturesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         context = getActivity();
 
@@ -227,6 +232,23 @@ public class MyPicturesFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outstate) {
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_my_pictures, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+/*
+        switch (item.getItemId()) {
+            case R.id.action_add:
+
+                break;
+        }*/
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -439,8 +461,7 @@ public class MyPicturesFragment extends Fragment {
                     }
                 });
             } else {
-                Log.v("refres", "newadapter" + String.valueOf(animals.size()));
-                rv.swapAdapter(new RVAdapter(animals, context, glm, myPicturesFragment), false);
+                adapter.notifyDataSetChanged();
                 refresh = false;
             }
 
@@ -572,11 +593,17 @@ public class MyPicturesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
 
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
 
@@ -584,11 +611,17 @@ public class MyPicturesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
 
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
                 } else {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
 
                 }
 
@@ -599,15 +632,15 @@ public class MyPicturesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
+                    porOrLan.remove(0);
+
                 } else {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
 
-                }
-            }
+                    porOrLan.remove(0);
 
-            if (adapter != null) {
-                adapter.notifyDataSetChanged();
+                }
             }
 
             if (topPadding == true) {

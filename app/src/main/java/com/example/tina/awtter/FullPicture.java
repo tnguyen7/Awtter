@@ -1,6 +1,7 @@
 package com.example.tina.awtter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 
@@ -10,6 +11,7 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.FloatMath;
@@ -28,7 +30,7 @@ import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 
-public class FullPicture extends AppCompatActivity implements View.OnTouchListener {
+public class FullPicture extends AppCompatActivity{
 
 
     ImageView imageView;
@@ -58,6 +60,13 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
 
     DatabaseHandler databaseHandler;
 
+    String currentFragment;
+
+    private static final String homeFragment = "homeFragment";
+    private static final String favoriteFragment = "myFavoritesFragment";
+    private static final String myPicturesFragment = "myPicturesFragment";
+
+    int animalid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,13 +74,15 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         // have a otter logo heheheehehehehehhe
         //actionBar.setLogo();
-        initToolbar();
+        toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
 
         Intent intent = getIntent();
-        final int animalid = intent.getIntExtra("animalid", -1);
+        animalid = intent.getIntExtra("animalid", -1);
+        currentFragment = intent.getStringExtra("fragment");
 
 
         databaseHandler = new DatabaseHandler(getApplicationContext());
@@ -172,86 +183,19 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
     }
 
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-
-        ImageView view = (ImageView) v;
-
-        switch (event.getAction() & MotionEvent.ACTION_MASK) {
-
-            case MotionEvent.ACTION_DOWN:
-
-                savedMatrix.set(matrix);
-                start.set(event.getX(), event.getY());
-                Log.d(TAG, "mode=DRAG");
-                mode = DRAG;
-                break;
-
-            case MotionEvent.ACTION_POINTER_DOWN:
-
-                oldDist = spacing(event);
-                Log.d(TAG, "oldDist=" + oldDist);
-                if (oldDist > 10f) {
-
-                    savedMatrix.set(matrix);
-                    midPoint(mid, event);
-                    mode = ZOOM;
-                    Log.d(TAG, "mode=ZOOM" );
-                }
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-
-                if (mode == DRAG) {
-
-                    matrix.set(savedMatrix);
-                    matrix.postTranslate(event.getX() - start.x, event.getY() - start.y);
-                }
-                else if (mode == ZOOM) {
-
-                    float newDist = spacing(event);
-                    Log.d(TAG, "newDist=" + newDist);
-                    if (newDist > 10f) {
-
-                        matrix.set(savedMatrix);
-                        float scale = newDist / oldDist;
-                        matrix.postScale(scale, scale, mid.x, mid.y);
-                    }
-                }
-
-                break;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_POINTER_UP:
-
-                mode = NONE;
-                Log.d(TAG, "mode=NONE" );
-                break;
-        }
-
-        // Perform the transformation
-        view.setImageMatrix(matrix);
-
-        return true; // indicate event was handled
-    }
-
-    @SuppressWarnings("deprecation")
-    private float spacing(MotionEvent event) {
-        float x = event.getX(0) - event.getX(1);
-        float y = event.getY(0) - event.getY(1);
-        return FloatMath.sqrt(x * x + y * y);
-    }
-
-    private void midPoint(PointF point, MotionEvent event) {
-
-        float x = event.getX(0) + event.getX(1);
-        float y = event.getY(0) + event.getY(1);
-        point.set(x / 2, y / 2);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_full_picture, menu);
+            Log.v("fullpicture", currentFragment);
+
+        if (currentFragment == homeFragment) {
+            getMenuInflater().inflate(R.menu.menu_full_picture_home, menu);
+        } else if (currentFragment == favoriteFragment) {
+            getMenuInflater().inflate(R.menu.menu_full_picture_fav, menu);
+        } else if (currentFragment == myPicturesFragment) {
+            getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
+        }
+        getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
+
         return true;
     }
 
@@ -265,13 +209,24 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
             case android.R.id.home:
                 finish();
                 return true;
+            case R.id.action_delete:
+                new AlertDialog.Builder(FullPicture.this)
+                        .setTitle("Delete photo")
+                        .setMessage("Do you want to delete this photo?")
+                        .setPositiveButton("delete", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                new DeleteAnimal(getApplicationContext(), String.valueOf(animalid)).execute();
+                            }
+                        })
+                        .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();                            }
+                        })
+                        .show();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void initToolbar() {
-
-        toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-    }
 }

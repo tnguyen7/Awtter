@@ -411,8 +411,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
             } else {
-                Log.v("refres", "newadapter" + String.valueOf(animals.size()));
-                rv.swapAdapter(new RVAdapter(animals, context, glm, homeFragment), true);
+                adapter.notifyDataSetChanged();
                 refresh = false;
             }
 
@@ -544,11 +543,17 @@ public class HomeFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
 
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
 
@@ -556,11 +561,17 @@ public class HomeFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
 
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
                 } else {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
 
                 }
 
@@ -571,9 +582,13 @@ public class HomeFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
+                    porOrLan.remove(0);
+
                 } else {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
+
+                    porOrLan.remove(0);
 
                 }
             }

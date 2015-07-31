@@ -13,6 +13,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -83,6 +86,8 @@ public class FavoritesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
 
         context = getActivity();
 
@@ -223,6 +228,23 @@ public class FavoritesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_favorites, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        /*switch (item.getItemId()) {
+            case R.id.action_add:
+
+                break;
+        }*/
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -435,8 +457,7 @@ public class FavoritesFragment extends Fragment {
                     }
                 });
             } else {
-                Log.v("refres", "newadapter" + String.valueOf(animals.size()));
-                rv.swapAdapter(new RVAdapter(animals, context, glm, myFavoritesFragment), false);
+                adapter.notifyDataSetChanged();
                 refresh = false;
             }
 
@@ -615,10 +636,6 @@ public class FavoritesFragment extends Fragment {
                     porOrLan.remove(0);
 
                 }
-            }
-
-            if (adapter != null) {
-                adapter.notifyDataSetChanged();
             }
 
             if (topPadding == true) {

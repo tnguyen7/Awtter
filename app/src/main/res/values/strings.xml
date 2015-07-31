@@ -16,5 +16,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_pick_image">PickImage</string>
     <string name="title_activity_full_picture">FullPicture</string>
+    <string name="delete_picture">Delete Photo</string>
 
 </resources>

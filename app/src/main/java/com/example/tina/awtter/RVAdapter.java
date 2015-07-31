@@ -9,7 +9,9 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -48,7 +50,11 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     private static final String favoriteFragment = "myFavoritesFragment";
     private static final String myPicturesFragment = "myPicturesFragment";
 
-    static String currentFragment;
+    String currentFragment;
+
+    GestureDetector gestureDetector;
+    boolean tapped;
+    ImageView imageView;
 
     RVAdapter(List<Animal> animals, Context context, GridLayoutManager glm, String fragment) {
 
@@ -124,62 +130,77 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         final int index = i;
         int sizeOrient = animals.get(i).sizeOrient;
 
-            if (animalViewHolder == null) {
-                Log.v("animalviewholder", "it is null");
+        animalViewHolder.photo.requestLayout();
+
+        switch (sizeOrient) {
+            case 1:
+
+                animalViewHolder.photo.getLayoutParams().height = portraitHeight;
+                animalViewHolder.photo.getLayoutParams().width = portraitWidth;
+
+                Target target = new CustomTarget(animalViewHolder.photo);
+                Picasso.with(context)
+                        .load(url+String.valueOf(animals.get(i).id))
+                        .resize(portraitWidth, portraitHeight)
+                        .centerCrop()
+                        .into(target);
+                animalViewHolder.photo.setTag(target);
+                break;
+
+            case 2:
+
+                animalViewHolder.photo.getLayoutParams().height = landscape1Height;
+                animalViewHolder.photo.getLayoutParams().width = landscape1Width;
+
+                Picasso.with(context)
+                        .load(url+String.valueOf(animals.get(i).id))
+                        .resize(landscape1Width, landscape1Height)
+                        .centerCrop()
+                        .into(animalViewHolder.photo);
+
+                break;
+
+            case 3:
+                animalViewHolder.photo.getLayoutParams().height = landscape2Height;
+                animalViewHolder.photo.getLayoutParams().width = landscape2Width;
+
+                Picasso.with(context)
+                        .load(url+String.valueOf(animals.get(i).id))
+                        .resize(landscape2Width, landscape2Height)
+                        .centerCrop()
+                        .into(animalViewHolder.photo);
+
+                break;
+
+        }
+
+        animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent intent = new Intent(view.getContext(), FullPicture.class);
+                intent.putExtra("animalid", animals.get(index).id);
+                intent.putExtra("fragment", currentFragment);
+                view.getContext().startActivity(intent);
             }
-            animalViewHolder.photo.requestLayout();
+        });
 
-            switch (sizeOrient) {
-                case 1:
+        animalViewHolder.photo.setOnLongClickListener(new View.OnLongClickListener() {
 
-                    animalViewHolder.photo.getLayoutParams().height = portraitHeight;
-                    animalViewHolder.photo.getLayoutParams().width = portraitWidth;
+            @Override
+            public boolean onLongClick(View v) {
+                Log.v("RVADAPTER", "there was a long click :O");
+                if (currentFragment == homeFragment) {
 
-                    Target target = new CustomTarget(animalViewHolder.photo);
-                    Picasso.with(context)
-                            .load(url+String.valueOf(animals.get(i).id))
-                            .resize(portraitWidth, portraitHeight)
-                            .centerCrop()
-                            .into(target);
-                    animalViewHolder.photo.setTag(target);
-                    break;
+                } else if (currentFragment == favoriteFragment) {
 
-                case 2:
+                } else if (currentFragment == myPicturesFragment) {
 
-                    animalViewHolder.photo.getLayoutParams().height = landscape1Height;
-                    animalViewHolder.photo.getLayoutParams().width = landscape1Width;
-
-                    Picasso.with(context)
-                            .load(url+String.valueOf(animals.get(i).id))
-                            .resize(landscape1Width, landscape1Height)
-                            .centerCrop()
-                            .into(animalViewHolder.photo);
-
-                    break;
-
-                case 3:
-                    animalViewHolder.photo.getLayoutParams().height = landscape2Height;
-                    animalViewHolder.photo.getLayoutParams().width = landscape2Width;
-
-                    Picasso.with(context)
-                            .load(url+String.valueOf(animals.get(i).id))
-                            .resize(landscape2Width, landscape2Height)
-                            .centerCrop()
-                            .into(animalViewHolder.photo);
-
-                    break;
-
-            }
-
-            animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    Intent intent = new Intent(view.getContext(), FullPicture.class);
-                    intent.putExtra("animalid", animals.get(index).id);
-                    view.getContext().startActivity(intent);
                 }
-            });
+
+                return true;
+            }
+        });
 
     }
 
@@ -219,6 +240,34 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         @Override
         public int hashCode() {
             return imageView.hashCode();
+        }
+    }
+
+    public class GestureListener extends
+            GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+
+            return true;
+        }
+
+        // event when double tap occurs
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+
+            tapped = !tapped;
+
+            if (tapped) {
+
+                Log.v("RVADAPTER", "tapped is true");
+
+            } else {
+
+                Log.v("RVADAPTER", "tapped is false");
+            }
+
+            return true;
         }
     }
 }
