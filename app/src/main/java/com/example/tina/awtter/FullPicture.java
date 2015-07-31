@@ -79,9 +79,9 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
         final Button button = (Button) findViewById(R.id.favoriteButton);
 
         if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
-            button.setTextColor(getResources().getColor(R.color.accent));
+            button.setTextColor(getResources().getColor(R.color.white));
         } else {
-            button.setTextColor(getResources().getColor(R.color.accent_bright));
+            button.setTextColor(getResources().getColor(R.color.accent));
         }
 
             button.setOnClickListener(new View.OnClickListener() {
@@ -89,11 +89,11 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
             public void onClick(View v) {
                 // If not in favorites, then increment, otherwise decrement
                 if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
-                    button.setTextColor(getResources().getColor(R.color.accent_bright));
+                    button.setTextColor(getResources().getColor(R.color.accent));
                     databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
                     new IncUpAws(getApplicationContext(), String.valueOf(animalid), true).execute();
                 } else {
-                    button.setTextColor(getResources().getColor(R.color.accent));
+                    button.setTextColor(getResources().getColor(R.color.white));
                     databaseHandler.deleteFavoriteFromAnimalID(animalid);
                     new IncUpAws(getApplicationContext(), String.valueOf(animalid), false).execute();
                 }

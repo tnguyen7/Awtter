@@ -34,7 +34,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:text="Favorite"
-                android:textColor="#FFF"/>
+                android:textColor="@color/white"/>
             <Button
                 android:id="@+id/commentButton"
                 android:layout_width="match_parent"

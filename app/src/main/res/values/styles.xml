@@ -18,6 +18,8 @@
     <color name="accent_translucent">#E0E0E0</color>
     <color name="accent_bright">#FFCDD2</color>
 
+    <color name="white">#FFF</color>color
+
     <style name="Theme.Transparent" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
