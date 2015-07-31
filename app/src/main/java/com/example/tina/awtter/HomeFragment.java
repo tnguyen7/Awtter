@@ -389,6 +389,16 @@ public class HomeFragment extends Fragment {
 
             }
 
+            int sizeOrient;
+            if (porOrLan.size() > 0) {
+                if ((boolean) porOrLan.get(0).get(0) == true) {
+                    sizeOrient = 1;
+                } else {
+                    sizeOrient = 3;
+                }
+                animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
+            }
+
             if (!refresh) {
                 runOnUiThread(new Runnable() {
                     @Override

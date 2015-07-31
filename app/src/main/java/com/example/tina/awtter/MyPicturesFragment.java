@@ -81,6 +81,8 @@ public class MyPicturesFragment extends Fragment {
 
     boolean refresh = false;
 
+    ArrayList<String> myPictures;
+
     public MyPicturesFragment() {
         // Required empty public constructor
     }
@@ -100,6 +102,7 @@ public class MyPicturesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.recycler, container, false);
 
+        myPictures = new ArrayList<String>();
         // Holds results from database
         animalsList = new ArrayList<HashMap<String, String>>();
 
@@ -284,14 +287,14 @@ public class MyPicturesFragment extends Fragment {
 
             Log.v("mypicture", "count: " + String.valueOf(totalPics));
 
-            for (int index = totalPics - 1; index >= 0; --index) {
-                animalid = databaseHandler.getMyPicture(index);
+            myPictures = databaseHandler.getAllMyPictures();
+
+            for (int index = myPictures.size() - 1; index >= 0; --index) {
+                animalid = Integer.parseInt(myPictures.get(index));
 
                 Log.v("mypicture", "animalid: " + String.valueOf(animalid));
 
-                if (animalid != -1) {
-                    params.add(new BasicNameValuePair(String.valueOf(index), String.valueOf(animalid)));
-                } //TODO: account for error here and in php file add -1 to param
+                params.add(new BasicNameValuePair(String.valueOf(index), String.valueOf(animalid)));
             }
 
             // getting JSON string from URL
@@ -414,6 +417,16 @@ public class MyPicturesFragment extends Fragment {
 
             }
 
+            int sizeOrient;
+            if (porOrLan.size() > 0) {
+                if ((boolean) porOrLan.get(0).get(0) == true) {
+                    sizeOrient = 1;
+                } else {
+                    sizeOrient = 3;
+                }
+                animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
+            }
+
             if (!refresh) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -427,7 +440,7 @@ public class MyPicturesFragment extends Fragment {
                 });
             } else {
                 Log.v("refres", "newadapter" + String.valueOf(animals.size()));
-                rv.swapAdapter(new RVAdapter(animals, context, glm, myPicturesFragment), true);
+                rv.swapAdapter(new RVAdapter(animals, context, glm, myPicturesFragment), false);
                 refresh = false;
             }
 

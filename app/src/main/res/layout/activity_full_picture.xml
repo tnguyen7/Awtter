@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <Button
-                android:id="@+id/buttontest"
+                android:id="@+id/favoriteButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -36,6 +36,7 @@
                 android:text="Favorite"
                 android:textColor="@drawable/background_selector"/>
             <Button
+                android:id="@+id/commentButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -43,6 +44,7 @@
                 android:text="Comment"
                 android:textColor="@drawable/background_selector"/>
             <Button
+                android:id="@+id/shareButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

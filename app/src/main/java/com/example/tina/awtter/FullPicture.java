@@ -1,5 +1,6 @@
 package com.example.tina.awtter;
 
+import android.content.Context;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 
@@ -19,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -54,12 +56,12 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
 
     Toolbar toolbarBottom;
 
+    DatabaseHandler databaseHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
-
-
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -69,7 +71,27 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
         initToolbar();
 
         Intent intent = getIntent();
-        int animalid = intent.getIntExtra("animalid", -1);
+        final int animalid = intent.getIntExtra("animalid", -1);
+
+
+        databaseHandler = new DatabaseHandler(getApplicationContext());
+
+        Button button = (Button) findViewById(R.id.favoriteButton);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // If not in favorites, then increment, otherwise decrement
+                if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+                    databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
+                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), true).execute();
+                } else {
+                    databaseHandler.deleteFavoriteFromAnimalID(animalid);
+                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), false).execute();
+                }
+            }
+        });
+
 
         imageView = (ImageView) findViewById(R.id.imageView);
 

@@ -45,7 +45,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     GridLayoutManager glm;
 
     private static final String homeFragment = "homeFragment";
-    private static final String favoriteFragment = "favoriteFragment";
+    private static final String favoriteFragment = "myFavoritesFragment";
     private static final String myPicturesFragment = "myPicturesFragment";
 
     static String currentFragment;
@@ -90,8 +90,6 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
             photo = (ImageView) itemView.findViewById(R.id.photo);
 
-
-
         }
     }
 
@@ -126,58 +124,63 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         final int index = i;
         int sizeOrient = animals.get(i).sizeOrient;
 
-        animalViewHolder.photo.requestLayout();
-
-        switch (sizeOrient) {
-            case 1:
-
-                animalViewHolder.photo.getLayoutParams().height = portraitHeight;
-                animalViewHolder.photo.getLayoutParams().width = portraitWidth;
-
-                Target target = new CustomTarget(animalViewHolder.photo);
-                Picasso.with(context)
-                        .load(url+String.valueOf(animals.get(i).id))
-                        .resize(portraitWidth, portraitHeight)
-                        .centerCrop()
-                        .into(target);
-                animalViewHolder.photo.setTag(target);
-                break;
-
-            case 2:
-
-                animalViewHolder.photo.getLayoutParams().height = landscape1Height;
-                animalViewHolder.photo.getLayoutParams().width = landscape1Width;
-
-                Picasso.with(context)
-                        .load(url+String.valueOf(animals.get(i).id))
-                        .resize(landscape1Width, landscape1Height)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
-
-                break;
-
-            case 3:
-                animalViewHolder.photo.getLayoutParams().height = landscape2Height;
-                animalViewHolder.photo.getLayoutParams().width = landscape2Width;
-
-                Picasso.with(context)
-                        .load(url+String.valueOf(animals.get(i).id))
-                        .resize(landscape2Width, landscape2Height)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
-
-                break;
-
-        }
-
-        animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), FullPicture.class);
-                intent.putExtra("animalid", animals.get(index).id);
-                view.getContext().startActivity(intent);
+            if (animalViewHolder == null) {
+                Log.v("animalviewholder", "it is null");
             }
-        });
+            animalViewHolder.photo.requestLayout();
+
+            switch (sizeOrient) {
+                case 1:
+
+                    animalViewHolder.photo.getLayoutParams().height = portraitHeight;
+                    animalViewHolder.photo.getLayoutParams().width = portraitWidth;
+
+                    Target target = new CustomTarget(animalViewHolder.photo);
+                    Picasso.with(context)
+                            .load(url+String.valueOf(animals.get(i).id))
+                            .resize(portraitWidth, portraitHeight)
+                            .centerCrop()
+                            .into(target);
+                    animalViewHolder.photo.setTag(target);
+                    break;
+
+                case 2:
+
+                    animalViewHolder.photo.getLayoutParams().height = landscape1Height;
+                    animalViewHolder.photo.getLayoutParams().width = landscape1Width;
+
+                    Picasso.with(context)
+                            .load(url+String.valueOf(animals.get(i).id))
+                            .resize(landscape1Width, landscape1Height)
+                            .centerCrop()
+                            .into(animalViewHolder.photo);
+
+                    break;
+
+                case 3:
+                    animalViewHolder.photo.getLayoutParams().height = landscape2Height;
+                    animalViewHolder.photo.getLayoutParams().width = landscape2Width;
+
+                    Picasso.with(context)
+                            .load(url+String.valueOf(animals.get(i).id))
+                            .resize(landscape2Width, landscape2Height)
+                            .centerCrop()
+                            .into(animalViewHolder.photo);
+
+                    break;
+
+            }
+
+            animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Intent intent = new Intent(view.getContext(), FullPicture.class);
+                    intent.putExtra("animalid", animals.get(index).id);
+                    view.getContext().startActivity(intent);
+                }
+            });
+
     }
 
     @Override

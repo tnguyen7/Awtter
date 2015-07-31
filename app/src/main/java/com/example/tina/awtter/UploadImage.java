@@ -149,7 +149,7 @@ public class UploadImage extends AsyncTask<String, String, String> {
                         }
                     });
 
-                    databaseHandler.createMyPicture(databaseHandler.getMyPictureCount(), Integer.valueOf(the_string_response));
+                    databaseHandler.createMyPicture(databaseHandler.getLastIDMyPicture(), Integer.valueOf(the_string_response));
 
                 }catch(final Exception e){
                     runOnUiThread(new Runnable() {

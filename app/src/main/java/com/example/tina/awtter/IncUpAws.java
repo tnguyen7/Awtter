@@ -34,13 +34,18 @@ class IncUpAws extends AsyncTask<String, String, String> {
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_ID = "__id";
+    private static final String TAG_INCREMENT = "increment";
+    private static final String TAG_DECREMENT = "decrement";
 
     // products JSONArray
     JSONArray animals = null;
 
-    public IncUpAws(Context context, String id) {
+    boolean increment;
+
+    public IncUpAws(Context context, String id, boolean increment) {
         this.context = context;
-        __id = id;
+        this.__id = id;
+        this.increment = increment;
     }
     /**
      * Before starting background thread Show Progress Dialog
@@ -58,6 +63,12 @@ class IncUpAws extends AsyncTask<String, String, String> {
         // Building Parameters
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair(TAG_ID, __id));
+
+        if (increment) {
+            params.add(new BasicNameValuePair(TAG_INCREMENT, TAG_INCREMENT));
+        } else {
+            params.add(new BasicNameValuePair(TAG_INCREMENT, TAG_DECREMENT));
+        }
 
         // getting JSON string from URL
         JSONObject json = jParser.makeHttpRequest(url_upAw, "POST", params);

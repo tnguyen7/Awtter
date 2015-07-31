@@ -61,9 +61,6 @@ public class FavoritesFragment extends Fragment {
     private static final String url = "http://76.244.35.83/media/";
     private static final String myFavoritesFragment = "myFavoritesFragment";
 
-
-    public boolean runOnce = false;
-
     int indexThreeAnimals = 0;
 
     public boolean topPadding = true;
@@ -76,6 +73,8 @@ public class FavoritesFragment extends Fragment {
     SwipeRefreshLayout mySwipeRefreshLayout;
 
     boolean refresh = false;
+
+    ArrayList<String> favorites;
 
     public FavoritesFragment() {
         // Required empty public constructor
@@ -102,6 +101,8 @@ public class FavoritesFragment extends Fragment {
         animals = new ArrayList<>();
 
         porOrLan = new ArrayList<ArrayList<Object>>();
+
+        favorites = new ArrayList<String>();
 
         new LoadAnimals().execute();
 
@@ -186,10 +187,17 @@ public class FavoritesFragment extends Fragment {
                             porOrLan.remove(--i);
                         }
 
+                        i = favorites.size();
+                        while (favorites.size() > 0) {
+                            favorites.remove(--i);
+                        }
+
                         topPadding = true;
                         indexThreeAnimals = 0;
-                        runOnce = false;
-                        refresh = true;
+                        if (adapter != null) {
+                            refresh = true;
+
+                        }
                         new LoadAnimals().execute();
 
                     }
@@ -265,6 +273,7 @@ public class FavoritesFragment extends Fragment {
         protected String doInBackground(String... args) {
 
             int totalFavs = databaseHandler.getFavoriteCount();
+            int animalid;
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair(TAG_FILTER, filter));
@@ -273,15 +282,14 @@ public class FavoritesFragment extends Fragment {
 
 
             Log.v("myfavorite", "count: " + String.valueOf(totalFavs));
+            favorites = databaseHandler.getAllFavorites();
 
-            for (int index = totalFavs - 1; index >= 0; --index) {
-                int animalid = databaseHandler.getFavorite(index);
+            for (int index = favorites.size() - 1; index >= 0; --index) {
+                animalid = Integer.parseInt(favorites.get(index));
 
                 Log.v("myfavorite", "animalid: " + String.valueOf(animalid));
 
-                if (animalid != -1) {
-                    params.add(new BasicNameValuePair(String.valueOf(index), String.valueOf(animalid)));
-                } //TODO: account for error here and in php file add -1 to param
+                params.add(new BasicNameValuePair(String.valueOf(index), String.valueOf(animalid)));
             }
 
             // getting JSON string from URL
@@ -405,6 +413,16 @@ public class FavoritesFragment extends Fragment {
 
             }
 
+            int sizeOrient;
+            if (porOrLan.size() > 0) {
+                if ((boolean) porOrLan.get(0).get(0) == true) {
+                    sizeOrient = 1;
+                } else {
+                    sizeOrient = 3;
+                }
+                animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
+            }
+
             if (!refresh) {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -418,10 +436,9 @@ public class FavoritesFragment extends Fragment {
                 });
             } else {
                 Log.v("refres", "newadapter" + String.valueOf(animals.size()));
-                rv.swapAdapter(new RVAdapter(animals, context, glm, myFavoritesFragment), true);
+                rv.swapAdapter(new RVAdapter(animals, context, glm, myFavoritesFragment), false);
                 refresh = false;
             }
-
 
             mySwipeRefreshLayout.setRefreshing(false);
         }
@@ -550,11 +567,17 @@ public class FavoritesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
 
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
 
@@ -562,11 +585,17 @@ public class FavoritesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
 
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
+
                 } else {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+
+                    porOrLan.remove(1);
+                    porOrLan.remove(0);
 
                 }
 
@@ -577,9 +606,13 @@ public class FavoritesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
+                    porOrLan.remove(0);
+
                 } else {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
+
+                    porOrLan.remove(0);
 
                 }
             }
