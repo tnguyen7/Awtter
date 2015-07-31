@@ -76,16 +76,24 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
 
         databaseHandler = new DatabaseHandler(getApplicationContext());
 
-        Button button = (Button) findViewById(R.id.favoriteButton);
+        final Button button = (Button) findViewById(R.id.favoriteButton);
 
-        button.setOnClickListener(new View.OnClickListener() {
+        if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+            button.setTextColor(getResources().getColor(R.color.accent));
+        } else {
+            button.setTextColor(getResources().getColor(R.color.accent_bright));
+        }
+
+            button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // If not in favorites, then increment, otherwise decrement
                 if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+                    button.setTextColor(getResources().getColor(R.color.accent_bright));
                     databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
                     new IncUpAws(getApplicationContext(), String.valueOf(animalid), true).execute();
                 } else {
+                    button.setTextColor(getResources().getColor(R.color.accent));
                     databaseHandler.deleteFavoriteFromAnimalID(animalid);
                     new IncUpAws(getApplicationContext(), String.valueOf(animalid), false).execute();
                 }
@@ -158,6 +166,7 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
             else {
                 actionBar.show();
                 toolbarBottom.animate().setDuration(250).translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+
             }
         }
     }
@@ -254,7 +263,7 @@ public class FullPicture extends AppCompatActivity implements View.OnTouchListen
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+                finish();
                 return true;
         }
 
