@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Execute an SQL query
-        db.execSQL("CREATE TABLE " + TABLE_FAVORITES + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_FAV + " INTEGER)");
-        db.execSQL("CREATE TABLE " + TABLE_MY_PICTURES + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_MY_PIC + " INTEGER)");
+        db.execSQL("CREATE TABLE " + TABLE_FAVORITES + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FAV + " INTEGER)");
+        db.execSQL("CREATE TABLE " + TABLE_MY_PICTURES + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_MY_PIC + " INTEGER)");
     }
 
     @Override
@@ -145,6 +146,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         cursor.close();
+        Log.v("DatabaseHandler", "next increment: " + (result + 1));
 
         return result + 1;
     }
@@ -239,7 +241,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         cursor.close();
-
         return result + 1;
     }
 

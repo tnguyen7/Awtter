@@ -120,6 +120,7 @@ public class FavoritesFragment extends Fragment {
             @Override
             public int getSpanSize(int position) {
                 Log.v("ADAPT", "SIZEORIENT = " + animals.get(position).sizeOrient);
+                Log.v("ADAPT", "POSITION = " + position);
                 switch (animals.get(position).sizeOrient) {
                     case 1:
                         return 1;
@@ -293,6 +294,7 @@ public class FavoritesFragment extends Fragment {
          */
         @SuppressWarnings("deprecation")
         protected String doInBackground(String... args) {
+            boolean isPortrait;
 
             int totalFavs = databaseHandler.getFavoriteCount();
             int animalid;
@@ -339,27 +341,34 @@ public class FavoritesFragment extends Fragment {
                         JSONObject c = animals_all.getJSONObject(i);
 
                         // Storing each json item in variable
+
+
                         String id = c.getString(TAG_ID);
                         String upAws = c.getString(TAG_UPAWS);
                         String date = c.getString(TAG_CREATEDAT);
-                        int portrait = c.getInt(TAG_PORTRAIT);
-                        boolean isPortrait;
-                        if (portrait == 1) {
-                            isPortrait = true;
-                        } else {
-                            isPortrait = false;
+                        try {
+                            int portrait = c.getInt(TAG_PORTRAIT);
+                            if (portrait == 1) {
+                                isPortrait = true;
+                            } else {
+                                isPortrait = false;
+                            }
+                            // creating new HashMap
+                            map = new HashMap<String, String>();
+
+                            // adding each child node to HashMap key => value
+                            map.put(TAG_ID, id);
+                            map.put(TAG_UPAWS, upAws);
+                            map.put(TAG_CREATEDAT, date);
+                            map.put(TAG_PORTRAIT, String.valueOf(isPortrait));
+
+
+                            // adding HashList to ArrayList
+                            animalsList.add(map);
+                        } catch (JSONException e) {
+                            Log.v("favorites fragment", "a picture has been deleted and cannot be loaded in favorites fragment");
                         }
-                        // creating new HashMap
-                        map = new HashMap<String, String>();
 
-                        // adding each child node to HashMap key => value
-                        map.put(TAG_ID, id);
-                        map.put(TAG_UPAWS, upAws);
-                        map.put(TAG_CREATEDAT, date);
-                        map.put(TAG_PORTRAIT, String.valueOf(isPortrait));
-
-                        // adding HashList to ArrayList
-                        animalsList.add(map);
                     }
                 } else {
                     //No animals found
@@ -458,10 +467,9 @@ public class FavoritesFragment extends Fragment {
                 });
             } else {
                 adapter.notifyDataSetChanged();
-                refresh = false;
+                refresh = true;
+                mySwipeRefreshLayout.setRefreshing(false);
             }
-
-            mySwipeRefreshLayout.setRefreshing(false);
         }
 
         private void reorganize() {

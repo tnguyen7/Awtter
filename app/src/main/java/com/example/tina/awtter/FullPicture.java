@@ -3,6 +3,7 @@ package com.example.tina.awtter;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.FloatMath;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,7 +33,6 @@ import com.squareup.picasso.Target;
 import java.util.ArrayList;
 
 public class FullPicture extends AppCompatActivity{
-
 
     ImageView imageView;
 
@@ -67,10 +68,16 @@ public class FullPicture extends AppCompatActivity{
     private static final String myPicturesFragment = "myPicturesFragment";
 
     int animalid;
+
+    private GestureDetectorCompat mDetector;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -158,14 +165,6 @@ public class FullPicture extends AppCompatActivity{
         }
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-            toggleActionBar();
-        }
-        return true;
-    }
-
     private void toggleActionBar() {
         ActionBar actionBar = getSupportActionBar();
 
@@ -187,14 +186,13 @@ public class FullPicture extends AppCompatActivity{
         // Inflate the menu; this adds items to the action bar if it is present.
             Log.v("fullpicture", currentFragment);
 
-        if (currentFragment == homeFragment) {
+        if (currentFragment.equals(homeFragment)) {
             getMenuInflater().inflate(R.menu.menu_full_picture_home, menu);
-        } else if (currentFragment == favoriteFragment) {
+        } else if (currentFragment.equals(favoriteFragment)) {
             getMenuInflater().inflate(R.menu.menu_full_picture_fav, menu);
-        } else if (currentFragment == myPicturesFragment) {
+        } else if (currentFragment.equals(myPicturesFragment)) {
             getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
         }
-        getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
 
         return true;
     }
@@ -227,6 +225,49 @@ public class FullPicture extends AppCompatActivity{
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestures";
+        private static final int SWIPE_MIN_DISTANCE = 120;
+        private static final int SWIPE_MAX_OFF_PATH = 250;
+        private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent event) {
+            toggleActionBar();
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2,
+                               float velocityX, float velocityY) {
+            /*
+            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Right to left
+            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Left to right
+            }*/
+
+            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+                finish();
+                return false; // Bottom to top
+            }
+            return false;
+        }
     }
 
 }

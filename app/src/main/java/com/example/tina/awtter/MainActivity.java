@@ -180,8 +180,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         t.show(fragment);
         currentFragment = fragment;
 
-        // You probably want to add the transaction to the backstack
-        // so that user can use the back button
+        // TODO: maybe not add to backstack..options and occassional bug occurs when current frag is not hidden
         t.addToBackStack(null);
         t.commit();
     }

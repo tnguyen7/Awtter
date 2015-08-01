@@ -201,7 +201,10 @@ public class MyPicturesFragment extends Fragment {
                         topPadding = true;
                         indexThreeAnimals = 0;
                         runOnce = false;
-                        refresh = true;
+                        if (adapter != null) {
+                            refresh = true;
+
+                        }
                         new LoadAnimals().execute();
 
                     }
@@ -297,6 +300,7 @@ public class MyPicturesFragment extends Fragment {
          */
         @SuppressWarnings("deprecation")
         protected String doInBackground(String... args) {
+            boolean isPortrait;
 
             int totalPics = databaseHandler.getMyPictureCount();
             int animalid;
@@ -347,24 +351,28 @@ public class MyPicturesFragment extends Fragment {
                         String id = c.getString(TAG_ID);
                         String upAws = c.getString(TAG_UPAWS);
                         String date = c.getString(TAG_CREATEDAT);
-                        int portrait = c.getInt(TAG_PORTRAIT);
-                        boolean isPortrait;
-                        if (portrait == 1) {
-                            isPortrait = true;
-                        } else {
-                            isPortrait = false;
+                        try {
+                            int portrait = c.getInt(TAG_PORTRAIT);
+                            if (portrait == 1) {
+                                isPortrait = true;
+                            } else {
+                                isPortrait = false;
+                            }
+                            // creating new HashMap
+                            map = new HashMap<String, String>();
+
+                            // adding each child node to HashMap key => value
+                            map.put(TAG_ID, id);
+                            map.put(TAG_UPAWS, upAws);
+                            map.put(TAG_CREATEDAT, date);
+                            map.put(TAG_PORTRAIT, String.valueOf(isPortrait));
+
+
+                            // adding HashList to ArrayList
+                            animalsList.add(map);
+                        } catch (JSONException e) {
+                            Log.v("favorites fragment", "a picture has been deleted and cannot be loaded in favorites fragment");
                         }
-                        // creating new HashMap
-                        map = new HashMap<String, String>();
-
-                        // adding each child node to HashMap key => value
-                        map.put(TAG_ID, id);
-                        map.put(TAG_UPAWS, upAws);
-                        map.put(TAG_CREATEDAT, date);
-                        map.put(TAG_PORTRAIT, String.valueOf(isPortrait));
-
-                        // adding HashList to ArrayList
-                        animalsList.add(map);
                     }
                 } else {
                     //No animals found
@@ -461,7 +469,8 @@ public class MyPicturesFragment extends Fragment {
                     }
                 });
             } else {
-                adapter.notifyDataSetChanged();
+                adapter = new RVAdapter(animals, context, glm, myPicturesFragment);
+                rv.setAdapter(adapter);
                 refresh = false;
             }
 

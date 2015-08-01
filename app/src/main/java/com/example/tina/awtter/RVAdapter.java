@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,9 +53,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
     String currentFragment;
 
-    GestureDetector gestureDetector;
     boolean tapped;
     ImageView imageView;
+
+    DatabaseHandler databaseHandler;
 
     RVAdapter(List<Animal> animals, Context context, GridLayoutManager glm, String fragment) {
 
@@ -85,6 +87,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         Log.v("ADAPT", "BigLandscapeWidth = " + landscape2Width);
 
         currentFragment = fragment;
+
+        databaseHandler = new DatabaseHandler(context);
+
     }
 
     public static class AnimalViewHolder extends RecyclerView.ViewHolder {
@@ -103,9 +108,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     public int getItemCount() {
         return animals.size();
     }
-/*
- * method is called when the custom viewholder needs to be initialized
- */
+    /*
+     * method is called when the custom viewholder needs to be initialized
+     */
     @Override
     public AnimalViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) { //specifying layout of eachu
         View v = null;
@@ -127,7 +132,9 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
     @Override
     public void onBindViewHolder(AnimalViewHolder animalViewHolder, int i) {
 
-        final int index = i;
+        final int animalid = animals.get(i).id;
+        final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid));
+
         int sizeOrient = animals.get(i).sizeOrient;
 
         animalViewHolder.photo.requestLayout();
@@ -140,7 +147,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
                 Target target = new CustomTarget(animalViewHolder.photo);
                 Picasso.with(context)
-                        .load(url+String.valueOf(animals.get(i).id))
+                        .load(url+String.valueOf(animalid))
                         .resize(portraitWidth, portraitHeight)
                         .centerCrop()
                         .into(target);
@@ -153,7 +160,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 animalViewHolder.photo.getLayoutParams().width = landscape1Width;
 
                 Picasso.with(context)
-                        .load(url+String.valueOf(animals.get(i).id))
+                        .load(url+String.valueOf(animalid))
                         .resize(landscape1Width, landscape1Height)
                         .centerCrop()
                         .into(animalViewHolder.photo);
@@ -165,7 +172,7 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 animalViewHolder.photo.getLayoutParams().width = landscape2Width;
 
                 Picasso.with(context)
-                        .load(url+String.valueOf(animals.get(i).id))
+                        .load(url+String.valueOf(animalid))
                         .resize(landscape2Width, landscape2Height)
                         .centerCrop()
                         .into(animalViewHolder.photo);
@@ -173,15 +180,22 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
                 break;
 
         }
-
+/*
         animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(view.getContext(), FullPicture.class);
+                Intent intent = new Intent(context, FullPicture.class);
                 intent.putExtra("animalid", animals.get(index).id);
                 intent.putExtra("fragment", currentFragment);
-                view.getContext().startActivity(intent);
+                context.startActivity(intent);
+            }
+        });
+*/
+        animalViewHolder.photo.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
             }
         });
 
@@ -245,6 +259,11 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
     public class GestureListener extends
             GestureDetector.SimpleOnGestureListener {
+        int animalid;
+
+        public GestureListener(int animalid) {
+            this.animalid = animalid;
+        }
 
         @Override
         public boolean onDown(MotionEvent e) {
@@ -252,24 +271,28 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
             return true;
         }
 
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Intent intent = new Intent(context, FullPicture.class);
+            intent.putExtra("animalid", animalid);
+            intent.putExtra("fragment", currentFragment);
+            context.startActivity(intent);
+            return true;
+        }
+
         // event when double tap occurs
         @Override
         public boolean onDoubleTap(MotionEvent e) {
 
-            tapped = !tapped;
-
-            if (tapped) {
-
-                Log.v("RVADAPTER", "tapped is true");
-
+            if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+                databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
+                new IncUpAws(context, String.valueOf(animalid), true).execute();
             } else {
-
-                Log.v("RVADAPTER", "tapped is false");
+                databaseHandler.deleteFavoriteFromAnimalID(animalid);
+                new IncUpAws(context, String.valueOf(animalid), false).execute();
             }
 
             return true;
         }
     }
 }
-
-
