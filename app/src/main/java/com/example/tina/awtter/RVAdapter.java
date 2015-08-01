@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
@@ -28,8 +29,9 @@ import java.util.List;
 /**
  * Created by richellevital on 7/19/15.
  */
-public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
-
+public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    private final int VIEW_ITEM = 1;
+    private final int VIEW_PROG = 0;
     List<Animal> animals;
     int widthScreen;
     int heightScreen;
@@ -104,6 +106,14 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
         }
     }
 
+    public static class ProgressViewHolder extends RecyclerView.ViewHolder {
+        public ProgressBar progressBar;
+        public ProgressViewHolder(View v) {
+            super(v);
+            progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
+        }
+    }
+
     @Override
     public int getItemCount() {
         return animals.size();
@@ -112,74 +122,84 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
      * method is called when the custom viewholder needs to be initialized
      */
     @Override
-    public AnimalViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) { //specifying layout of eachu
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) { //specifying layout of eachu
         View v = null;
-        if (currentFragment == homeFragment) {
-            v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
-        } else if (currentFragment == favoriteFragment) {
-            v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_favorites, viewGroup, false);
-        } else if (currentFragment == myPicturesFragment) {
-            v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_my_pictures, viewGroup, false);
+        RecyclerView.ViewHolder vh;
+        if (viewType == VIEW_ITEM) {
+            if (currentFragment == homeFragment) {
+                v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
+            } else if (currentFragment == favoriteFragment) {
+                v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_favorites, viewGroup, false);
+            } else if (currentFragment == myPicturesFragment) {
+                v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_my_pictures, viewGroup, false);
+            }
+
+            vh = new AnimalViewHolder(v);
+        } else {
+            v = LayoutInflater.from(viewGroup.getContext())
+                    .inflate(R.layout.progress_item, viewGroup, false);
+
+            vh = new ProgressViewHolder(v);
         }
 
-        AnimalViewHolder pvh = new AnimalViewHolder(v);
-
-
-        return pvh;
+        return vh;
     }
 
     //setting values
     @Override
-    public void onBindViewHolder(AnimalViewHolder animalViewHolder, int i) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+        if(holder instanceof AnimalViewHolder) {
 
-        final int animalid = animals.get(i).id;
-        final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid));
+            final int animalid = animals.get(i).id;
+            final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid));
 
-        int sizeOrient = animals.get(i).sizeOrient;
+            int sizeOrient = animals.get(i).sizeOrient;
 
-        animalViewHolder.photo.requestLayout();
 
-        switch (sizeOrient) {
-            case 1:
+            AnimalViewHolder animalViewHolder = (AnimalViewHolder) holder;
+            animalViewHolder.photo.requestLayout();
 
-                animalViewHolder.photo.getLayoutParams().height = portraitHeight;
-                animalViewHolder.photo.getLayoutParams().width = portraitWidth;
+            switch (sizeOrient) {
+                case 1:
 
-                Target target = new CustomTarget(animalViewHolder.photo);
-                Picasso.with(context)
-                        .load(url+String.valueOf(animalid))
-                        .resize(portraitWidth, portraitHeight)
-                        .centerCrop()
-                        .into(target);
-                animalViewHolder.photo.setTag(target);
-                break;
+                    animalViewHolder.photo.getLayoutParams().height = portraitHeight;
+                    animalViewHolder.photo.getLayoutParams().width = portraitWidth;
 
-            case 2:
+                    Target target = new CustomTarget(animalViewHolder.photo);
+                    Picasso.with(context)
+                            .load(url + String.valueOf(animalid))
+                            .resize(portraitWidth, portraitHeight)
+                            .centerCrop()
+                            .into(target);
+                    animalViewHolder.photo.setTag(target);
+                    break;
 
-                animalViewHolder.photo.getLayoutParams().height = landscape1Height;
-                animalViewHolder.photo.getLayoutParams().width = landscape1Width;
+                case 2:
 
-                Picasso.with(context)
-                        .load(url+String.valueOf(animalid))
-                        .resize(landscape1Width, landscape1Height)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
+                    animalViewHolder.photo.getLayoutParams().height = landscape1Height;
+                    animalViewHolder.photo.getLayoutParams().width = landscape1Width;
 
-                break;
+                    Picasso.with(context)
+                            .load(url + String.valueOf(animalid))
+                            .resize(landscape1Width, landscape1Height)
+                            .centerCrop()
+                            .into(animalViewHolder.photo);
 
-            case 3:
-                animalViewHolder.photo.getLayoutParams().height = landscape2Height;
-                animalViewHolder.photo.getLayoutParams().width = landscape2Width;
+                    break;
 
-                Picasso.with(context)
-                        .load(url+String.valueOf(animalid))
-                        .resize(landscape2Width, landscape2Height)
-                        .centerCrop()
-                        .into(animalViewHolder.photo);
+                case 3:
+                    animalViewHolder.photo.getLayoutParams().height = landscape2Height;
+                    animalViewHolder.photo.getLayoutParams().width = landscape2Width;
 
-                break;
+                    Picasso.with(context)
+                            .load(url + String.valueOf(animalid))
+                            .resize(landscape2Width, landscape2Height)
+                            .centerCrop()
+                            .into(animalViewHolder.photo);
 
-        }
+                    break;
+
+            }
 /*
         animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -192,30 +212,32 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
             }
         });
 */
-        animalViewHolder.photo.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-
-        animalViewHolder.photo.setOnLongClickListener(new View.OnLongClickListener() {
-
-            @Override
-            public boolean onLongClick(View v) {
-                Log.v("RVADAPTER", "there was a long click :O");
-                if (currentFragment == homeFragment) {
-
-                } else if (currentFragment == favoriteFragment) {
-
-                } else if (currentFragment == myPicturesFragment) {
-
+            animalViewHolder.photo.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return gestureDetector.onTouchEvent(event);
                 }
+            });
 
-                return true;
-            }
-        });
+            animalViewHolder.photo.setOnLongClickListener(new View.OnLongClickListener() {
 
+                @Override
+                public boolean onLongClick(View v) {
+                    Log.v("RVADAPTER", "there was a long click :O");
+                    if (currentFragment == homeFragment) {
+
+                    } else if (currentFragment == favoriteFragment) {
+
+                    } else if (currentFragment == myPicturesFragment) {
+
+                    }
+
+                    return true;
+                }
+            });
+        } else {
+            ((ProgressViewHolder)holder).progressBar.setIndeterminate(true);
+        }
     }
 
     @Override
@@ -294,5 +316,10 @@ public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AnimalViewHolder>{
 
             return true;
         }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return animals.get(position)!=null? VIEW_ITEM: VIEW_PROG;
     }
 }

@@ -21,18 +21,27 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-
-        outRect.bottom = space;
-
-        // Add top margin only for the first item to avoid double space between items
-        if(animals.get(parent.getChildPosition(view)).top == true) {
-            outRect.top = space;
+        Animal animal;
+        try {
+             animal = animals.get(parent.getChildPosition(view));
+        } catch (IndexOutOfBoundsException e) {
+            animal = null;
         }
-        if(animals.get(parent.getChildPosition(view)).right == true) {
-            outRect.right = space;
-        }
-        if(animals.get(parent.getChildPosition(view)).left == true) {
-            outRect.left = space;
+        if (animal != null) {
+            outRect.bottom = space;
+
+            // Add top margin only for the first item to avoid double space between items
+            if (animal.top == true) {
+                outRect.top = space;
+            }
+            if (animal.right == true) {
+                outRect.right = space;
+            }
+            if (animal.left == true) {
+                outRect.left = space;
+            }
+
+
         }
     }
 }

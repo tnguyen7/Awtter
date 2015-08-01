@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -46,8 +47,7 @@ public class HomeFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
     ArrayList<HashMap<String, String>> animalsList;
-    ListView lv;
-    String startPoint;
+    String startPoint = "0";
 
     boolean topPadding = true;
 
@@ -60,8 +60,6 @@ public class HomeFragment extends Fragment {
     GridLayoutManager glm;
 
     RVAdapter adapter;
-
-    boolean refresh = false;
 
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
@@ -76,7 +74,8 @@ public class HomeFragment extends Fragment {
 
     public boolean runOnce = false;
 
-    int indexThreeAnimals;
+    private Handler handler;
+
 
     SwipeRefreshLayout mySwipeRefreshLayout;
 
@@ -96,6 +95,7 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.recycler, container, false);
 
+        handler = new Handler();
         mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
         mySwipeRefreshLayout.setOnRefreshListener(
@@ -106,25 +106,16 @@ public class HomeFragment extends Fragment {
 
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
-                        int i = animalsList.size();
-                        while (animalsList.size() > 0) {
-                            animalsList.remove(--i);
-                        }
 
-                        i = animals.size();
+
+                        int i = animals.size();
                         while (animals.size() > 0) {
                             animals.remove(--i);
                         }
 
-                        i = porOrLan.size();
-                        while (porOrLan.size() > 0) {
-                            porOrLan.remove(--i);
-                        }
-
+                        loading = true;
+                        startPoint = "0";
                         topPadding = true;
-                        indexThreeAnimals = 0;
-                        runOnce = false;
-                        refresh = true;
                         new LoadAnimals().execute();
 
                     }
@@ -132,13 +123,7 @@ public class HomeFragment extends Fragment {
         );
 
         // Holds results from database
-        animalsList = new ArrayList<HashMap<String, String>>();
-
         animals = new ArrayList<>();
-
-        porOrLan = new ArrayList<ArrayList<Object>>();
-
-        indexThreeAnimals = 0;
 
         new LoadAnimals().execute();
 
@@ -150,7 +135,12 @@ public class HomeFragment extends Fragment {
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
+                if (animals.get(position) == null) {
+                    return 3;
+                }
+
                 Log.v("ADAPT", "SIZEORIENT = " + animals.get(position).sizeOrient);
+
                 switch (animals.get(position).sizeOrient) {
                     case 1:
                         return 1;
@@ -174,8 +164,26 @@ public class HomeFragment extends Fragment {
 
                 if (loading) {
                     if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                        loading = false;
-                        Log.v("...", "Last Item Wow !");
+
+                        if (animalsList.size() == 15) {
+                            loading = false;
+                            animals.add(null);
+                            adapter.notifyItemInserted(animals.size());
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    //remove progress item
+                                    animals.remove(animals.size() - 1);
+                                    adapter.notifyItemRemoved(animals.size());
+                                    new LoadAnimals().execute();
+
+                                }
+                            }, 1000);
+
+                        } else {
+                            loading = false;
+                        }
+
                     }
                 }
             }
@@ -235,6 +243,7 @@ public class HomeFragment extends Fragment {
     class LoadAnimals extends AsyncTask<String, String, String> {
 
         String filter = "popularity";
+        int indexThreeAnimals = 0;
 
         // Progress Dialog
         private ProgressDialog pDialog;
@@ -256,6 +265,10 @@ public class HomeFragment extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            animalsList = new ArrayList<HashMap<String, String>>();
+
+            porOrLan = new ArrayList<ArrayList<Object>>();
         }
 
         /**
@@ -267,7 +280,7 @@ public class HomeFragment extends Fragment {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair(TAG_FILTER, filter));
             params.add(new BasicNameValuePair(TAG_START_POINT, startPoint));
-
+            startPoint = String.valueOf(Integer.valueOf(startPoint) + 15);
             // getting JSON string from URL
             JSONObject json = jParser.makeHttpRequest(url_all_products, "GET", params);
 
@@ -399,7 +412,7 @@ public class HomeFragment extends Fragment {
                 animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
             }
 
-            if (!refresh) {
+            if (!runOnce) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -410,13 +423,13 @@ public class HomeFragment extends Fragment {
 
                     }
                 });
+                runOnce = true;
             } else {
                 adapter.notifyDataSetChanged();
-                refresh = false;
             }
 
-
             mySwipeRefreshLayout.setRefreshing(false);
+            loading = true;
         }
 
         private void reorganize() {
