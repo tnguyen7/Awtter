@@ -22,13 +22,13 @@
 		echo "\nConnection to database has failed.";
 	}
 
-	$max = "SELECT __id FROM MediaEntries ORDER BY __id DESC LIMIT 1";
+	$max = "SHOW TABLE STATUS LIKE 'MediaEntries'";
 
 	$result = $conn->query($max)->fetch_assoc();
 
-	$hi = $result['__id'] + 1;
+	$hi = $result['Auto_increment'];
 
-	$target_url = $target_dir . ($result['__id'] + 1);
+	$target_url = $target_dir . ($hi);
 
 	$base=$_POST['image'];
 	$binary=base64_decode($base);

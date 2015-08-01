@@ -1,6 +1,7 @@
 <?php
 
   $filter = $_GET['filter'];
+  $startPoint = $_GET['start'];
   $servername = "sql3.freemysqlhosting.net";
   $username = "sql383327";
   $password = "jT8!eC1%";
@@ -18,7 +19,7 @@
   $response = array();
 
   if ($filter == "popularity") {
-    $max = "SELECT * FROM MediaEntries ORDER BY __upAws DESC"; 
+    $max = "SELECT * FROM MediaEntries ORDER BY __upAws DESC, __createdAt DESC LIMIT 15 OFFSET $startPoint"; 
     $result = mysqli_query($conn, $max);
 
     $response["animals"] = array();
