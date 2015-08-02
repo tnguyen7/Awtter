@@ -35,12 +35,17 @@ public class PickImage extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+
             Uri uri = data.getData();
 
-            new UploadImage(this, uri).execute();
+            View view = findViewById(android.R.id.content);
+
+            new UploadImage(this, uri, view).execute();
 
         }
+
         finish();
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 

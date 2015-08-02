@@ -21,43 +21,56 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
 public class UploadImage extends AsyncTask<String, String, String> {
-    InputStream inputStream;
-    Bitmap bitmap;
-    int bitmapWidth, bitmapHeight;
-    double scale;
-    Uri uri;
-    Context context;
-    boolean portrait;
-    DatabaseHandler databaseHandler;
 
-    public UploadImage (Context context, Uri imageUri) {
+    private static final String TAG = "UploadImage";
+    private static final String url = "http://76.244.35.83/upload_image.php";
+
+    private Context context;
+    private Uri uri;
+    private View rootView;
+    private DatabaseHandler databaseHandler;
+
+    private InputStream inputStream;
+
+    private Bitmap bitmap;
+    private int bitmapWidth, bitmapHeight;
+
+    private double scale;
+
+    private boolean portrait;
+
+    public UploadImage (Context context, Uri imageUri, View rootView) {
         this.context = context;
         this.uri = imageUri;
         databaseHandler = new DatabaseHandler(context);
+        this.rootView = rootView;
     }
 
     @SuppressWarnings( "deprecation" )
     @Override
     protected String doInBackground(String... args) {
 
-
         try {
+
             if (bitmap != null) {
                 bitmap.recycle();
             }
-            InputStream stream = context.getContentResolver().openInputStream(
-                    uri);
+
+            InputStream stream = context.getContentResolver().openInputStream(uri);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPurgeable = true;
             bitmap = BitmapFactory.decodeStream(stream);
             stream.close();
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -68,10 +81,8 @@ public class UploadImage extends AsyncTask<String, String, String> {
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         int height = displaymetrics.heightPixels;
         int width = displaymetrics.widthPixels;
-        Log.v("SCALE", "HEIGHT = " + height);
-        Log.v("SCALE", "WIDTH = " + width);
 
-        // Get the correct orientaiton uploaded
+        // Get the correct orientation uploaded
         String[] orientationColumn = {MediaStore.Images.Media.ORIENTATION};
         Cursor cur = ((Activity)context).managedQuery(uri, orientationColumn, null, null, null);
         int orientation = -1;
@@ -81,27 +92,19 @@ public class UploadImage extends AsyncTask<String, String, String> {
         Matrix matrix = new Matrix();
         matrix.postRotate(orientation);
 
-        Log.v("SCALE", "ORIENTATION = " + orientation);
-
-
         bitmapHeight = bitmap.getHeight();
         bitmapWidth  = bitmap.getWidth();
-        Log.v("SCALE", "BITMAPHEIGHT = " + bitmapHeight);
-        Log.v("SCALE", "BITMAPWIDTH = " + bitmapWidth);
 
         if (orientation == 90 || orientation == 270) {
-            //actually landscape
             if (bitmapHeight > bitmapWidth) {
                 portrait = false;
                 scale = ((double) width)/bitmapWidth;
 
-                Log.v("SCALE", "SCALE = " + scale);
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, (int) (scale * bitmapHeight), true);
             } else {
                 portrait = true;
                 scale = ((double) height)/bitmapHeight;
 
-                Log.v("SCALE", "SCALE = " + scale);
                 bitmap = Bitmap.createScaledBitmap(bitmap, (int) (scale * bitmapWidth), height, true);
             }
         } else {
@@ -109,21 +112,20 @@ public class UploadImage extends AsyncTask<String, String, String> {
                 portrait = false;
                 scale = ((double) width)/bitmapWidth;
 
-                Log.v("SCALE", "SCALE = " + scale);
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, (int) (scale * bitmapHeight), true);
             } else {
                 portrait = true;
                 scale = ((double) height)/bitmapHeight;
 
-                Log.v("SCALE", "SCALE = " + scale);
                 bitmap = Bitmap.createScaledBitmap(bitmap, (int) (scale * bitmapWidth), height, true);
             }
         }
+
+        // Correct bitmap to be uploaded
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
-
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream); //compress to which format you want.
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, stream);
         byte [] byte_arr = stream.toByteArray();
         String image_str = Base64.encodeBytes(byte_arr);
         final ArrayList<NameValuePair> nameValuePairs = new  ArrayList<NameValuePair>();
@@ -137,17 +139,13 @@ public class UploadImage extends AsyncTask<String, String, String> {
             public void run() {
                 try{
                     HttpClient httpclient = new DefaultHttpClient();
-                    HttpPost httppost = new HttpPost("http://76.244.35.83/upload_image.php");
+                    HttpPost httppost = new HttpPost(url);
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
                     HttpResponse response = httpclient.execute(httppost);
                     final String the_string_response = convertResponseToString(response);
-                    runOnUiThread(new Runnable() {
+                    Log.v(TAG, the_string_response);
+                    Snackbar.make(rootView, "Photo uploaded", Snackbar.LENGTH_LONG).show();
 
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, "Response : " + the_string_response, Toast.LENGTH_LONG).show();
-                        }
-                    });
 
                     databaseHandler.createMyPicture(databaseHandler.getLastIDMyPicture(), Integer.valueOf(the_string_response));
 
@@ -156,7 +154,7 @@ public class UploadImage extends AsyncTask<String, String, String> {
 
                         @Override
                         public void run() {
-                            Toast.makeText(context, "ERROR " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            Log.v(TAG, "ERROR " + e.getMessage());
                         }
                     });
                     System.out.println("Error in http connection "+e.toString());
@@ -179,7 +177,7 @@ public class UploadImage extends AsyncTask<String, String, String> {
 
             @Override
             public void run() {
-                Toast.makeText(context, "contentLength : " + contentLength, Toast.LENGTH_LONG).show();
+                Log.v(TAG, "contentLength : " + contentLength);
             }
         });
 
@@ -214,27 +212,11 @@ public class UploadImage extends AsyncTask<String, String, String> {
 
                 @Override
                 public void run() {
-                    Toast.makeText(context, "Result : " + finalRes, Toast.LENGTH_LONG).show();
+                    Log.v(TAG, "Result : " + finalRes);
                 }
             });
-            //System.out.println("Response => " +  EntityUtils.toString(response.getEntity()));
         }
         return res;
-    }
-
-    public String getRealPathFromURI(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri,  proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
     }
 
 }

@@ -1,9 +1,7 @@
 package com.example.tina.awtter;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,13 +10,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -32,35 +27,10 @@ import java.util.List;
 
 import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
-/*
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HomeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- */
 public class HomeFragment extends Fragment {
 
-    // TODO:May be unecessary
     private static final String homeFragment = "homeFragment";
-
-    public Context context;
-    private OnFragmentInteractionListener mListener;
-
-    ArrayList<HashMap<String, String>> animalsList;
-    String startPoint = "0";
-
-    boolean topPadding = true;
-
-    List<Animal> animals;
-    ArrayList<ArrayList<Object>> porOrLan;
-    private boolean loading = true;
-    int pastVisiblesItems, visibleItemCount, totalItemCount;
-    ArrayList<HashMap<String, String>> threeAnimals;
-    RecyclerView rv;
-    GridLayoutManager glm;
-
-    RVAdapter adapter;
-
+    private static final String TAG = "HomeFragment";
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_FILTER = "filter";
@@ -70,14 +40,31 @@ public class HomeFragment extends Fragment {
     private static final String TAG_CREATEDAT = "__createdAt";
     private static final String TAG_PORTRAIT = "__portrait";
     private static final String TAG_ANIMALS = "animals";
-    private static final String url = "http://76.244.35.83/media/";
 
-    public boolean runOnce = false;
+    public Context context;
+    private OnFragmentInteractionListener mListener;
 
-    private Handler handler;
-
-
+    RecyclerView rv;
+    GridLayoutManager glm;
     SwipeRefreshLayout mySwipeRefreshLayout;
+    RVAdapter adapter;
+
+    ArrayList<HashMap<String, String>> animalsList;
+    List<Animal> animals;
+    ArrayList<ArrayList<Object>> porOrLan;
+
+    boolean topPadding = true; // spaces and decoration
+
+    public boolean runOnce = false; // adapter attachment
+
+    String startPoint = "0"; // loading
+
+    // OnScoll
+    private Handler handler;
+    private boolean loading = true;
+    int pastVisiblesItems, visibleItemCount, totalItemCount;
+
+    int stillLeft = 0;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -88,6 +75,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         context = getActivity();
+
     }
 
     @Override
@@ -95,51 +83,26 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.recycler, container, false);
 
-        handler = new Handler();
-        mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-
-        mySwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        Log.i("refresh", "onRefresh called from SwipeRefreshLayout");
-
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-
-
-                        int i = animals.size();
-                        while (animals.size() > 0) {
-                            animals.remove(--i);
-                        }
-
-                        loading = true;
-                        startPoint = "0";
-                        topPadding = true;
-                        new LoadAnimals().execute();
-
-                    }
-                }
-        );
-
-        // Holds results from database
         animals = new ArrayList<>();
+
+        animalsList = new ArrayList<HashMap<String, String>>();
+
+        porOrLan = new ArrayList<ArrayList<Object>>();
 
         new LoadAnimals().execute();
 
         rv = (RecyclerView) view.findViewById(R.id.rv);
 
         glm = new GridLayoutManager(context, 3);
-        rv.setLayoutManager(glm);
 
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
+
+                // if it's a progress bar
                 if (animals.get(position) == null) {
                     return 3;
                 }
-
-                Log.v("ADAPT", "SIZEORIENT = " + animals.get(position).sizeOrient);
 
                 switch (animals.get(position).sizeOrient) {
                     case 1:
@@ -154,6 +117,10 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        rv.setLayoutManager(glm);
+
+        handler = new Handler();
+
         rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -163,25 +130,35 @@ public class HomeFragment extends Fragment {
                 pastVisiblesItems = glm.findFirstVisibleItemPosition();
 
                 if (loading) {
+
                     if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
 
+                        // if there are still pictures left
                         if (animalsList.size() == 15) {
+
                             loading = false;
+
+                            // add progress item
                             animals.add(null);
                             adapter.notifyItemInserted(animals.size());
+
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
+
                                     //remove progress item
                                     animals.remove(animals.size() - 1);
                                     adapter.notifyItemRemoved(animals.size());
+
                                     new LoadAnimals().execute();
 
                                 }
-                            }, 1000);
+                            }, 700);
 
                         } else {
+
                             loading = false;
+
                         }
 
                     }
@@ -189,18 +166,36 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
+                        int i = animals.size();
+                        while (animals.size() > 0) {
+                            animals.remove(--i);
+                        }
 
-        // Inflate the layout for this fragment
+                        i = porOrLan.size();
+                        while (porOrLan.size() > 0) {
+                            porOrLan.remove(--i);
+                        }
+
+                        loading = true;
+                        startPoint = "0";
+                        topPadding = true;
+                        stillLeft = 0;
+
+                        new LoadAnimals().execute();
+
+                    }
+                }
+        );
+
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     @Override
@@ -220,55 +215,35 @@ public class HomeFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
-
-    /**********************************************************************************************/
 
     /**
      * Background Async Task to Load all animals by making HTTP Request
      * */
     class LoadAnimals extends AsyncTask<String, String, String> {
 
-        String filter = "popularity";
-        int indexThreeAnimals = 0;
+        private static final String url_all_products = "http://76.244.35.83/get_animals.php";
+        private static final String filter = "popularity";
 
-        // Progress Dialog
-        private ProgressDialog pDialog;
-
-        // Creating JSON Parser object
-        JSONParser jParser = new JSONParser();
-
-        // url to get all products list
-        private String url_all_products = "http://76.244.35.83/get_animals.php";
-
-        private HashMap<String, String> map;
-
-        // products JSONArray
+        JSONParser jParser;
         JSONArray animals_all = null;
 
-        /**
-         * Before starting background thread Show Progress Dialog
-         */
+        private HashMap<String, String> map;
+        ArrayList<HashMap<String, String>> threeAnimals;
+
+        int indexAnimalsList = 0;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
+            jParser = new JSONParser();
+
             animalsList = new ArrayList<HashMap<String, String>>();
 
-            porOrLan = new ArrayList<ArrayList<Object>>();
+            threeAnimals = new ArrayList<HashMap<String, String>>();
         }
 
         /**
@@ -276,15 +251,17 @@ public class HomeFragment extends Fragment {
          */
         @SuppressWarnings("deprecation")
         protected String doInBackground(String... args) {
+            boolean isPortrait;
+
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair(TAG_FILTER, filter));
             params.add(new BasicNameValuePair(TAG_START_POINT, startPoint));
+
             startPoint = String.valueOf(Integer.valueOf(startPoint) + 15);
-            // getting JSON string from URL
+
             JSONObject json = jParser.makeHttpRequest(url_all_products, "GET", params);
 
-            // Check your log cat for JSON response
             Log.d("All Products: ", json.toString());
 
             try {
@@ -301,7 +278,7 @@ public class HomeFragment extends Fragment {
                     // Getting Array of Animals
                     animals_all = json.getJSONArray(TAG_ANIMALS);
 
-                    // looping through All Panimals
+                    // looping through all animals
                     for (int i = 0; i < animals_all.length(); i++) {
                         JSONObject c = animals_all.getJSONObject(i);
 
@@ -310,7 +287,6 @@ public class HomeFragment extends Fragment {
                         String upAws = c.getString(TAG_UPAWS);
                         String date = c.getString(TAG_CREATEDAT);
                         int portrait = c.getInt(TAG_PORTRAIT);
-                        boolean isPortrait;
                         if (portrait == 1) {
                             isPortrait = true;
                         } else {
@@ -324,6 +300,7 @@ public class HomeFragment extends Fragment {
                         map.put(TAG_UPAWS, upAws);
                         map.put(TAG_CREATEDAT, date);
                         map.put(TAG_PORTRAIT, String.valueOf(isPortrait));
+
 
                         // adding HashList to ArrayList
                         animalsList.add(map);
@@ -343,45 +320,53 @@ public class HomeFragment extends Fragment {
          * *
          */
         protected void onPostExecute(String file_url) {
-            // TODO: Fix to keep getting three until load certain amount of pictures
-            // Holds three animals to be organized
             String id;
             boolean isPortrait;
+            int sizeOrient;
 
-            threeAnimals = new ArrayList<HashMap<String, String>>();
+            // For every animal
+            while (indexAnimalsList < animalsList.size()) {
 
-            while (indexThreeAnimals < animalsList.size()) {
-                HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
+                HashMap<String, String> animal1 = animalsList.get(indexAnimalsList);
                 threeAnimals.add(animal1);
 
-                if (animalsList.size() > indexThreeAnimals + 1) {
-
-                    HashMap<String, String> animal2 = animalsList.get(indexThreeAnimals + 1);
-                    threeAnimals.add(animal2);
-
-                }
-
-                // if por or lan still has a pic left then only add two animals and increment the index by two
+                // if por or lan doesn't have a pic in it left
                 if (porOrLan.size() == 0) {
 
-                    if (animalsList.size() > indexThreeAnimals + 2) {
+                    if (animalsList.size() > indexAnimalsList + 1) {
 
-                        HashMap<String, String> animal3 = animalsList.get(indexThreeAnimals + 2);
+                        HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
+                        threeAnimals.add(animal2);
+
+                    }
+
+                    if (animalsList.size() > indexAnimalsList + 2) {
+
+                        HashMap<String, String> animal3 = animalsList.get(indexAnimalsList + 2);
                         threeAnimals.add(animal3);
 
                     }
 
-                    indexThreeAnimals = indexThreeAnimals + 3;
+                    indexAnimalsList = indexAnimalsList + 3;
+
+                } else if (porOrLan.size() == 1) {
+
+                    if (animalsList.size() > indexAnimalsList + 1) {
+
+                        HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
+                        threeAnimals.add(animal2);
+
+                    }
+
+                    indexAnimalsList = indexAnimalsList + 2;
 
                 } else {
-
-                    indexThreeAnimals = indexThreeAnimals + 2;
-
+                    ++indexAnimalsList;
                 }
 
-                Log.v("threeanimals", String.valueOf(threeAnimals.size()));
-
+                // Add threeanimals to pororlan
                 for (int index = 0; index < threeAnimals.size(); index++) {
+
                     id = threeAnimals.get(index).get(TAG_ID);
                     isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
 
@@ -392,31 +377,35 @@ public class HomeFragment extends Fragment {
                     porOrLan.add(toAdd);
                 }
 
+                // Create Animal for three animals and add to animals
                 reorganize();
 
+                // If pororlan still has an animal left from reorganize, add it to animals to show it
+                if (porOrLan.size() > 0 && stillLeft == 0) {
+                    Log.v(TAG, "Adding another animal");
+                    if ((boolean) porOrLan.get(0).get(0) == true) {
+                        sizeOrient = 1;
+                    } else {
+                        sizeOrient = 3;
+                    }
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
+                    stillLeft = 1;
+                }
+
+                // Clear threeanimals
                 int i = threeAnimals.size();
                 while (threeAnimals.size() > 0) {
                     threeAnimals.remove(--i);
                 }
 
-
             }
 
-            int sizeOrient;
-            if (porOrLan.size() > 0) {
-                if ((boolean) porOrLan.get(0).get(0) == true) {
-                    sizeOrient = 1;
-                } else {
-                    sizeOrient = 3;
-                }
-                animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
-            }
-
+            // Attach animals to layout
             if (!runOnce) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter = new RVAdapter(animals, context, glm, homeFragment);
+                        adapter = new RVAdapter(animals, context, homeFragment);
                         rv.setAdapter(adapter);
                         SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
                         rv.addItemDecoration(spaces);
@@ -428,17 +417,35 @@ public class HomeFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
 
+
+            // Stop refreshing sign
             mySwipeRefreshLayout.setRefreshing(false);
+
+            // Can load more animals now
             loading = true;
+
+            Log.v(TAG, "end of async task");
+            Log.v(TAG, "startpoint = " + startPoint);
         }
 
         private void reorganize() {
+
+            if (stillLeft == 1) {
+                Log.v(TAG, "deleting one animal");
+                animals.remove(animals.size() - 1);
+            } else if (stillLeft == 2) {
+                Log.v(TAG, "deleting two animals");
+                animals.remove(animals.size() - 1);
+                animals.remove(animals.size() - 1);
+            }
+
+            stillLeft = 0;
 
             if (porOrLan.size() == 3) {
 
                 if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                     // PPP
-                    Log.v("HERE", "P,P,P");
+                    Log.v(TAG, "P,P,P");
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
@@ -451,7 +458,7 @@ public class HomeFragment extends Fragment {
 
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
-                    Log.v("HERE", "P1L,P2");
+                    Log.v(TAG, "P1L,P2");
                     //P1 L aka PPL
                     //P2
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
@@ -463,7 +470,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
-                    Log.v("HERE", "PL,L");
+                    Log.v(TAG, "PL,L");
                     //PL
                     //L
 
@@ -478,7 +485,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
-                    Log.v("HERE", "PL,P3");
+                    Log.v(TAG, "PL,P3");
                     // PL
                     // P3
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
@@ -490,7 +497,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == false) {
-                    Log.v("HERE", "L,L,L");
+                    Log.v(TAG, "L,L,L");
                     //L
                     //L
                     //L
@@ -505,7 +512,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
-                    Log.v("HERE", "L,LP");
+                    Log.v(TAG, "L,LP");
                     //L
                     //LP
 
@@ -520,7 +527,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
-                    Log.v("HERE", "LP,L");
+                    Log.v(TAG, "LP,L");
                     //LP
                     //L
 
@@ -535,7 +542,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
-                    Log.v("HERE", "LP,P3");
+                    Log.v(TAG, "LP,P3");
                     //LP
                     //P3
 
@@ -548,18 +555,19 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
                 }
             } else if (porOrLan.size() == 2) {
-                Log.v("HERE", "size = 2");
+                Log.v(TAG, "size = 2");
 
                 if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
+                    Log.v(TAG, "P, P");
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
 
-                    porOrLan.remove(1);
-                    porOrLan.remove(0);
+                    stillLeft = 2;
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
+                    Log.v(TAG, "L, L");
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
 
@@ -569,6 +577,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(0);
 
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
+                    Log.v(TAG, "P, L");
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
@@ -578,6 +587,7 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(0);
 
                 } else {
+                    Log.v(TAG, "L, P");
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
 
@@ -589,15 +599,17 @@ public class HomeFragment extends Fragment {
                 }
 
             } else if (porOrLan.size() == 1) {
-                Log.v("HERE", "size = 1");
+                Log.v(TAG, "size = 1");
 
                 if ((boolean) porOrLan.get(0).get(0)) {
+                    Log.v(TAG, "P");
+
+                    stillLeft = 1;
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
-                    porOrLan.remove(0);
-
                 } else {
+                    Log.v(TAG, "L");
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
 
@@ -606,10 +618,7 @@ public class HomeFragment extends Fragment {
                 }
             }
 
-            if (adapter != null) {
-                adapter.notifyDataSetChanged();
-            }
-
+            // Only have top padding once
             if (topPadding == true) {
                 topPadding = false;
             }

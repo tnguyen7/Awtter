@@ -30,51 +30,45 @@ import java.util.List;
  * Created by richellevital on 7/19/15.
  */
 public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
-    private final int VIEW_ITEM = 1;
-    private final int VIEW_PROG = 0;
-    List<Animal> animals;
-    int widthScreen;
-    int heightScreen;
-    Context context;
 
-    // Instance variables
-    int padding = 13;
-    int padPPP = padding*4;
-    int paddingPL = padding*3;
-    int paddingL = padding*2;
-
-    int portraitWidth, portraitHeight, landscape1Width, landscape1Height, landscape2Width, landscape2Height;
-    double portraitScale = 1.8;
-    private static final String url = "http://76.244.35.83/media/";
-
-    GridLayoutManager glm;
-
+    private static final String TAG = "RVAdapter";
     private static final String homeFragment = "homeFragment";
     private static final String favoriteFragment = "myFavoritesFragment";
     private static final String myPicturesFragment = "myPicturesFragment";
+    private static final String url = "http://76.244.35.83/media/";
 
-    String currentFragment;
+    private final int VIEW_ITEM = 1;
+    private final int VIEW_PROG = 0;
 
-    boolean tapped;
-    ImageView imageView;
+    private List<Animal> animals;
+    private Context context;
+    private String currentFragment;
+    private DatabaseHandler databaseHandler;
 
-    DatabaseHandler databaseHandler;
+    // Instance variables
+    private static final int padding = 13;
+    private static final int padPPP = padding*4;
+    private static final int paddingPL = padding*3;
+    private static final int paddingL = padding*2;
+    private static final double portraitScale = 1.8;
+    private int portraitWidth, portraitHeight, landscape1Width, landscape1Height, landscape2Width, landscape2Height;
+    private  int widthScreen;
 
-    RVAdapter(List<Animal> animals, Context context, GridLayoutManager glm, String fragment) {
+    RVAdapter(List<Animal> animals, Context context, String fragment) {
 
-        this.glm = glm;
         this.animals = animals;
         this.context = context;
+        this.currentFragment = fragment;
 
+        databaseHandler = new DatabaseHandler(context);
+
+        // Get dimensions of screen and determine dimensions of each picture
         Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
 
         widthScreen = size.x;
-        heightScreen = size.y;
-        Log.v("ADAPT", "WidthScreen = " + widthScreen);
-        Log.v("ADAPT", "HeightScreen = " + heightScreen);
-        //item in recyclerview
+
         portraitWidth = (widthScreen - padPPP)/3;
         portraitHeight = (int) ((widthScreen - padPPP)/3 * portraitScale);
 
@@ -84,14 +78,6 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         landscape1Height = portraitHeight;
         landscape2Height = portraitHeight;
 
-        Log.v("ADAPT", "PortraitWidth = " + portraitWidth);
-        Log.v("ADAPT", "RegLandscapeWidth = " +  landscape1Width);
-        Log.v("ADAPT", "BigLandscapeWidth = " + landscape2Width);
-
-        currentFragment = fragment;
-
-        databaseHandler = new DatabaseHandler(context);
-
     }
 
     public static class AnimalViewHolder extends RecyclerView.ViewHolder {
@@ -99,6 +85,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         ImageView photo;
 
         AnimalViewHolder(View itemView) {
+
             super(itemView);
 
             photo = (ImageView) itemView.findViewById(R.id.photo);
@@ -107,10 +94,15 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     public static class ProgressViewHolder extends RecyclerView.ViewHolder {
+
         public ProgressBar progressBar;
+
         public ProgressViewHolder(View v) {
+
             super(v);
+
             progressBar = (ProgressBar)v.findViewById(R.id.progressBar);
+
         }
     }
 
@@ -122,10 +114,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
      * method is called when the custom viewholder needs to be initialized
      */
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) { //specifying layout of eachu
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+
         View v = null;
         RecyclerView.ViewHolder vh;
+
         if (viewType == VIEW_ITEM) {
+
             if (currentFragment == homeFragment) {
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
             } else if (currentFragment == favoriteFragment) {
@@ -135,11 +130,14 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             }
 
             vh = new AnimalViewHolder(v);
+
         } else {
+
             v = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.progress_item, viewGroup, false);
 
             vh = new ProgressViewHolder(v);
+
         }
 
         return vh;
@@ -148,13 +146,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     //setting values
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+
         if(holder instanceof AnimalViewHolder) {
 
             final int animalid = animals.get(i).id;
             final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid));
 
             int sizeOrient = animals.get(i).sizeOrient;
-
 
             AnimalViewHolder animalViewHolder = (AnimalViewHolder) holder;
             animalViewHolder.photo.requestLayout();
@@ -200,18 +198,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     break;
 
             }
-/*
-        animalViewHolder.photo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-                Intent intent = new Intent(context, FullPicture.class);
-                intent.putExtra("animalid", animals.get(index).id);
-                intent.putExtra("fragment", currentFragment);
-                context.startActivity(intent);
-            }
-        });
-*/
             animalViewHolder.photo.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -223,7 +210,7 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                 @Override
                 public boolean onLongClick(View v) {
-                    Log.v("RVADAPTER", "there was a long click :O");
+                    Log.v(TAG, "there was a long click");
                     if (currentFragment == homeFragment) {
 
                     } else if (currentFragment == favoriteFragment) {
@@ -235,14 +222,22 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     return true;
                 }
             });
+
         } else {
+
             ((ProgressViewHolder)holder).progressBar.setIndeterminate(true);
+
         }
     }
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return animals.get(position)!=null? VIEW_ITEM: VIEW_PROG;
     }
 
     class CustomTarget implements Target {
@@ -316,10 +311,5 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             return true;
         }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return animals.get(position)!=null? VIEW_ITEM: VIEW_PROG;
     }
 }

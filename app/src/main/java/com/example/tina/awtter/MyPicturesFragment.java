@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,10 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.squareup.picasso.Picasso;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -37,23 +35,8 @@ import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
 public class MyPicturesFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
-
-    DatabaseHandler databaseHandler;
-
-    ArrayList<HashMap<String, String>> threeAnimals;
-    RecyclerView rv;
-    GridLayoutManager glm;
-
-    ArrayList<HashMap<String, String>> animalsList;
-    List<Animal> animals;
-    Animal[] posts = new Animal[3];
-    ArrayList<ArrayList<Object>> porOrLan;
-
-    Context context;
-
-    RVAdapter adapter;
-
+    private static final String myPicturesFragment = "myPicturesFragment";
+    private static final String TAG = "MyPicturesFragment";
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_FILTER = "filter";
@@ -64,27 +47,30 @@ public class MyPicturesFragment extends Fragment {
     private static final String TAG_PORTRAIT = "__portrait";
     private static final String TAG_ANIMALS = "animals";
     private static final String TAG_TOTAL_PICS = "totalPics";
-    private static final String TAG_ANIMAL = "animal";
-    private static final String url = "http://76.244.35.83/media/";
-    private static final String myPicturesFragment = "myPicturesFragment";
 
+    private OnFragmentInteractionListener mListener;
+    Context context;
+    DatabaseHandler databaseHandler;
 
-    public boolean runOnce = false;
+    RecyclerView rv;
+    GridLayoutManager glm;
+    SwipeRefreshLayout mySwipeRefreshLayout;
+    RVAdapter adapter;
 
-    int indexThreeAnimals = 0;
+    ArrayList<HashMap<String, String>> animalsList;
+    List<Animal> animals;
+    ArrayList<String> myPictures;
 
     public boolean topPadding = true;
 
-    String startPoint;
+    public boolean runOnce = false;
 
+    String startPoint = "0";
+
+    // On scroll
+    private Handler handler;
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
-
-    SwipeRefreshLayout mySwipeRefreshLayout;
-
-    boolean refresh = false;
-
-    ArrayList<String> myPictures;
 
     public MyPicturesFragment() {
         // Required empty public constructor
@@ -107,25 +93,27 @@ public class MyPicturesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.recycler, container, false);
 
-        myPictures = new ArrayList<String>();
-        // Holds results from database
         animalsList = new ArrayList<HashMap<String, String>>();
 
         animals = new ArrayList<>();
 
-        porOrLan = new ArrayList<ArrayList<Object>>();
+        myPictures = new ArrayList<String>();
 
         new LoadAnimals().execute();
 
         rv = (RecyclerView) view.findViewById(R.id.rv);
 
         glm = new GridLayoutManager(context, 3);
-        rv.setLayoutManager(glm);
 
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                Log.v("ADAPT", "SIZEORIENT = " + animals.get(position).sizeOrient);
+
+                // if it's a progress bar
+                if (animals.get(position) == null) {
+                    return 3;
+                }
+
                 switch (animals.get(position).sizeOrient) {
                     case 1:
                         return 1;
@@ -139,6 +127,10 @@ public class MyPicturesFragment extends Fragment {
             }
         });
 
+        rv.setLayoutManager(glm);
+
+        handler = new Handler();
+
         rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -148,30 +140,41 @@ public class MyPicturesFragment extends Fragment {
                 pastVisiblesItems = glm.findFirstVisibleItemPosition();
 
                 if (loading) {
+
                     if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                        loading = false;
-                        Log.v("...", "Last Item Wow !");
+
+                        // if there are still pictures left
+                        if (animalsList.size() == 15) {
+
+                            loading = false;
+
+                            // add progress item
+                            animals.add(null);
+                            adapter.notifyItemInserted(animals.size());
+
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    //remove progress item
+                                    animals.remove(animals.size() - 1);
+                                    adapter.notifyItemRemoved(animals.size());
+
+                                    new LoadAnimals().execute();
+
+                                }
+                            }, 700);
+
+                        } else {
+
+                            loading = false;
+
+                        }
+
                     }
                 }
             }
         });
-
-        rv.addOnItemTouchListener( // and the click is handled
-                new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        // STUB:
-                        // The click on the item must be handled
-
-                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(context, FullPicture.class);
-                        intent.putExtra("animalid", animals.get(position).id);
-                        startActivity(intent);
-
-
-                    }
-                })
-        );
 
         mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
@@ -179,34 +182,18 @@ public class MyPicturesFragment extends Fragment {
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        Log.i("refresh", "onRefresh called from SwipeRefreshLayout");
+                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-                        int i = animalsList.size();
-                        while (animalsList.size() > 0) {
-                            animalsList.remove(--i);
-                        }
-
-                        i = animals.size();
+                        int i = animals.size();
                         while (animals.size() > 0) {
                             animals.remove(--i);
                         }
 
-                        i = porOrLan.size();
-                        while (porOrLan.size() > 0) {
-                            porOrLan.remove(--i);
-                        }
-
+                        loading = true;
+                        startPoint = "0";
                         topPadding = true;
-                        indexThreeAnimals = 0;
-                        runOnce = false;
-                        if (adapter != null) {
-                            refresh = true;
 
-                        }
                         new LoadAnimals().execute();
-
                     }
                 }
         );
@@ -233,11 +220,6 @@ public class MyPicturesFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outstate) {
-
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_my_pictures, menu);
         super.onCreateOptionsMenu(menu, inflater);
@@ -245,54 +227,39 @@ public class MyPicturesFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-/*
-        switch (item.getItemId()) {
-            case R.id.action_add:
-
-                break;
-        }*/
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 
     class LoadAnimals extends AsyncTask<String, String, String> {
 
-        String filter = "date";
+        private static final String url_all_products = "http://76.244.35.83/get_animals.php";
+        private static final String filter = "date";
 
-        // Progress Dialog
-        private ProgressDialog pDialog;
-
-        // Creating JSON Parser object
-        JSONParser jParser = new JSONParser();
-
-        // url to get all products list
-        private String url_all_products = "http://76.244.35.83/get_animals.php";
+        JSONParser jParser;
+        JSONArray animals_all = null;
 
         private HashMap<String, String> map;
 
-        // products JSONArray
-        JSONArray animals_all = null;
+        ArrayList<HashMap<String, String>> threeAnimals;
+        ArrayList<ArrayList<Object>> porOrLan;
 
-        /**
-         * Before starting background thread Show Progress Dialog
-         */
+        int indexAnimalsList = 0;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            jParser = new JSONParser();
+
+            animalsList = new ArrayList<HashMap<String, String>>();
+
+            threeAnimals = new ArrayList<HashMap<String, String>>();
+
+            porOrLan = new ArrayList<ArrayList<Object>>();
         }
 
         /**
@@ -300,25 +267,24 @@ public class MyPicturesFragment extends Fragment {
          */
         @SuppressWarnings("deprecation")
         protected String doInBackground(String... args) {
+
+            int animalid;
             boolean isPortrait;
 
-            int totalPics = databaseHandler.getMyPictureCount();
-            int animalid;
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair(TAG_FILTER, filter));
             params.add(new BasicNameValuePair(TAG_START_POINT, startPoint));
-            params.add(new BasicNameValuePair(TAG_TOTAL_PICS, String.valueOf(totalPics)));
 
+            myPictures = databaseHandler.getAllMyPictures(startPoint);
 
-            Log.v("mypicture", "count: " + String.valueOf(totalPics));
+            params.add(new BasicNameValuePair(TAG_TOTAL_PICS, String.valueOf(myPictures.size())));
+            Log.v("mypicture", "my pictures size: " + String.valueOf(myPictures.size()));
 
-            myPictures = databaseHandler.getAllMyPictures();
+            startPoint = String.valueOf(Integer.valueOf(startPoint) + 15);
 
             for (int index = myPictures.size() - 1; index >= 0; --index) {
                 animalid = Integer.parseInt(myPictures.get(index));
-
-                Log.v("mypicture", "animalid: " + String.valueOf(animalid));
 
                 params.add(new BasicNameValuePair(String.valueOf(index), String.valueOf(animalid)));
             }
@@ -344,8 +310,8 @@ public class MyPicturesFragment extends Fragment {
                     animals_all = json.getJSONArray(TAG_ANIMALS);
 
                     // looping through All Panimals
-                    for (int i = 0; i < animals_all.length(); i++) {
-                        JSONObject c = animals_all.getJSONObject(i);
+                    for (int index = 0; index < animals_all.length(); index++) {
+                        JSONObject c = animals_all.getJSONObject(index);
 
                         // Storing each json item in variable
                         String id = c.getString(TAG_ID);
@@ -371,7 +337,8 @@ public class MyPicturesFragment extends Fragment {
                             // adding HashList to ArrayList
                             animalsList.add(map);
                         } catch (JSONException e) {
-                            Log.v("favorites fragment", "a picture has been deleted and cannot be loaded in favorites fragment");
+                            Log.v(TAG, "a picture has been deleted and cannot be loaded in favorites fragment");
+                            databaseHandler.deleteMyPictureFromAnimalID(myPictures.get(index));
                         }
                     }
                 } else {
@@ -389,45 +356,43 @@ public class MyPicturesFragment extends Fragment {
          * *
          */
         protected void onPostExecute(String file_url) {
-            // TODO: Fix to keep getting three until load certain amount of pictures
-            // Holds three animals to be organized
             String id;
             boolean isPortrait;
+            int sizeOrient;
 
-            threeAnimals = new ArrayList<HashMap<String, String>>();
-
-            while (indexThreeAnimals < animalsList.size()) {
-                HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
+            // For every animal
+            while (indexAnimalsList < animalsList.size()) {
+                HashMap<String, String> animal1 = animalsList.get(indexAnimalsList);
                 threeAnimals.add(animal1);
 
-                if (animalsList.size() > indexThreeAnimals + 1) {
+                if (animalsList.size() > indexAnimalsList + 1) {
 
-                    HashMap<String, String> animal2 = animalsList.get(indexThreeAnimals + 1);
+                    HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
                     threeAnimals.add(animal2);
 
                 }
 
-                // if por or lan still has a pic left then only add two animals and increment the index by two
+                // if por or lan doesn't have a pic in it left
                 if (porOrLan.size() == 0) {
 
-                    if (animalsList.size() > indexThreeAnimals + 2) {
+                    if (animalsList.size() > indexAnimalsList + 2) {
 
-                        HashMap<String, String> animal3 = animalsList.get(indexThreeAnimals + 2);
+                        HashMap<String, String> animal3 = animalsList.get(indexAnimalsList + 2);
                         threeAnimals.add(animal3);
 
                     }
 
-                    indexThreeAnimals = indexThreeAnimals + 3;
+                    indexAnimalsList = indexAnimalsList + 3;
 
                 } else {
 
-                    indexThreeAnimals = indexThreeAnimals + 2;
+                    indexAnimalsList = indexAnimalsList + 2;
 
                 }
 
-                Log.v("threeanimals", String.valueOf(threeAnimals.size()));
-
+                // Add threeanimals to pororlan
                 for (int index = 0; index < threeAnimals.size(); index++) {
+
                     id = threeAnimals.get(index).get(TAG_ID);
                     isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
 
@@ -438,8 +403,10 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.add(toAdd);
                 }
 
+                // Create Animal for three animals and add to animals
                 reorganize();
 
+                // Clear threeanimals
                 int i = threeAnimals.size();
                 while (threeAnimals.size() > 0) {
                     threeAnimals.remove(--i);
@@ -447,7 +414,7 @@ public class MyPicturesFragment extends Fragment {
 
             }
 
-            int sizeOrient;
+            // If pororlan still has an animal left from reorganize, add it to animals to show it
             if (porOrLan.size() > 0) {
                 if ((boolean) porOrLan.get(0).get(0) == true) {
                     sizeOrient = 1;
@@ -457,25 +424,28 @@ public class MyPicturesFragment extends Fragment {
                 animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
             }
 
-            if (!refresh) {
+            // Attach animals to layout
+            if (!runOnce) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter = new RVAdapter(animals, context, glm, myPicturesFragment);
+                        adapter = new RVAdapter(animals, context, myPicturesFragment);
                         rv.setAdapter(adapter);
                         SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
                         rv.addItemDecoration(spaces);
 
                     }
                 });
+                runOnce = true;
             } else {
-                adapter = new RVAdapter(animals, context, glm, myPicturesFragment);
-                rv.setAdapter(adapter);
-                refresh = false;
+                adapter.notifyDataSetChanged();
             }
 
-
+            // Stop refreshing sign
             mySwipeRefreshLayout.setRefreshing(false);
+
+            // Can load more animals now
+            loading = true;
         }
 
         private void reorganize() {

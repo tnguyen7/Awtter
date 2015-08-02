@@ -20,10 +20,12 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener, MyPicturesFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
-    final String HOME = "Home";
-    final String FAVORITE = "Favorites";
-    final String MY_PICTURES = "My Pictures";
-    final String SETTINGS = "Settings";
+
+    private static final String HOME = "Home";
+    private static final String FAVORITE = "Favorites";
+    private static final String MY_PICTURES = "My Pictures";
+    private static final String SETTINGS = "Settings";
+
     DrawerLayout drawerLayout;
     View content;
     HomeFragment homeFragment;
@@ -31,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     MyPicturesFragment myPicturesFragment;
     SettingsFragment settingsFragment;
     AddDialogFragment addFragment;
-
     Fragment currentFragment;
 
     String title;
@@ -47,6 +48,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             setUpToolbar();
 
             setUpDrawer();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
     }
 
     @Override
@@ -83,6 +88,45 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         return super.onOptionsItemSelected(item);
     }
 
+    private void setUpFragments() {
+
+        currentFragment = getSupportFragmentManager().findFragmentByTag(getString(R.string.home));
+
+        if (currentFragment == null) {
+
+            addFragment = new AddDialogFragment();
+            homeFragment = new HomeFragment();
+            favoritesFragment = new FavoritesFragment();
+            myPicturesFragment = new MyPicturesFragment();
+            settingsFragment = new SettingsFragment();
+
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.content, settingsFragment, getString(R.string.settings))
+                    .hide(settingsFragment)
+                    .add(R.id.content, myPicturesFragment, getString(R.string.my_pictures))
+                    .hide(myPicturesFragment)
+                    .add(R.id.content, favoritesFragment, getString(R.string.favorite))
+                    .hide(favoritesFragment)
+                    .add(R.id.content, homeFragment, getString(R.string.home))
+                    .commit();
+            currentFragment = homeFragment;
+
+        } else {
+
+            homeFragment = (HomeFragment) currentFragment;
+            myPicturesFragment = (MyPicturesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.my_pictures));
+            favoritesFragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.favorite));
+            settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.settings));
+
+            getSupportFragmentManager().beginTransaction()
+                    .hide(settingsFragment)
+                    .hide(myPicturesFragment)
+                    .hide(favoritesFragment)
+                    .commit();
+
+        }
+    }
 
     private void setUpToolbar() {
         // Enable toolbar as action bar
@@ -163,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     }
 
     private void switchTo (Fragment fragment, String name) {
+
         if (fragment.isVisible())
             return;
 
@@ -180,62 +225,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         t.show(fragment);
         currentFragment = fragment;
 
-        // TODO: maybe not add to backstack..options and occassional bug occurs when current frag is not hidden
         t.addToBackStack(null);
         t.commit();
-    }
-
-
-    private void setUpFragments() {
-        currentFragment = getSupportFragmentManager().findFragmentByTag(getString(R.string.home));
-
-        if (currentFragment == null) {
-
-            addFragment = new AddDialogFragment();
-            homeFragment = new HomeFragment();
-            favoritesFragment = new FavoritesFragment();
-            myPicturesFragment = new MyPicturesFragment();
-            settingsFragment = new SettingsFragment();
-
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.content, settingsFragment, getString(R.string.settings))
-                    .hide(settingsFragment)
-                    .add(R.id.content, myPicturesFragment, getString(R.string.my_pictures))
-                    .hide(myPicturesFragment)
-                    .add(R.id.content, favoritesFragment, getString(R.string.favorite))
-                    .hide(favoritesFragment)
-                    .add(R.id.content, homeFragment, getString(R.string.home))
-                    .commit();
-            currentFragment = homeFragment;
-        } else {
-
-            homeFragment = (HomeFragment) currentFragment;
-            myPicturesFragment = (MyPicturesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.my_pictures));
-            favoritesFragment = (FavoritesFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.favorite));
-            settingsFragment = (SettingsFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.settings));
-
-            getSupportFragmentManager().beginTransaction()
-                    .hide(settingsFragment)
-                    .hide(myPicturesFragment)
-                    .hide(favoritesFragment)
-                    .commit();
-
-        }
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
 
     }
-
-    /*
-    private boolean openAdd(Menu item) {
-        switch (item.getItemId()) {
-
-        }
-
-    }*/
 
     public boolean useCamera() {
 

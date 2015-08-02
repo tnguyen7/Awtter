@@ -36,7 +36,7 @@ public class LoadingScreenActivity extends Activity {
                 }
 
 	  /* Create an Intent that will start the ProfileData-Activity. */
-                Intent mainIntent = new Intent(LoadingScreenActivity.this,MainActivity.class);
+                Intent mainIntent = new Intent(LoadingScreenActivity.this, MainActivity.class);
                 LoadingScreenActivity.this.startActivity(mainIntent);
                 LoadingScreenActivity.this.finish();
             }

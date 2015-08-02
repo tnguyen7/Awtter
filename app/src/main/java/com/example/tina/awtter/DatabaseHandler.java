@@ -146,17 +146,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        Log.v("DatabaseHandler", "next increment: " + (result + 1));
 
         return result + 1;
     }
 
-    //TODO: needed? or return something other than list for formatting
-    public ArrayList<String> getAllFavorites() {
+    public ArrayList<String> getAllFavorites(String startPoint) {
         ArrayList<String> favorites = new ArrayList<String>();
 
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAVORITES, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_FAVORITES + " LIMIT 15 OFFSET " + startPoint, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -209,6 +207,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteMyPictureFromAnimalID(String id) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.delete(TABLE_MY_PICTURES, KEY_MY_PIC + "=?", new String[]{id});
+        db.close();
+    }
+
     public int getMyPictureCount() {
         int count = 0;
         SQLiteDatabase db = getReadableDatabase();
@@ -244,12 +249,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return result + 1;
     }
 
-    //TODO: needed? or return something other than list for formatting
-    public ArrayList<String> getAllMyPictures() {
+    public ArrayList<String> getAllMyPictures(String startPoint) {
         ArrayList<String> myPictures = new ArrayList<String>();
 
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_MY_PICTURES, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_MY_PICTURES + " LIMIT 15 OFFSET " + startPoint, null);
 
         if (cursor.moveToFirst()) {
             do {

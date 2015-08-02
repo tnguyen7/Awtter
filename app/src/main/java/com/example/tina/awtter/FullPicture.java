@@ -34,90 +34,30 @@ import java.util.ArrayList;
 
 public class FullPicture extends AppCompatActivity{
 
-    ImageView imageView;
-
-    boolean isImageFitToScreen;
-
-    private static final String TAG = "Touch" ;
-    // These matrices will be used to move and zoom image
-    Matrix matrix = new Matrix();
-    Matrix savedMatrix = new Matrix();
-    PointF start = new  PointF();
-    public static PointF mid = new PointF();
-
-    // We can be in one of these 3 states
-    public static final int NONE = 0;
-    public static final int DRAG = 1;
-    public static final int ZOOM = 2;
-    public static int mode = NONE;
-
-    float oldDist;
 
     private static final String url = "http://76.244.35.83/media/";
-
-    ArrayList<Animal> animals;
-
-    Toolbar toolbarBottom;
-
-    DatabaseHandler databaseHandler;
-
-    String currentFragment;
-
     private static final String homeFragment = "homeFragment";
     private static final String favoriteFragment = "myFavoritesFragment";
     private static final String myPicturesFragment = "myPicturesFragment";
+    private static final String TAG = "FullPicture";
 
-    int animalid;
+    private String currentFragment;
+    private ImageView imageView;
 
+    private Toolbar toolbarBottom;
+    private DatabaseHandler databaseHandler;
     private GestureDetectorCompat mDetector;
 
+    private int animalid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
 
-        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
-        // have a otter logo heheheehehehehehhe
-        //actionBar.setLogo();
-        toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
-
         Intent intent = getIntent();
         animalid = intent.getIntExtra("animalid", -1);
         currentFragment = intent.getStringExtra("fragment");
-
-
-        databaseHandler = new DatabaseHandler(getApplicationContext());
-
-        final Button button = (Button) findViewById(R.id.favoriteButton);
-
-        if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
-            button.setTextColor(getResources().getColor(R.color.white));
-        } else {
-            button.setTextColor(getResources().getColor(R.color.accent));
-        }
-
-            button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // If not in favorites, then increment, otherwise decrement
-                if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
-                    button.setTextColor(getResources().getColor(R.color.accent));
-                    databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
-                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), true).execute();
-                } else {
-                    button.setTextColor(getResources().getColor(R.color.white));
-                    databaseHandler.deleteFavoriteFromAnimalID(animalid);
-                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), false).execute();
-                }
-            }
-        });
-
 
         imageView = (ImageView) findViewById(R.id.imageView);
 
@@ -130,6 +70,11 @@ public class FullPicture extends AppCompatActivity{
 
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+        setUpActionBar();
+
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+
     }
 
     class CustomTarget implements Target {
@@ -165,67 +110,52 @@ public class FullPicture extends AppCompatActivity{
         }
     }
 
-    private void toggleActionBar() {
+    public void setUpActionBar() {
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
 
-        if(actionBar != null) {
-            if(actionBar.isShowing()) {
-                actionBar.hide();
-                toolbarBottom.animate().setDuration(250).translationY(toolbarBottom.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+        setUpFavorite();
+
+        setUpComment();
+
+        setUpShare();
+
+    }
+
+    public void setUpFavorite() {
+        final Button button = (Button) findViewById(R.id.favoriteButton);
+
+        databaseHandler = new DatabaseHandler(getApplicationContext());
+
+        if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+            button.setTextColor(getResources().getColor(R.color.white));
+        } else {
+            button.setTextColor(getResources().getColor(R.color.accent));
+        }
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // If not in favorites, then increment, otherwise decrement
+                if (databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+                    button.setTextColor(getResources().getColor(R.color.accent));
+                    databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
+                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), true).execute();
+                } else {
+                    button.setTextColor(getResources().getColor(R.color.white));
+                    databaseHandler.deleteFavoriteFromAnimalID(animalid);
+                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), false).execute();
+                }
             }
-            else {
-                actionBar.show();
-                toolbarBottom.animate().setDuration(250).translationY(0).setInterpolator(new DecelerateInterpolator()).start();
-
-            }
-        }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-            Log.v("fullpicture", currentFragment);
+    public void setUpComment(){};
 
-        if (currentFragment.equals(homeFragment)) {
-            getMenuInflater().inflate(R.menu.menu_full_picture_home, menu);
-        } else if (currentFragment.equals(favoriteFragment)) {
-            getMenuInflater().inflate(R.menu.menu_full_picture_fav, menu);
-        } else if (currentFragment.equals(myPicturesFragment)) {
-            getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
-            case R.id.action_delete:
-                new AlertDialog.Builder(FullPicture.this)
-                        .setTitle("Delete photo")
-                        .setMessage("Do you want to delete this photo?")
-                        .setPositiveButton("delete", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                new DeleteAnimal(getApplicationContext(), String.valueOf(animalid)).execute();
-                            }
-                        })
-                        .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();                            }
-                        })
-                        .show();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+    public void setUpShare() {};
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
@@ -235,10 +165,7 @@ public class FullPicture extends AppCompatActivity{
     }
 
     class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
-        private static final String DEBUG_TAG = "Gestures";
         private static final int SWIPE_MIN_DISTANCE = 120;
-        private static final int SWIPE_MAX_OFF_PATH = 250;
-        private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
         @Override
         public boolean onDown(MotionEvent event) {
@@ -268,6 +195,69 @@ public class FullPicture extends AppCompatActivity{
             }
             return false;
         }
+    }
+
+    private void toggleActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+
+        if(actionBar != null) {
+            if(actionBar.isShowing()) {
+                actionBar.hide();
+                toolbarBottom.animate().setDuration(250).translationY(toolbarBottom.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+            }
+            else {
+                actionBar.show();
+                toolbarBottom.animate().setDuration(200).translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+
+            }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        Log.v(TAG, currentFragment);
+
+        if (currentFragment.equals(homeFragment)) {
+            getMenuInflater().inflate(R.menu.menu_full_picture_home, menu);
+        } else if (currentFragment.equals(favoriteFragment)) {
+            getMenuInflater().inflate(R.menu.menu_full_picture_fav, menu);
+        } else if (currentFragment.equals(myPicturesFragment)) {
+            getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.action_delete:
+                new AlertDialog.Builder(FullPicture.this)
+                        .setTitle("Delete photo")
+                        .setMessage("Do you want to delete this photo?")
+                        .setPositiveButton("delete", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                new DeleteAnimal(getApplicationContext(), String.valueOf(animalid), findViewById(android.R.id.content)).execute();
+                            }
+                        })
+                        .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();                            }
+                        })
+                        .show();
+
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

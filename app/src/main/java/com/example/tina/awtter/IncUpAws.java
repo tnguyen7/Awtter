@@ -19,40 +19,35 @@ import java.util.List;
  */
 class IncUpAws extends AsyncTask<String, String, String> {
 
-    String __id;
-    Context context;
-
-    // Progress Dialog
-    private ProgressDialog pDialog;
-
-    // Creating JSON Parser object
-    JSONParser jParser = new JSONParser();
-
-    // url to get all products list
-    private String url_upAw = "http://76.244.35.83/upAw.php";
-
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_ID = "__id";
     private static final String TAG_INCREMENT = "increment";
     private static final String TAG_DECREMENT = "decrement";
 
-    // products JSONArray
-    JSONArray animals = null;
+    private JSONParser jParser;
 
-    boolean increment;
+    private String url_upAw = "http://76.244.35.83/upAw.php";
+
+    private String __id;
+    private Context context;
+
+    private boolean increment;
 
     public IncUpAws(Context context, String id, boolean increment) {
         this.context = context;
         this.__id = id;
         this.increment = increment;
     }
+
     /**
      * Before starting background thread Show Progress Dialog
      * */
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+
+        jParser = new JSONParser();
     }
 
     /**
@@ -87,7 +82,6 @@ class IncUpAws extends AsyncTask<String, String, String> {
 
         if (success == 1) {
             // increment successful
-
         } else {
             // increment failed
         }

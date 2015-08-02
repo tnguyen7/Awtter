@@ -3,7 +3,9 @@ package com.example.tina.awtter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -18,28 +20,23 @@ import java.util.List;
  * Created by tina on 7/22/15.
  */
 public class DeleteAnimal extends AsyncTask<String, String, String> {
-    String __id;
-    Context context;
-
-    // Progress Dialog
-    private ProgressDialog pDialog;
-
-    // Creating JSON Parser object
-    JSONParser jParser = new JSONParser();
-
-    // url to get all products list
-    private String url_delete_animal = "http://76.244.35.83/delete_animal.php";
 
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_ID = "__id";
 
-    // products JSONArray
-    JSONArray animals = null;
+    // Creating JSON Parser object
+    JSONParser jParser;
 
-    public DeleteAnimal(Context context, String id) {
+    private String url_delete_animal = "http://76.244.35.83/delete_animal.php";
+    String __id;
+    Context context;
+    View rootView;
+
+    public DeleteAnimal(Context context, String id, View rootView) {
         this.context = context;
-        __id = id;
+        this.__id = id;
+        this.rootView = rootView;
     }
     /**
      * Before starting background thread Show Progress Dialog
@@ -47,6 +44,8 @@ public class DeleteAnimal extends AsyncTask<String, String, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+
+        jParser = new JSONParser();
     }
 
     /**
@@ -74,10 +73,11 @@ public class DeleteAnimal extends AsyncTask<String, String, String> {
         }
 
         if (success == 1) {
-            // delete successful
-
+            Snackbar.make(rootView, "Photo deleted", Snackbar.LENGTH_LONG)
+                    .show();
         } else {
-            // delete failed
+            Snackbar.make(rootView, "Error deleting photo", Snackbar.LENGTH_LONG)
+                    .show();
         }
 
         return null;

@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,23 +34,8 @@ import java.util.List;
 import static com.google.android.gms.internal.zzhl.runOnUiThread;
 
 public class FavoritesFragment extends Fragment {
-    private OnFragmentInteractionListener mListener;
 
-    DatabaseHandler databaseHandler;
-
-    ArrayList<HashMap<String, String>> threeAnimals;
-    RecyclerView rv;
-    GridLayoutManager glm;
-
-    ArrayList<HashMap<String, String>> animalsList;
-    List<Animal> animals;
-    Animal[] posts = new Animal[3];
-    ArrayList<ArrayList<Object>> porOrLan;
-
-    Context context;
-
-    RVAdapter adapter;
-
+    private static final String TAG = "FavoritesFragment";
     // JSON Node names
     private static final String TAG_SUCCESS = "success";
     private static final String TAG_FILTER = "filter";
@@ -60,24 +46,31 @@ public class FavoritesFragment extends Fragment {
     private static final String TAG_PORTRAIT = "__portrait";
     private static final String TAG_ANIMALS = "animals";
     private static final String TAG_TOTAL_PICS = "totalPics";
-    private static final String TAG_ANIMAL = "animal";
-    private static final String url = "http://76.244.35.83/media/";
     private static final String myFavoritesFragment = "myFavoritesFragment";
 
-    int indexThreeAnimals = 0;
+    private OnFragmentInteractionListener mListener;
+    Context context;
+    DatabaseHandler databaseHandler;
+
+    RecyclerView rv;
+    GridLayoutManager glm;
+    SwipeRefreshLayout mySwipeRefreshLayout;
+    RVAdapter adapter;
+
+    ArrayList<String> favorites;
+    ArrayList<HashMap<String, String>> animalsList;
+    List<Animal> animals;
 
     public boolean topPadding = true;
 
-    String startPoint;
+    boolean runOnce = false;
 
+    String startPoint ="0";
+
+    // On scroll
+    private Handler handler;
     private boolean loading = true;
     int pastVisiblesItems, visibleItemCount, totalItemCount;
-
-    SwipeRefreshLayout mySwipeRefreshLayout;
-
-    boolean refresh = false;
-
-    ArrayList<String> favorites;
 
     public FavoritesFragment() {
         // Required empty public constructor
@@ -100,12 +93,9 @@ public class FavoritesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.recycler, container, false);
 
-        // Holds results from database
         animalsList = new ArrayList<HashMap<String, String>>();
 
         animals = new ArrayList<>();
-
-        porOrLan = new ArrayList<ArrayList<Object>>();
 
         favorites = new ArrayList<String>();
 
@@ -114,13 +104,16 @@ public class FavoritesFragment extends Fragment {
         rv = (RecyclerView) view.findViewById(R.id.rv);
 
         glm = new GridLayoutManager(context, 3);
-        rv.setLayoutManager(glm);
 
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                Log.v("ADAPT", "SIZEORIENT = " + animals.get(position).sizeOrient);
-                Log.v("ADAPT", "POSITION = " + position);
+
+                // if it's a progress bar
+                if (animals.get(position) == null) {
+                    return 3;
+                }
+
                 switch (animals.get(position).sizeOrient) {
                     case 1:
                         return 1;
@@ -134,6 +127,10 @@ public class FavoritesFragment extends Fragment {
             }
         });
 
+        rv.setLayoutManager(glm);
+
+        handler = new Handler();
+
         rv.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -143,30 +140,41 @@ public class FavoritesFragment extends Fragment {
                 pastVisiblesItems = glm.findFirstVisibleItemPosition();
 
                 if (loading) {
+
                     if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
-                        loading = false;
-                        Log.v("...", "Last Item Wow !");
+
+                        // if there are still pictures left
+                        if (animalsList.size() == 15) {
+
+                            loading = false;
+
+                            // add progress item
+                            animals.add(null);
+                            adapter.notifyItemInserted(animals.size());
+
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    //remove progress item
+                                    animals.remove(animals.size() - 1);
+                                    adapter.notifyItemRemoved(animals.size());
+
+                                    new LoadAnimals().execute();
+
+                                }
+                            }, 700);
+
+                        } else {
+
+                            loading = false;
+
+                        }
+
                     }
                 }
             }
         });
-
-        rv.addOnItemTouchListener( // and the click is handled
-                new RecyclerClickListener(context, new RecyclerClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        // STUB:
-                        // The click on the item must be handled
-
-                        Toast.makeText(context, "itemclick: " + position, Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(context, FullPicture.class);
-                        intent.putExtra("animalid", animals.get(position).id);
-                        startActivity(intent);
-
-
-                    }
-                })
-        );
 
         mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
@@ -174,36 +182,17 @@ public class FavoritesFragment extends Fragment {
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        Log.i("refresh", "onRefresh called from SwipeRefreshLayout");
+                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-                        int i = animalsList.size();
-                        while (animalsList.size() > 0) {
-                            animalsList.remove(--i);
-                        }
-
-                        i = animals.size();
+                        int i = animals.size();
                         while (animals.size() > 0) {
                             animals.remove(--i);
                         }
 
-                        i = porOrLan.size();
-                        while (porOrLan.size() > 0) {
-                            porOrLan.remove(--i);
-                        }
-
-                        i = favorites.size();
-                        while (favorites.size() > 0) {
-                            favorites.remove(--i);
-                        }
-
+                        loading = true;
+                        startPoint = "0";
                         topPadding = true;
-                        indexThreeAnimals = 0;
-                        if (adapter != null) {
-                            refresh = true;
 
-                        }
                         new LoadAnimals().execute();
 
                     }
@@ -239,54 +228,41 @@ public class FavoritesFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        /*switch (item.getItemId()) {
-            case R.id.action_add:
-
-                break;
-        }*/
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 
+    /**
+     * Background Async Task to Load all animals by making HTTP Request
+     * */
     class LoadAnimals extends AsyncTask<String, String, String> {
 
-        String filter = "date";
+        private static final String url_all_products = "http://76.244.35.83/get_animals.php";
+        private static final String filter = "date";
 
-        // Progress Dialog
-        private ProgressDialog pDialog;
-
-        // Creating JSON Parser object
-        JSONParser jParser = new JSONParser();
-
-        // url to get all products list
-        private String url_all_products = "http://76.244.35.83/get_animals.php";
-
-        private HashMap<String, String> map;
-
-        // products JSONArray
+        JSONParser jParser;
         JSONArray animals_all = null;
 
-        /**
-         * Before starting background thread Show Progress Dialog
-         */
+        private HashMap<String, String> map;
+        ArrayList<HashMap<String, String>> threeAnimals;
+        ArrayList<ArrayList<Object>> porOrLan;
+
+        int indexAnimalsList = 0;
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
+            jParser = new JSONParser();
+
+            animalsList = new ArrayList<HashMap<String, String>>();
+
+            threeAnimals = new ArrayList<HashMap<String, String>>();
+
+            porOrLan = new ArrayList<ArrayList<Object>>();
         }
 
         /**
@@ -294,24 +270,25 @@ public class FavoritesFragment extends Fragment {
          */
         @SuppressWarnings("deprecation")
         protected String doInBackground(String... args) {
+
+            int animalid;
             boolean isPortrait;
 
-            int totalFavs = databaseHandler.getFavoriteCount();
-            int animalid;
+
             // Building Parameters
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair(TAG_FILTER, filter));
             params.add(new BasicNameValuePair(TAG_START_POINT, startPoint));
-            params.add(new BasicNameValuePair(TAG_TOTAL_PICS, String.valueOf(totalFavs)));
 
+            favorites = databaseHandler.getAllFavorites(startPoint);
 
-            Log.v("myfavorite", "count: " + String.valueOf(totalFavs));
-            favorites = databaseHandler.getAllFavorites();
+            params.add(new BasicNameValuePair(TAG_TOTAL_PICS, String.valueOf(favorites.size())));
+            Log.v(TAG, "my favorites size: " + String.valueOf(favorites.size()));
+
+            startPoint = String.valueOf(Integer.valueOf(startPoint) + 15);
 
             for (int index = favorites.size() - 1; index >= 0; --index) {
                 animalid = Integer.parseInt(favorites.get(index));
-
-                Log.v("myfavorite", "animalid: " + String.valueOf(animalid));
 
                 params.add(new BasicNameValuePair(String.valueOf(index), String.valueOf(animalid)));
             }
@@ -337,8 +314,8 @@ public class FavoritesFragment extends Fragment {
                     animals_all = json.getJSONArray(TAG_ANIMALS);
 
                     // looping through All Panimals
-                    for (int i = 0; i < animals_all.length(); i++) {
-                        JSONObject c = animals_all.getJSONObject(i);
+                    for (int index = 0; index < animals_all.length(); index++) {
+                        JSONObject c = animals_all.getJSONObject(index);
 
                         // Storing each json item in variable
 
@@ -366,12 +343,13 @@ public class FavoritesFragment extends Fragment {
                             // adding HashList to ArrayList
                             animalsList.add(map);
                         } catch (JSONException e) {
-                            Log.v("favorites fragment", "a picture has been deleted and cannot be loaded in favorites fragment");
+                            Log.v(TAG, "a picture has been deleted and cannot be loaded in favorites fragment");
+                            databaseHandler.deleteFavoriteFromAnimalID(Integer.valueOf(favorites.get(index)));
                         }
 
                     }
                 } else {
-                    //No animals found
+                    //No animals found || cannot connect to server
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -385,45 +363,43 @@ public class FavoritesFragment extends Fragment {
          * *
          */
         protected void onPostExecute(String file_url) {
-            // TODO: Fix to keep getting three until load certain amount of pictures
-            // Holds three animals to be organized
             String id;
             boolean isPortrait;
+            int sizeOrient;
 
-            threeAnimals = new ArrayList<HashMap<String, String>>();
-
-            while (indexThreeAnimals < animalsList.size()) {
-                HashMap<String, String> animal1 = animalsList.get(indexThreeAnimals);
+            // For every animal
+            while (indexAnimalsList < animalsList.size()) {
+                HashMap<String, String> animal1 = animalsList.get(indexAnimalsList);
                 threeAnimals.add(animal1);
 
-                if (animalsList.size() > indexThreeAnimals + 1) {
+                if (animalsList.size() > indexAnimalsList + 1) {
 
-                    HashMap<String, String> animal2 = animalsList.get(indexThreeAnimals + 1);
+                    HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
                     threeAnimals.add(animal2);
 
                 }
 
-                // if por or lan still has a pic left then only add two animals and increment the index by two
+                // if por or lan doesn't have a pic in it left
                 if (porOrLan.size() == 0) {
 
-                    if (animalsList.size() > indexThreeAnimals + 2) {
+                    if (animalsList.size() > indexAnimalsList + 2) {
 
-                        HashMap<String, String> animal3 = animalsList.get(indexThreeAnimals + 2);
+                        HashMap<String, String> animal3 = animalsList.get(indexAnimalsList + 2);
                         threeAnimals.add(animal3);
 
                     }
 
-                    indexThreeAnimals = indexThreeAnimals + 3;
+                    indexAnimalsList = indexAnimalsList + 3;
 
                 } else {
 
-                    indexThreeAnimals = indexThreeAnimals + 2;
+                    indexAnimalsList = indexAnimalsList + 2;
 
                 }
 
-                Log.v("threeanimals", String.valueOf(threeAnimals.size()));
-
+                // Add threeanimals to pororlan
                 for (int index = 0; index < threeAnimals.size(); index++) {
+
                     id = threeAnimals.get(index).get(TAG_ID);
                     isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
 
@@ -434,17 +410,18 @@ public class FavoritesFragment extends Fragment {
                     porOrLan.add(toAdd);
                 }
 
+                // Create Animal for three animals and add to animals
                 reorganize();
 
+                // Clear threeanimals
                 int i = threeAnimals.size();
                 while (threeAnimals.size() > 0) {
                     threeAnimals.remove(--i);
                 }
 
-
             }
 
-            int sizeOrient;
+            // If pororlan still has an animal left from reorganize, add it to animals to show it
             if (porOrLan.size() > 0) {
                 if ((boolean) porOrLan.get(0).get(0) == true) {
                     sizeOrient = 1;
@@ -454,22 +431,28 @@ public class FavoritesFragment extends Fragment {
                 animals.add(new Animal((int) porOrLan.get(0).get(1), sizeOrient, false, true, true));
             }
 
-            if (!refresh) {
+            // Attach animals to layout
+            if (!runOnce) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter = new RVAdapter(animals, context, glm, myFavoritesFragment);
+                        adapter = new RVAdapter(animals, context, myFavoritesFragment);
                         rv.setAdapter(adapter);
                         SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
                         rv.addItemDecoration(spaces);
 
                     }
                 });
+                runOnce = true;
             } else {
                 adapter.notifyDataSetChanged();
-                refresh = true;
-                mySwipeRefreshLayout.setRefreshing(false);
             }
+
+            // Stop refreshing sign
+            mySwipeRefreshLayout.setRefreshing(false);
+
+            // Can load more animals now
+            loading = true;
         }
 
         private void reorganize() {

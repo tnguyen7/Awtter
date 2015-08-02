@@ -22,6 +22,8 @@ public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         Animal animal;
+
+        // If the animal is null it's the progress bar
         try {
              animal = animals.get(parent.getChildPosition(view));
         } catch (IndexOutOfBoundsException e) {
