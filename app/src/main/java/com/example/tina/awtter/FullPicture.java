@@ -246,6 +246,7 @@ public class FullPicture extends AppCompatActivity{
                         .setPositiveButton("delete", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 new DeleteAnimal(getApplicationContext(), String.valueOf(animalid), findViewById(android.R.id.content)).execute();
+                                databaseHandler.deleteMyPictureFromAnimalID(animalid);
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

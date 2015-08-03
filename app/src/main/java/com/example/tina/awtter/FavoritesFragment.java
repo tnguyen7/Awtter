@@ -361,6 +361,9 @@ public class FavoritesFragment extends Fragment {
                 } else {
                     //No animals found || cannot connect to server
                 }
+
+                Log.v(TAG, "animalslist size: " + String.valueOf(animalsList.size()));
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -382,15 +385,15 @@ public class FavoritesFragment extends Fragment {
                 HashMap<String, String> animal1 = animalsList.get(indexAnimalsList);
                 threeAnimals.add(animal1);
 
-                if (animalsList.size() > indexAnimalsList + 1) {
-
-                    HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
-                    threeAnimals.add(animal2);
-
-                }
-
                 // if por or lan doesn't have a pic in it left
                 if (porOrLan.size() == 0) {
+
+                    if (animalsList.size() > indexAnimalsList + 1) {
+
+                        HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
+                        threeAnimals.add(animal2);
+
+                    }
 
                     if (animalsList.size() > indexAnimalsList + 2) {
 
@@ -416,6 +419,7 @@ public class FavoritesFragment extends Fragment {
                     ++indexAnimalsList;
                 }
 
+                Log.v(TAG, "threeanimals size: " + String.valueOf(threeAnimals.size()));
 
                 // Add threeanimals to pororlan
                 for (int index = 0; index < threeAnimals.size(); index++) {
@@ -467,6 +471,8 @@ public class FavoritesFragment extends Fragment {
 
         private void reorganize() {
 
+            Log.v(TAG, "pororlan size: " + String.valueOf(porOrLan.size()));
+
             // If refresh, now notifydatasetchanged
             if (topPadding == true && adapter != null) {
                 adapter.notifyDataSetChanged();
@@ -492,6 +498,7 @@ public class FavoritesFragment extends Fragment {
             stillLeft = 0;
 
             if (porOrLan.size() == 3) {
+                Log.v(TAG, "size = 3");
 
                 if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                     // PPP

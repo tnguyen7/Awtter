@@ -327,7 +327,6 @@ public class MyPicturesFragment extends Fragment {
                         String id = c.getString(TAG_ID);
                         String upAws = c.getString(TAG_UPAWS);
                         String date = c.getString(TAG_CREATEDAT);
-                        try {
                             int portrait = c.getInt(TAG_PORTRAIT);
                             if (portrait == 1) {
                                 isPortrait = true;
@@ -346,10 +345,6 @@ public class MyPicturesFragment extends Fragment {
 
                             // adding HashList to ArrayList
                             animalsList.add(map);
-                        } catch (JSONException e) {
-                            Log.v(TAG, "a picture has been deleted and cannot be loaded in favorites fragment");
-                            databaseHandler.deleteMyPictureFromAnimalID(myPictures.get(index));
-                        }
                     }
                 } else {
                     //No animals found
@@ -375,15 +370,15 @@ public class MyPicturesFragment extends Fragment {
                 HashMap<String, String> animal1 = animalsList.get(indexAnimalsList);
                 threeAnimals.add(animal1);
 
-                if (animalsList.size() > indexAnimalsList + 1) {
-
-                    HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
-                    threeAnimals.add(animal2);
-
-                }
-
                 // if por or lan doesn't have a pic in it left
                 if (porOrLan.size() == 0) {
+
+                    if (animalsList.size() > indexAnimalsList + 1) {
+
+                        HashMap<String, String> animal2 = animalsList.get(indexAnimalsList + 1);
+                        threeAnimals.add(animal2);
+
+                    }
 
                     if (animalsList.size() > indexAnimalsList + 2) {
 

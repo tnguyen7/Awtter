@@ -207,10 +207,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void deleteMyPictureFromAnimalID(String id) {
+    public void deleteMyPictureFromAnimalID(int id) {
         SQLiteDatabase db = getWritableDatabase();
 
-        db.delete(TABLE_MY_PICTURES, KEY_MY_PIC + "=?", new String[]{id});
+        db.delete(TABLE_MY_PICTURES, KEY_MY_PIC + "=?", new String[]{String.valueOf(id)});
         db.close();
     }
 

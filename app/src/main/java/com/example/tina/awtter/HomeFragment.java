@@ -460,10 +460,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
                     Log.v(TAG, "P1L,P2");
                     //P1 L aka PPL
@@ -477,10 +473,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.set(0, porOrLan.get(1));
                     porOrLan.remove(2);
                     porOrLan.remove(1);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
 
                     stillLeft = 1;
 
@@ -499,10 +491,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
                     Log.v(TAG, "PL,P3");
                     // PL
@@ -516,10 +504,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.set(0, porOrLan.get(2));
                     porOrLan.remove(2);
                     porOrLan.remove(1);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
 
                     stillLeft = 1;
 
@@ -538,10 +522,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
                     Log.v(TAG, "L,LP");
                     //L
@@ -556,10 +536,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(2);
                     porOrLan.remove(1);
                     porOrLan.remove(0);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
                     Log.v(TAG, "LP,L");
@@ -576,10 +552,6 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                     Log.v(TAG, "LP,P3");
                     //LP
@@ -595,11 +567,12 @@ public class HomeFragment extends Fragment {
                     porOrLan.remove(2);
                     porOrLan.remove(1);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                     stillLeft = 1;
+                }
+
+
+                if (adapter != null) {
+                    adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
                 }
 
             } else if (porOrLan.size() == 2) {
