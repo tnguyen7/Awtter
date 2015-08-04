@@ -155,7 +155,7 @@ public class MyPicturesFragment extends Fragment {
 
                             // add progress item
                             animals.add(null);
-                            adapter.notifyItemInserted(animals.size());
+                            adapter.notifyItemInserted(animals.size() - 1);
 
                             handler.postDelayed(new Runnable() {
                                 @Override
@@ -467,11 +467,12 @@ public class MyPicturesFragment extends Fragment {
                 }
             } else if (stillLeft == 2) {
                 Log.v(TAG, "deleting two animals");
-                animals.remove(animals.size() - 1);
-                animals.remove(animals.size() - 1);
+                int size = animals.size();
+                animals.remove(size - 1);
+                animals.remove(size - 2);
 
                 if (adapter != null) {
-                    adapter.notifyItemRangeRemoved(animals.size(), animals.size() + 1);
+                    adapter.notifyItemRangeRemoved(size - 2, 2);
                 }
             }
 
@@ -492,10 +493,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
                     Log.v(TAG, "P1L,P2");
                     //P1 L aka PPL
@@ -509,10 +506,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.set(0, porOrLan.get(1));
                     porOrLan.remove(2);
                     porOrLan.remove(1);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
 
                     stillLeft = 1;
 
@@ -531,10 +524,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
                     Log.v(TAG, "PL,P3");
                     // PL
@@ -548,10 +537,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.set(0, porOrLan.get(2));
                     porOrLan.remove(2);
                     porOrLan.remove(1);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
 
                     stillLeft = 1;
 
@@ -570,10 +555,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false && (boolean) porOrLan.get(2).get(0) == true) {
                     Log.v(TAG, "L,LP");
                     //L
@@ -588,10 +569,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(2);
                     porOrLan.remove(1);
                     porOrLan.remove(0);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == false) {
                     Log.v(TAG, "LP,L");
@@ -608,10 +585,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                     Log.v(TAG, "LP,P3");
                     //LP
@@ -627,11 +600,12 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(2);
                     porOrLan.remove(1);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 3, animals.size() - 1);
-                    }
-
                     stillLeft = 1;
+                }
+
+
+                if (adapter != null) {
+                    adapter.notifyItemRangeInserted(animals.size() - 3, 3);
                 }
 
             } else if (porOrLan.size() == 2) {
@@ -643,10 +617,6 @@ public class MyPicturesFragment extends Fragment {
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
                     animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 2, animals.size() - 1);
-                    }
 
                     stillLeft = 2;
 
@@ -660,10 +630,6 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 2, animals.size() - 1);
-                    }
-
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
                     Log.v(TAG, "P, L");
 
@@ -673,10 +639,6 @@ public class MyPicturesFragment extends Fragment {
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
-
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 2, animals.size() - 1);
-                    }
 
                 } else {
                     Log.v(TAG, "L, P");
@@ -688,10 +650,10 @@ public class MyPicturesFragment extends Fragment {
                     porOrLan.remove(1);
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemRangeInserted(animals.size() - 2, animals.size() - 1);
-                    }
+                }
 
+                if (adapter != null) {
+                    adapter.notifyItemRangeInserted(animals.size() - 2, 2);
                 }
 
             } else if (porOrLan.size() == 1) {
@@ -704,10 +666,6 @@ public class MyPicturesFragment extends Fragment {
 
                     animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
 
-                    if (adapter != null) {
-                        adapter.notifyItemInserted(animals.size() - 1);
-                    }
-
                 } else {
                     Log.v(TAG, "L");
 
@@ -715,10 +673,11 @@ public class MyPicturesFragment extends Fragment {
 
                     porOrLan.remove(0);
 
-                    if (adapter != null) {
-                        adapter.notifyItemInserted(animals.size() - 1);
-                    }
+                }
 
+
+                if (adapter != null) {
+                    adapter.notifyItemInserted(animals.size() - 1);
                 }
             }
 
