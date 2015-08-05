@@ -2,6 +2,7 @@ package com.example.tina.awtter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
@@ -27,6 +28,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -42,13 +45,15 @@ public class FullPicture extends AppCompatActivity{
     private static final String TAG = "FullPicture";
 
     private String currentFragment;
-    private ImageView imageView;
+    private ImageView imageView, heart;
 
     private Toolbar toolbarBottom;
     private DatabaseHandler databaseHandler;
     private GestureDetectorCompat mDetector;
 
     private int animalid;
+
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,11 @@ public class FullPicture extends AppCompatActivity{
         currentFragment = intent.getStringExtra("fragment");
 
         imageView = (ImageView) findViewById(R.id.imageView);
+        heart = (ImageView) findViewById(R.id.heart);
+
+        heart.setVisibility(View.INVISIBLE);
+
+        context = this;
 
         Target target = new CustomTarget(imageView);
 
@@ -196,6 +206,94 @@ public class FullPicture extends AppCompatActivity{
             }
             return false;
         }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+
+            if (databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
+                databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
+                new IncUpAws(context, String.valueOf(animalid), true).execute();
+
+                Log.v(TAG, "double tap if");
+
+                heart.setVisibility(View.VISIBLE);
+
+                YoYo.with(Techniques.Bounce)
+                        .duration(700)
+                        .playOn(heart);
+
+/*                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.BounceIn)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.RubberBand)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);*/
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        heart.setVisibility(View.INVISIBLE);
+                    }
+                }, 700);
+
+
+            } else {
+                databaseHandler.deleteFavoriteFromAnimalID(animalid);
+                new IncUpAws(context, String.valueOf(animalid), false).execute();
+
+                Log.v(TAG, "double tap else");
+
+                heart.setVisibility(View.VISIBLE);
+
+                YoYo.with(Techniques.Bounce)
+                        .duration(700)
+                        .playOn(heart);
+
+                /*YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.BounceIn)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.RubberBand)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);*/
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        heart.setVisibility(View.INVISIBLE);
+                    }
+                }, 700);
+
+
+            }
+
+            return true;
+        }
     }
 
     private void toggleActionBar() {
@@ -248,6 +346,7 @@ public class FullPicture extends AppCompatActivity{
                             public void onClick(DialogInterface dialog, int which) {
                                 new DeleteAnimal(getApplicationContext(), String.valueOf(animalid), findViewById(android.R.id.content)).execute();
                                 databaseHandler.deleteMyPictureFromAnimalID(animalid);
+
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

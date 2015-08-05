@@ -1,5 +1,6 @@
 package com.example.tina.awtter;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
@@ -75,6 +76,7 @@ public class DeleteAnimal extends AsyncTask<String, String, String> {
         if (success == 1) {
             Snackbar.make(rootView, "Photo deleted", Snackbar.LENGTH_LONG)
                     .show();
+            ((Activity)context).finish();
         } else {
             Snackbar.make(rootView, "Error deleting photo", Snackbar.LENGTH_LONG)
                     .show();
