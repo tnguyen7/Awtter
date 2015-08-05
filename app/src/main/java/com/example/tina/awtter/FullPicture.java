@@ -191,6 +191,7 @@ public class FullPicture extends AppCompatActivity{
 
             if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
                 finish();
+                overridePendingTransition(R.anim.abc_fade_in,R.anim.abc_fade_out);
                 return false; // Bottom to top
             }
             return false;

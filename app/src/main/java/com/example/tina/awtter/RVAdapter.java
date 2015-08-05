@@ -1,10 +1,14 @@
 package com.example.tina.awtter;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.GridLayoutManager;
@@ -313,12 +317,14 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             return true;
         }
 
+        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             Intent intent = new Intent(context, FullPicture.class);
             intent.putExtra("animalid", animalid);
             intent.putExtra("fragment", currentFragment);
-            context.startActivity(intent);
+            context.startActivity(intent,
+                    ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
             return true;
         }
 
