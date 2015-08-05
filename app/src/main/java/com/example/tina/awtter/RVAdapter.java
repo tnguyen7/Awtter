@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -82,13 +85,16 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public static class AnimalViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView photo;
+        ImageView photo, heart;
 
         AnimalViewHolder(View itemView) {
 
             super(itemView);
 
             photo = (ImageView) itemView.findViewById(R.id.photo);
+
+            heart = (ImageView) itemView.findViewById(R.id.heart);
+
 
         }
     }
@@ -121,11 +127,11 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         if (viewType == VIEW_ITEM) {
 
-            if (currentFragment == homeFragment) {
+            if (currentFragment.equals(homeFragment)) {
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_home, viewGroup, false);
-            } else if (currentFragment == favoriteFragment) {
+            } else if (currentFragment.equals(favoriteFragment)) {
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_favorites, viewGroup, false);
-            } else if (currentFragment == myPicturesFragment) {
+            } else if (currentFragment.equals(myPicturesFragment)) {
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.fragment_my_pictures, viewGroup, false);
             }
 
@@ -150,11 +156,12 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         if(holder instanceof AnimalViewHolder) {
 
             final int animalid = animals.get(i).id;
-            final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid));
 
             int sizeOrient = animals.get(i).sizeOrient;
 
             AnimalViewHolder animalViewHolder = (AnimalViewHolder) holder;
+            animalViewHolder.heart.setVisibility(View.INVISIBLE);
+            final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid, animalViewHolder.heart));
             animalViewHolder.photo.requestLayout();
 
             switch (sizeOrient) {
@@ -276,10 +283,28 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public class GestureListener extends
             GestureDetector.SimpleOnGestureListener {
+        ImageView heart;
         int animalid;
+        Thread thread;
 
-        public GestureListener(int animalid) {
+        public GestureListener(int animalid, ImageView heart) {
             this.animalid = animalid;
+            this.heart = heart;
+
+            thread=  new Thread(){
+                @Override
+                public void run(){
+                    try {
+                        synchronized(this){
+                            wait(700);
+                        }
+                    }
+                    catch(InterruptedException ex){
+                    }
+                }
+            };
+
+            thread.start();
         }
 
         @Override
@@ -304,9 +329,83 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
                 databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
                 new IncUpAws(context, String.valueOf(animalid), true).execute();
+
+                Log.v(TAG, "double tap if");
+
+                heart.setVisibility(View.VISIBLE);
+
+                YoYo.with(Techniques.Bounce)
+                        .duration(700)
+                        .playOn(heart);
+
+/*                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.BounceIn)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.RubberBand)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);*/
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        heart.setVisibility(View.INVISIBLE);
+                    }
+                }, 700);
+
+
             } else {
                 databaseHandler.deleteFavoriteFromAnimalID(animalid);
                 new IncUpAws(context, String.valueOf(animalid), false).execute();
+
+                Log.v(TAG, "double tap else");
+
+                heart.setVisibility(View.VISIBLE);
+
+                YoYo.with(Techniques.Bounce)
+                        .duration(700)
+                        .playOn(heart);
+
+                /*YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.BounceIn)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.RubberBand)
+                        .duration(700)
+                        .playOn(heart);
+
+                YoYo.with(Techniques.ZoomOut)
+                        .duration(700)
+                        .playOn(heart);*/
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        heart.setVisibility(View.INVISIBLE);
+                    }
+                }, 700);
+
+
             }
 
             return true;
