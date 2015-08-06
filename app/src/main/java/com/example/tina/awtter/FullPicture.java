@@ -65,6 +65,8 @@ public class FullPicture extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
 
+
+
         Intent intent = getIntent();
         animalid = intent.getIntExtra("animalid", -1);
         currentFragment = intent.getStringExtra("fragment");
@@ -90,6 +92,7 @@ public class FullPicture extends AppCompatActivity{
         gs = (GlobalState) getApplication();
 
     }
+
 
     class CustomTarget implements Target {
         private ImageView imageView;

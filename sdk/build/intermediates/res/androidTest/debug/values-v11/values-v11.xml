@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/Users/richellevital/AndroidStudioProjects/Awtter/sdk/build/intermediates/exploded-aar/com.socialize/loopy/3.1.5-SNAPSHOT/res/values-v11/values.xml -->
+    <eat-comment/>
+    <style name="STAppLabelTheme" parent="@android:style/TextAppearance.Small.Inverse"/>
+    <style name="STDialogTheme" parent="@android:style/Theme.Holo.Light.Dialog"/>
+</resources>

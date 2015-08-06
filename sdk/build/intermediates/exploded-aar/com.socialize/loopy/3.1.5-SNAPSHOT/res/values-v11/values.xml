@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/home/lynksant/projects/android/socialize/projects_for_library/loopy-sdk-android/sdk/res/values-v11/themes.xml -->
+    <eat-comment/>
+    <style name="STAppLabelTheme" parent="@android:style/TextAppearance.Small.Inverse"/>
+    <style name="STDialogTheme" parent="@android:style/Theme.Holo.Light.Dialog"/>
+</resources>
