@@ -17,6 +17,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.socialize.Socialize;
+
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener, MyPicturesFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Socialize.initAsync(this);
             setContentView(R.layout.activity_main);
 
             setUpFragments();
@@ -48,6 +51,17 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             setUpToolbar();
 
             setUpDrawer();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Socialize.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Socialize.onResume(this);
     }
 
     @Override

@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Awtter.iml" filepath="$PROJECT_DIR$/Awtter.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/socialize_sdk/socialize_sdk.iml" filepath="$PROJECT_DIR$/socialize_sdk/socialize_sdk.iml" />
     </modules>
   </component>
 </project>

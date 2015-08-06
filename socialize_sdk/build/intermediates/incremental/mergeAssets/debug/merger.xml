@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/richellevital/AndroidStudioProjects/Awtter/socialize_sdk/assets"><file name="socialize_properties" path="/Users/richellevital/AndroidStudioProjects/Awtter/socialize_sdk/assets/socialize_properties"/></source></dataSet><dataSet config="debug"><source path="/Users/richellevital/AndroidStudioProjects/Awtter/socialize_sdk/build-types/debug/assets"/></dataSet></merger>

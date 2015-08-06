@@ -60,6 +60,8 @@ public class FullPicture extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
 
+
+
         Intent intent = getIntent();
         animalid = intent.getIntExtra("animalid", -1);
         currentFragment = intent.getStringExtra("fragment");
@@ -86,6 +88,7 @@ public class FullPicture extends AppCompatActivity{
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
 
     }
+
 
     class CustomTarget implements Target {
         private ImageView imageView;
