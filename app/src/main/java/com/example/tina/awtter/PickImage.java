@@ -38,9 +38,7 @@ public class PickImage extends AppCompatActivity {
 
             Uri uri = data.getData();
 
-            View view = findViewById(android.R.id.content);
-
-            new UploadImage(this, uri, view).execute();
+            new UploadImage(this, uri).execute();
 
         }
 

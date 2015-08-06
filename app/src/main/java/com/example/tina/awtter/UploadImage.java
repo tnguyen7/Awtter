@@ -20,6 +20,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.util.DisplayMetrics;
@@ -36,7 +38,7 @@ public class UploadImage extends AsyncTask<String, String, String> {
 
     private Context context;
     private Uri uri;
-    private View rootView;
+    private GlobalState gs;
     private DatabaseHandler databaseHandler;
 
     private InputStream inputStream;
@@ -47,12 +49,13 @@ public class UploadImage extends AsyncTask<String, String, String> {
     private double scale;
 
     private boolean portrait;
+    Handler myHandler;
 
-    public UploadImage (Context context, Uri imageUri, View rootView) {
+    public UploadImage (Context context, Uri imageUri) {
         this.context = context;
         this.uri = imageUri;
         databaseHandler = new DatabaseHandler(context);
-        this.rootView = rootView;
+        gs = (GlobalState) ((Activity)context).getApplication();
     }
 
     @SuppressWarnings( "deprecation" )
@@ -144,8 +147,6 @@ public class UploadImage extends AsyncTask<String, String, String> {
                     HttpResponse response = httpclient.execute(httppost);
                     final String the_string_response = convertResponseToString(response);
                     Log.v(TAG, the_string_response);
-                    Snackbar.make(rootView, "Photo uploaded", Snackbar.LENGTH_LONG).show();
-
 
                     databaseHandler.createMyPicture(databaseHandler.getLastIDMyPicture(), Integer.valueOf(the_string_response));
 
@@ -166,7 +167,18 @@ public class UploadImage extends AsyncTask<String, String, String> {
         return null;
     }
 
-    @SuppressWarnings( "deprecation" )
+    protected void onPostExecute(String file_url) {
+        final GlobalState gs = (GlobalState) ((Activity) context).getApplication();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Snackbar.make(gs.getView(), "Photo uploaded", Snackbar.LENGTH_LONG).show();
+                gs.refresh("MyPictures", (Activity) context);
+            }
+        }, 4000);
+    }
+
+        @SuppressWarnings( "deprecation" )
     public String convertResponseToString(HttpResponse response) throws IllegalStateException, IOException{
 
         String res = "";

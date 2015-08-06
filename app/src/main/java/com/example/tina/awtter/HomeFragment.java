@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -48,6 +49,7 @@ public class HomeFragment extends Fragment {
     GridLayoutManager glm;
     SwipeRefreshLayout mySwipeRefreshLayout;
     RVAdapter adapter;
+    GlobalState gs;
 
     ArrayList<HashMap<String, String>> animalsList;
     List<Animal> animals;
@@ -201,6 +203,8 @@ public class HomeFragment extends Fragment {
                 }
         );
 
+        gs = (GlobalState) getActivity().getApplication();
+
         return view;
     }
 
@@ -328,7 +332,7 @@ public class HomeFragment extends Fragment {
         protected void onPostExecute(String file_url) {
             String id;
             boolean isPortrait;
-            int sizeOrient;
+            int upAws;
 
             // For every animal
             while (indexAnimalsList < animalsList.size()) {
@@ -375,10 +379,12 @@ public class HomeFragment extends Fragment {
 
                     id = threeAnimals.get(index).get(TAG_ID);
                     isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
+                    upAws = Integer.valueOf(threeAnimals.get(index).get(TAG_UPAWS));
 
                     ArrayList<Object> toAdd = new ArrayList<Object>();
                     toAdd.add(isPortrait);
                     toAdd.add(Integer.valueOf(id));
+                    toAdd.add(upAws);
 
                     porOrLan.add(toAdd);
                 }
@@ -399,7 +405,7 @@ public class HomeFragment extends Fragment {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter = new RVAdapter(animals, context, homeFragment);
+                        adapter = new RVAdapter(animals, context, HomeFragment.this, homeFragment);
                         rv.setAdapter(adapter);
                         SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
                         rv.addItemDecoration(spaces);
@@ -451,11 +457,11 @@ public class HomeFragment extends Fragment {
                 if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                     // PPP
                     Log.v(TAG, "P,P,P");
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, topPadding, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -465,11 +471,11 @@ public class HomeFragment extends Fragment {
                     Log.v(TAG, "P1L,P2");
                     //P1 L aka PPL
                     //P2
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.set(0, porOrLan.get(1));
                     porOrLan.remove(2);
@@ -482,11 +488,11 @@ public class HomeFragment extends Fragment {
                     //PL
                     //L
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 3, false, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -496,11 +502,11 @@ public class HomeFragment extends Fragment {
                     Log.v(TAG, "PL,P3");
                     // PL
                     // P3
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.set(0, porOrLan.get(2));
                     porOrLan.remove(2);
@@ -513,11 +519,11 @@ public class HomeFragment extends Fragment {
                     //L
                     //L
                     //L
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 3, false, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 3, false, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -528,11 +534,11 @@ public class HomeFragment extends Fragment {
                     //L
                     //LP
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, false, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -543,11 +549,11 @@ public class HomeFragment extends Fragment {
                     //LP
                     //L
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 2, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, false, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 3, false, false, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -558,11 +564,11 @@ public class HomeFragment extends Fragment {
                     //LP
                     //P3
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 2, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.set(0, porOrLan.get(2));
                     porOrLan.remove(2);
@@ -582,18 +588,18 @@ public class HomeFragment extends Fragment {
                 if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
                     Log.v(TAG, "P, P");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, false, true));
 
                     stillLeft = 2;
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
                     Log.v(TAG, "L, L");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 3, false, true, true));
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
@@ -601,9 +607,9 @@ public class HomeFragment extends Fragment {
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
                     Log.v(TAG, "P, L");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
@@ -611,9 +617,9 @@ public class HomeFragment extends Fragment {
                 } else {
                     Log.v(TAG, "L, P");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 2, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, true, true));
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
@@ -632,12 +638,12 @@ public class HomeFragment extends Fragment {
 
                     stillLeft = 1;
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
                 } else {
                     Log.v(TAG, "L");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, false, true));
 
                     porOrLan.remove(0);
 
@@ -656,4 +662,5 @@ public class HomeFragment extends Fragment {
 
         }
     }
+
 }

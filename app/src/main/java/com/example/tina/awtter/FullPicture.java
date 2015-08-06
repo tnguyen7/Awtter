@@ -1,22 +1,21 @@
 package com.example.tina.awtter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.Handler;
-import android.support.v4.app.NavUtils;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Menu;
@@ -27,13 +26,12 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
-
-import java.util.ArrayList;
 
 public class FullPicture extends AppCompatActivity{
 
@@ -43,6 +41,7 @@ public class FullPicture extends AppCompatActivity{
     private static final String favoriteFragment = "myFavoritesFragment";
     private static final String myPicturesFragment = "myPicturesFragment";
     private static final String TAG = "FullPicture";
+    private static final String UPAWS = " uPaws";
 
     private String currentFragment;
     private ImageView imageView, heart;
@@ -50,10 +49,14 @@ public class FullPicture extends AppCompatActivity{
     private Toolbar toolbarBottom;
     private DatabaseHandler databaseHandler;
     private GestureDetectorCompat mDetector;
+    GlobalState gs;
+    private TextView tv;
 
     private int animalid;
 
-    Context context;
+    private boolean needToRefresh = false;
+
+    private Context context;
 
     Button button;
 
@@ -80,12 +83,11 @@ public class FullPicture extends AppCompatActivity{
                 .into(target);
         imageView.setTag(target);
 
-        //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        //mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-
         setUpActionBar();
 
         mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+
+        gs = (GlobalState) getApplication();
 
     }
 
@@ -126,6 +128,7 @@ public class FullPicture extends AppCompatActivity{
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
+        //actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         toolbarBottom = (Toolbar) findViewById(R.id.toolbar_bottom);
 
@@ -155,12 +158,18 @@ public class FullPicture extends AppCompatActivity{
                 if (databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
                     button.setTextColor(getResources().getColor(R.color.accent));
                     databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
-                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), true, button).execute();
+                    new IncUpAws(context, String.valueOf(animalid), true, button).execute();
+                    gs.incUpAws();
+                    tv.setText(gs.getUpAws() + UPAWS);
                 } else {
                     button.setTextColor(getResources().getColor(R.color.white));
                     databaseHandler.deleteFavoriteFromAnimalID(animalid);
-                    new IncUpAws(getApplicationContext(), String.valueOf(animalid), false, button).execute();
+                    new IncUpAws(context, String.valueOf(animalid), false, button).execute();
+                    gs.decUpAws();
+                    tv.setText(gs.getUpAws() + UPAWS);
                 }
+
+                //TODO: find a way to refresh the favorites layout if in favorites (after exiting?)
             }
         });
     }
@@ -212,6 +221,8 @@ public class FullPicture extends AppCompatActivity{
         @Override
         public boolean onDoubleTap(MotionEvent e) {
 
+            needToRefresh = true;
+
             if (databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
                 databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
                 new IncUpAws(context, String.valueOf(animalid), true, button).execute();
@@ -220,29 +231,9 @@ public class FullPicture extends AppCompatActivity{
 
                 heart.setVisibility(View.VISIBLE);
 
-                YoYo.with(Techniques.Bounce)
-                        .duration(700)
-                        .playOn(heart);
-
-/*                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.BounceIn)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);
-
                 YoYo.with(Techniques.RubberBand)
                         .duration(700)
                         .playOn(heart);
-
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);*/
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -252,38 +243,20 @@ public class FullPicture extends AppCompatActivity{
                     }
                 }, 700);
 
+                gs.incUpAws();
+                tv.setText(gs.getUpAws() + UPAWS);
 
             } else {
                 databaseHandler.deleteFavoriteFromAnimalID(animalid);
                 new IncUpAws(context, String.valueOf(animalid), false, button).execute();
-
                 Log.v(TAG, "double tap else");
 
                 heart.setVisibility(View.VISIBLE);
-
-                YoYo.with(Techniques.Bounce)
-                        .duration(700)
-                        .playOn(heart);
-
-                /*YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.BounceIn)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);
 
                 YoYo.with(Techniques.RubberBand)
                         .duration(700)
                         .playOn(heart);
 
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);*/
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -291,6 +264,8 @@ public class FullPicture extends AppCompatActivity{
                     }
                 }, 700);
 
+                gs.decUpAws();
+                tv.setText(gs.getUpAws() + UPAWS);
 
             }
 
@@ -327,6 +302,14 @@ public class FullPicture extends AppCompatActivity{
             getMenuInflater().inflate(R.menu.menu_full_picture_pic, menu);
         }
 
+        tv = new TextView(this);
+        tv.setText(gs.getUpAws() + UPAWS);
+        tv.setTextColor(getResources().getColor(R.color.white));
+        tv.setPadding(5, 0, 5, 0);
+        tv.setTypeface(null, Typeface.BOLD);
+        tv.setTextSize(14);
+        menu.add(Menu.NONE, 0, Menu.NONE, "upAws").setActionView(tv).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
         return true;
     }
 
@@ -346,9 +329,8 @@ public class FullPicture extends AppCompatActivity{
                         .setMessage("Do you want to delete this photo?")
                         .setPositiveButton("delete", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                new DeleteAnimal(getApplicationContext(), String.valueOf(animalid), findViewById(android.R.id.content)).execute();
+                                new DeleteAnimal(FullPicture.this, String.valueOf(animalid)).execute();
                                 databaseHandler.deleteMyPictureFromAnimalID(animalid);
-
                             }
                         })
                         .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -363,4 +345,24 @@ public class FullPicture extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("CheckStartActivity", "onActivityResult and resultCode = " + resultCode);
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1) {
+            Log.v(TAG, "Pass");
+        } else {
+            Log.v(TAG, "Fail");
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (needToRefresh) {
+            GlobalState gs = (GlobalState) ((Activity) context).getApplication();
+            gs.refresh("Favorites", this);
+        }
+        finish();
+        overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
+    }
 }

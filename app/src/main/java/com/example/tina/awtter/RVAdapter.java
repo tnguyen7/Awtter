@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -61,11 +62,14 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private int portraitWidth, portraitHeight, landscape1Width, landscape1Height, landscape2Width, landscape2Height;
     private  int widthScreen;
 
-    RVAdapter(List<Animal> animals, Context context, String fragment) {
+    Fragment fragment;
+
+    RVAdapter(List<Animal> animals, Context context, Fragment fragment, String fragmentName) {
 
         this.animals = animals;
         this.context = context;
-        this.currentFragment = fragment;
+        this.currentFragment = fragmentName;
+        this.fragment = fragment;
 
         databaseHandler = new DatabaseHandler(context);
 
@@ -98,7 +102,6 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             photo = (ImageView) itemView.findViewById(R.id.photo);
 
             heart = (ImageView) itemView.findViewById(R.id.heart);
-
 
         }
     }
@@ -160,12 +163,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         if(holder instanceof AnimalViewHolder) {
 
             final int animalid = animals.get(i).id;
+            final int upAws = animals.get(i).upAws;
 
             int sizeOrient = animals.get(i).sizeOrient;
 
             AnimalViewHolder animalViewHolder = (AnimalViewHolder) holder;
             animalViewHolder.heart.setVisibility(View.INVISIBLE);
-            final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid, animalViewHolder.heart));
+            final GestureDetectorCompat gestureDetector = new GestureDetectorCompat(context, new GestureListener(animalid, upAws, i, animalViewHolder.heart));
             animalViewHolder.photo.requestLayout();
 
             switch (sizeOrient) {
@@ -289,42 +293,34 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             GestureDetector.SimpleOnGestureListener {
         ImageView heart;
         int animalid;
-        Thread thread;
+        int upAws;
+        int index;
+        GlobalState gs;
 
-        public GestureListener(int animalid, ImageView heart) {
+        public GestureListener(int animalid, int upAws, int index, ImageView heart) {
             this.animalid = animalid;
+            this.upAws = upAws;
             this.heart = heart;
+            this.index = index;
 
-            thread=  new Thread(){
-                @Override
-                public void run(){
-                    try {
-                        synchronized(this){
-                            wait(700);
-                        }
-                    }
-                    catch(InterruptedException ex){
-                    }
-                }
-            };
-
-            thread.start();
+            gs = (GlobalState) ((Activity)context).getApplication();
         }
 
         @Override
         public boolean onDown(MotionEvent e) {
-
             return true;
         }
 
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
+            gs.setVariables(animals, index);
             Intent intent = new Intent(context, FullPicture.class);
             intent.putExtra("animalid", animalid);
             intent.putExtra("fragment", currentFragment);
+            intent.putExtra("upAws", upAws);
             context.startActivity(intent,
-                    ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
+                    ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
             return true;
         }
 
@@ -332,37 +328,20 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         @Override
         public boolean onDoubleTap(MotionEvent e) {
 
+            gs.setVariables(animals, index);
+
             if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
                 databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
                 new IncUpAws(context, String.valueOf(animalid), true, null).execute();
+                gs.incUpAws();
 
                 Log.v(TAG, "double tap if");
 
                 heart.setVisibility(View.VISIBLE);
-/*
-                YoYo.with(Techniques.Bounce)
-                        .duration(700)
-                        .playOn(heart);
-
-/*                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.BounceIn)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);*/
 
                 YoYo.with(Techniques.RubberBand)
                         .duration(700)
-                        .playOn(heart);/*
-
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);*/
+                        .playOn(heart);
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -372,38 +351,19 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     }
                 }, 700);
 
-
             } else {
                 databaseHandler.deleteFavoriteFromAnimalID(animalid);
                 new IncUpAws(context, String.valueOf(animalid), false, null).execute();
+                gs.decUpAws();
 
                 Log.v(TAG, "double tap else");
 
                 heart.setVisibility(View.VISIBLE);
 
-                /*YoYo.with(Techniques.Bounce)
-                        .duration(700)
-                        .playOn(heart);
-
-                /*YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.BounceIn)
-                        .duration(700)
-                        .playOn(heart);
-
-                YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);*/
-
                 YoYo.with(Techniques.RubberBand)
                         .duration(700)
                         .playOn(heart);
 
-                /*YoYo.with(Techniques.ZoomOut)
-                        .duration(700)
-                        .playOn(heart);*/
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -411,6 +371,16 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     }
                 }, 700);
 
+                if (currentFragment.equals(favoriteFragment)) {
+                    ((FavoritesFragment) fragment).mySwipeRefreshLayout.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.v(TAG, "refreshing");
+                            ((FavoritesFragment) fragment).mySwipeRefreshLayout.setRefreshing(true);
+                            ((FavoritesFragment) fragment).refreshListener.onRefresh();
+                        }
+                    });
+                }
 
             }
 

@@ -6,5 +6,6 @@
     <item android:id="@+id/action_delete"
         android:icon= "@drawable/ic_home_black_24dp"
         android:title="Delete"
-        app:showAsAction="ifRoom" />
+        android:orderInCategory="999"
+        app:showAsAction="always" />
 </menu>

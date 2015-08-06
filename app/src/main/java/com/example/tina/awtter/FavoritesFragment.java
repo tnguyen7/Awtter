@@ -55,7 +55,9 @@ public class FavoritesFragment extends Fragment {
     RecyclerView rv;
     GridLayoutManager glm;
     SwipeRefreshLayout mySwipeRefreshLayout;
+    SwipeRefreshLayout.OnRefreshListener refreshListener;
     RVAdapter adapter;
+    GlobalState gs;
 
     ArrayList<String> favorites;
     ArrayList<HashMap<String, String>> animalsList;
@@ -179,34 +181,36 @@ public class FavoritesFragment extends Fragment {
 
         mySwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 
-        mySwipeRefreshLayout.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
+        refreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
 
-                        int animalsSize = animals.size();
+                int animalsSize = animals.size();
 
-                        int i = animalsSize;
-                        while (animals.size() > 0) {
-                            animals.remove(--i);
-                        }
-
-                        i = porOrLan.size();
-                        while (porOrLan.size() > 0) {
-                            porOrLan.remove(--i);
-                        }
-
-                        loading = true;
-                        startPoint = "0";
-                        topPadding = true;
-                        stillLeft = 0;
-
-                        new LoadAnimals().execute();
-
-                    }
+                int i = animalsSize;
+                while (animals.size() > 0) {
+                    animals.remove(--i);
                 }
-        );
+
+                i = porOrLan.size();
+                while (porOrLan.size() > 0) {
+                    porOrLan.remove(--i);
+                }
+
+                loading = true;
+                startPoint = "0";
+                topPadding = true;
+                stillLeft = 0;
+
+                new LoadAnimals().execute();
+
+            }
+        };
+        mySwipeRefreshLayout.setOnRefreshListener(refreshListener);
+
+        gs = (GlobalState) getActivity().getApplication();
+        gs.setRefreshFavorites(mySwipeRefreshLayout, refreshListener);
 
         return view;
     }
@@ -375,7 +379,7 @@ public class FavoritesFragment extends Fragment {
         protected void onPostExecute(String file_url) {
             String id;
             boolean isPortrait;
-            int sizeOrient;
+            int upAws;
 
             // For every animal
             while (indexAnimalsList < animalsList.size()) {
@@ -423,10 +427,12 @@ public class FavoritesFragment extends Fragment {
 
                     id = threeAnimals.get(index).get(TAG_ID);
                     isPortrait = Boolean.valueOf(threeAnimals.get(index).get(TAG_PORTRAIT));
+                    upAws = Integer.valueOf(threeAnimals.get(index).get(TAG_UPAWS));
 
                     ArrayList<Object> toAdd = new ArrayList<Object>();
                     toAdd.add(isPortrait);
                     toAdd.add(Integer.valueOf(id));
+                    toAdd.add(upAws);
 
                     porOrLan.add(toAdd);
                 }
@@ -447,7 +453,7 @@ public class FavoritesFragment extends Fragment {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        adapter = new RVAdapter(animals, context, myFavoritesFragment);
+                        adapter = new RVAdapter(animals, context, FavoritesFragment.this, myFavoritesFragment);
                         rv.setAdapter(adapter);
                         SpacesItemDecoration spaces = new SpacesItemDecoration(13, animals);
                         rv.addItemDecoration(spaces);
@@ -496,11 +502,11 @@ public class FavoritesFragment extends Fragment {
                 if ((boolean) (porOrLan.get(0).get(0)) == true && (boolean) porOrLan.get(1).get(0) == true && (boolean) porOrLan.get(2).get(0) == true) {
                     // PPP
                     Log.v(TAG, "P,P,P");
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, topPadding, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -510,11 +516,11 @@ public class FavoritesFragment extends Fragment {
                     Log.v(TAG, "P1L,P2");
                     //P1 L aka PPL
                     //P2
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.set(0, porOrLan.get(1));
                     porOrLan.remove(2);
@@ -527,11 +533,11 @@ public class FavoritesFragment extends Fragment {
                     //PL
                     //L
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 3, false, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -541,11 +547,11 @@ public class FavoritesFragment extends Fragment {
                     Log.v(TAG, "PL,P3");
                     // PL
                     // P3
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.set(0, porOrLan.get(2));
                     porOrLan.remove(2);
@@ -558,11 +564,11 @@ public class FavoritesFragment extends Fragment {
                     //L
                     //L
                     //L
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 3, false, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 3, false, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -573,11 +579,11 @@ public class FavoritesFragment extends Fragment {
                     //L
                     //LP
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, false, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -588,11 +594,11 @@ public class FavoritesFragment extends Fragment {
                     //LP
                     //L
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 2, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 3, false, false, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 3, false, false, true));
 
                     porOrLan.remove(2);
                     porOrLan.remove(1);
@@ -603,11 +609,11 @@ public class FavoritesFragment extends Fragment {
                     //LP
                     //P3
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 2, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(2).get(1), 1, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(2).get(1), (int) porOrLan.get(2).get(2), 1, false, true, true));
 
                     porOrLan.set(0, porOrLan.get(2));
                     porOrLan.remove(2);
@@ -627,18 +633,18 @@ public class FavoritesFragment extends Fragment {
                 if ((boolean) porOrLan.get(0).get(0) == true && (boolean) porOrLan.get(1).get(0) == true) {
                     Log.v(TAG, "P, P");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, false, true));
 
                     stillLeft = 2;
 
                 } else if ((boolean) porOrLan.get(0).get(0) == false && (boolean) porOrLan.get(1).get(0) == false) {
                     Log.v(TAG, "L, L");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, true, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 3, false, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 3, false, true, true));
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
@@ -646,9 +652,9 @@ public class FavoritesFragment extends Fragment {
                 } else if ((boolean) porOrLan.get(0).get(0) == true) {
                     Log.v(TAG, "P, L");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 2, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 2, topPadding, true, true));
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
@@ -656,9 +662,9 @@ public class FavoritesFragment extends Fragment {
                 } else {
                     Log.v(TAG, "L, P");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 2, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 2, topPadding, false, true));
 
-                    animals.add(new Animal((int) porOrLan.get(1).get(1), 1, topPadding, true, true));
+                    animals.add(new Animal((int) porOrLan.get(1).get(1), (int) porOrLan.get(1).get(2), 1, topPadding, true, true));
 
                     porOrLan.remove(1);
                     porOrLan.remove(0);
@@ -677,12 +683,12 @@ public class FavoritesFragment extends Fragment {
 
                     stillLeft = 1;
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 1, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 1, topPadding, false, true));
 
                 } else {
                     Log.v(TAG, "L");
 
-                    animals.add(new Animal((int) porOrLan.get(0).get(1), 3, topPadding, false, true));
+                    animals.add(new Animal((int) porOrLan.get(0).get(1), (int) porOrLan.get(0).get(2), 3, topPadding, false, true));
 
                     porOrLan.remove(0);
 

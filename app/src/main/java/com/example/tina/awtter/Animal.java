@@ -19,11 +19,11 @@ class Animal {
     boolean top;
     int id;
 
-    public Animal(int id, int sizeOrient, boolean top, boolean right, boolean left)
+    public Animal(int id, int upAws, int sizeOrient, boolean top, boolean right, boolean left)
 
     {
         this.id = id;
-        upAws = 0;
+        this.upAws = upAws;
         this.sizeOrient = sizeOrient;
         this.top = top;
         this.right = right;

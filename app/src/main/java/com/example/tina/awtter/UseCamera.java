@@ -50,13 +50,12 @@ public class UseCamera extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                View view = findViewById(android.R.id.content);
 
                 Log.v(TAG, "Image saved to:\n" + fileUri);
 
                 Uri uri = data.getData();
 
-                new UploadImage(this, uri, view).execute();
+                new UploadImage(this, uri).execute();
 
 
             } else if (resultCode == RESULT_CANCELED) {

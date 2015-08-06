@@ -30,14 +30,16 @@ public class DeleteAnimal extends AsyncTask<String, String, String> {
     JSONParser jParser;
 
     private String url_delete_animal = "http://76.244.35.83/delete_animal.php";
-    String __id;
-    Context context;
-    View rootView;
+    private String __id;
+    private Context context;
+    private GlobalState gs;
 
-    public DeleteAnimal(Context context, String id, View rootView) {
+
+    public DeleteAnimal(Context context, String id) {
         this.context = context;
         this.__id = id;
-        this.rootView = rootView;
+
+        gs = (GlobalState) ((Activity) context).getApplication();
     }
     /**
      * Before starting background thread Show Progress Dialog
@@ -74,11 +76,14 @@ public class DeleteAnimal extends AsyncTask<String, String, String> {
         }
 
         if (success == 1) {
-            Snackbar.make(rootView, "Photo deleted", Snackbar.LENGTH_LONG)
+            Snackbar.make(gs.getView(), "Photo deleted", Snackbar.LENGTH_LONG)
                     .show();
             ((Activity)context).finish();
+            GlobalState gs = (GlobalState) ((Activity) context).getApplication();
+            gs.refresh("MyPictures", (Activity) context);
+
         } else {
-            Snackbar.make(rootView, "Error deleting photo", Snackbar.LENGTH_LONG)
+            Snackbar.make(gs.getView(), "Error deleting photo", Snackbar.LENGTH_LONG)
                     .show();
         }
 

@@ -10,6 +10,6 @@
         android:id="@+id/progressBar"
         android:indeterminate="true"
         android:padding="5dp"
-        style="@android:style/Widget.ProgressBar.Small"
+        style="@android:style/Widget.Material.ProgressBar.Small"
         android:layout_gravity="center_horizontal"/>
 </LinearLayout>

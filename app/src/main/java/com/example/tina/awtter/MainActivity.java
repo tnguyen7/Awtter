@@ -2,6 +2,7 @@ package com.example.tina.awtter;
 
 import android.net.Uri;
 import android.content.Intent;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,11 +22,13 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         FavoritesFragment.OnFragmentInteractionListener, MyPicturesFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
 
+    private static final String TAG = "MainActivity";
     private static final String HOME = "Home";
     private static final String FAVORITE = "Favorites";
     private static final String MY_PICTURES = "My Pictures";
     private static final String SETTINGS = "Settings";
 
+    GlobalState gs;
     DrawerLayout drawerLayout;
     View content;
     HomeFragment homeFragment;
@@ -43,11 +46,15 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
             setContentView(R.layout.activity_main);
 
+            gs = (GlobalState) getApplication();
+            gs.setView(findViewById(android.R.id.content));
+
             setUpFragments();
 
             setUpToolbar();
 
             setUpDrawer();
+
     }
 
     @Override
@@ -172,6 +179,13 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     case (FAVORITE): {
 
                         switchTo(favoritesFragment, title);
+                        favoritesFragment.mySwipeRefreshLayout.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.v(TAG, "refreshing");
+                                favoritesFragment.refreshListener.onRefresh();
+                            }
+                        });
                         break;
 
                     }
@@ -234,13 +248,20 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         Intent intentCamera = new Intent(this, UseCamera.class);
         startActivity(intentCamera);
+
         return true;
     }
 
     public boolean pickImage() {
+
         Intent intentPickImage = new Intent(this, PickImage.class);
         startActivity(intentPickImage);
+
         return true;
     }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 }
