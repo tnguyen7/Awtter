@@ -334,12 +334,12 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
                 databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
-                new IncUpAws(context, String.valueOf(animalid), true).execute();
+                new IncUpAws(context, String.valueOf(animalid), true, null).execute();
 
                 Log.v(TAG, "double tap if");
 
                 heart.setVisibility(View.VISIBLE);
-
+/*
                 YoYo.with(Techniques.Bounce)
                         .duration(700)
                         .playOn(heart);
@@ -354,11 +354,11 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                 YoYo.with(Techniques.ZoomOut)
                         .duration(700)
-                        .playOn(heart);
+                        .playOn(heart);*/
 
                 YoYo.with(Techniques.RubberBand)
                         .duration(700)
-                        .playOn(heart);
+                        .playOn(heart);/*
 
                 YoYo.with(Techniques.ZoomOut)
                         .duration(700)
@@ -375,13 +375,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
             } else {
                 databaseHandler.deleteFavoriteFromAnimalID(animalid);
-                new IncUpAws(context, String.valueOf(animalid), false).execute();
+                new IncUpAws(context, String.valueOf(animalid), false, null).execute();
 
                 Log.v(TAG, "double tap else");
 
                 heart.setVisibility(View.VISIBLE);
 
-                YoYo.with(Techniques.Bounce)
+                /*YoYo.with(Techniques.Bounce)
                         .duration(700)
                         .playOn(heart);
 
@@ -395,13 +395,13 @@ public class RVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                 YoYo.with(Techniques.ZoomOut)
                         .duration(700)
-                        .playOn(heart);
+                        .playOn(heart);*/
 
                 YoYo.with(Techniques.RubberBand)
                         .duration(700)
                         .playOn(heart);
 
-                YoYo.with(Techniques.ZoomOut)
+                /*YoYo.with(Techniques.ZoomOut)
                         .duration(700)
                         .playOn(heart);*/
                 new Handler().postDelayed(new Runnable() {

@@ -1,9 +1,11 @@
 package com.example.tina.awtter;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Button;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -34,10 +36,13 @@ class IncUpAws extends AsyncTask<String, String, String> {
 
     private boolean increment;
 
-    public IncUpAws(Context context, String id, boolean increment) {
+    Button button;
+
+    public IncUpAws(Context context, String id, boolean increment, Button button) {
         this.context = context;
         this.__id = id;
         this.increment = increment;
+        this.button = button;
     }
 
     /**
@@ -82,6 +87,29 @@ class IncUpAws extends AsyncTask<String, String, String> {
 
         if (success == 1) {
             // increment successful
+            if (button != null) {
+                if (increment) {
+                    ((Activity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            button.setTextColor(context.getResources().getColor(R.color.accent));
+
+                        }
+                    });
+                } else {
+
+                    ((Activity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            button.setTextColor(context.getResources().getColor(R.color.white));
+
+                        }
+                    });
+
+                }
+            }
         } else {
             // increment failed
         }
