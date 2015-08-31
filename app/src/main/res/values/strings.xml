@@ -17,5 +17,6 @@
     <string name="title_activity_pick_image">PickImage</string>
     <string name="title_activity_full_picture">FullPicture</string>
     <string name="delete_picture">Delete Photo</string>
+    <string name="title_activity_comment">CommentActivity</string>
 
 </resources>
