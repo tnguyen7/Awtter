@@ -1,10 +1,12 @@
 package com.example.tina.awtter;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
@@ -184,6 +186,7 @@ public class FullPicture extends AppCompatActivity{
         databaseHandler = new DatabaseHandler(getApplicationContext());
 
         button.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
 
