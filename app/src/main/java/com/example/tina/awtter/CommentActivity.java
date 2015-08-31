@@ -8,12 +8,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -30,13 +35,18 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class CommentActivity extends ListActivity {
+public class CommentActivity extends AppCompatActivity {
 
+    private static final String TAG = "CommentActivity";
     private String startPoint = "0";
     private String id;
     Context context;
     ListView commentList;
+    SwipeRefreshLayout mySwipeRefreshLayout;
+    SwipeRefreshLayout.OnRefreshListener refreshListener;
+    int position;
     private static final String TAG_START_POINT = "start";
+    private static final String TAG_AUTO = "__auto";
     private static final String TAG_ID = "__id";
     private static final String TAG_NAME = "__name";
     private static final String TAG_COMMENT = "__comment";
@@ -56,6 +66,19 @@ public class CommentActivity extends ListActivity {
 
         commentList = (ListView) findViewById(android.R.id.list);
 
+        commentList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int pos, long id) {
+                Log.v("long clicked", "pos: " + pos);
+
+                position = pos;
+
+                return false;
+            }
+
+        });
+
         context = this;
 
         Button createComment = (Button) findViewById(R.id.new_comment_button);
@@ -68,8 +91,39 @@ public class CommentActivity extends ListActivity {
                 intent.putExtra("animalid", id);
                 CommentActivity.this.startActivity(intent);
 
+                new LoadComments().execute();
             }
 
+        });
+
+        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+
+        refreshListener = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.i(TAG, "onRefresh called from SwipeRefreshLayout");
+
+                startPoint = "0";
+                new LoadComments().execute();
+
+            }
+        };
+        mySwipeRefreshLayout.setOnRefreshListener(refreshListener);
+
+        commentList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                //Check if the last view is visible
+                if (++firstVisibleItem + visibleItemCount > totalItemCount) {
+                    new LoadComments().execute();
+                }
+            }
         });
 
     }
@@ -132,6 +186,7 @@ public class CommentActivity extends ListActivity {
                         JSONObject c = animals_all.getJSONObject(i);
 
                         // Storing each json item in variable
+                        String auto = c.getString(TAG_AUTO);
                         String name = c.getString(TAG_NAME);
                         String comment = c.getString(TAG_COMMENT);
                         String date = c.getString(TAG_CREATEDAT);
@@ -140,6 +195,7 @@ public class CommentActivity extends ListActivity {
                         map = new HashMap<String, String>();
 
                         // adding each child node to HashMap key => value;
+                        map.put(TAG_AUTO, auto);
                         map.put(TAG_NAME, name);
                         map.put(TAG_COMMENT, comment);
                         map.put(TAG_CREATEDAT, date);
@@ -161,6 +217,11 @@ public class CommentActivity extends ListActivity {
         protected void onPostExecute(String file_url) {
             commentList.setAdapter(new LVAdapter(context, comments));
         }
+    }
+
+    public void deleteComment() {
+        HashMap<String, String> info = (HashMap<String, String>) commentList.getAdapter().getItem(position);
+        new DeleteComment(info.get(TAG_AUTO)).execute();
     }
 
 }

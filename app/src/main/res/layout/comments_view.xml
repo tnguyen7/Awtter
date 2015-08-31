@@ -13,12 +13,18 @@
         android:id="@+id/comments_title"
         android:layout_gravity="center_horizontal" />
 
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <ListView
         android:layout_width="match_parent"
         android:layout_height="440dp"
         android:id="@android:id/list"
         android:layout_gravity="center_horizontal"
         android:choiceMode="none" />
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <Button
         android:layout_width="wrap_content"

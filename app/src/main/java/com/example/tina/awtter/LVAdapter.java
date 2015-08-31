@@ -10,9 +10,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Created by tina on 8/31/15.
- */
 public class LVAdapter extends BaseAdapter {
 
     Context context;

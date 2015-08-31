@@ -33,6 +33,7 @@ public class NewCommentActivity extends Activity {
     String id;
     String name = "Richelle";
     String comment;
+    DatabaseHandler databaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +62,13 @@ public class NewCommentActivity extends Activity {
 
         });
 
+        databaseHandler = new DatabaseHandler(this);
+        name = databaseHandler.getName();
     }
 
     class LoadComments extends AsyncTask<String, String, String> {
 
-        private static final String url_all_products = "http://76.244.35.83/testmysql.php";
+        private static final String url_all_products = "http://76.244.35.83/add_comment.php";
 
         JSONParser jParser;
 

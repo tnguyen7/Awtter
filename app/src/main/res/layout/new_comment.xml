@@ -11,7 +11,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Name"
         android:id="@+id/user_comment"
-        android:layout_weight="0.05" />
+        android:layout_gravity="right" />
 
     <EditText
         android:layout_width="match_parent"
