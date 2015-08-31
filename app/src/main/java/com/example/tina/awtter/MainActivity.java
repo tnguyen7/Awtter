@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         FavoritesFragment.OnFragmentInteractionListener, MyPicturesFragment.OnFragmentInteractionListener,
         SettingsFragment.OnFragmentInteractionListener {
@@ -46,24 +45,15 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
 
         setContentView(R.layout.activity_main);
 
-            gs = (GlobalState) getApplication();
-            gs.setView(findViewById(android.R.id.content));
+        gs = (GlobalState) getApplication();
+        gs.setView(findViewById(android.R.id.content));
 
-            setUpFragments();
+        setUpFragments();
 
-            setUpToolbar();
+        setUpToolbar();
 
-            setUpDrawer();
+        setUpDrawer();
 
-    }
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override

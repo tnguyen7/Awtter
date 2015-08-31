@@ -177,7 +177,22 @@ public class FullPicture extends AppCompatActivity{
         });
     }
 
-    public void setUpComment(){};
+    public void setUpComment(){
+        button = (Button) findViewById(R.id.commentButton);
+
+        databaseHandler = new DatabaseHandler(getApplicationContext());
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if
+
+            }
+
+        });
+
+    }
 
     public void setUpShare() {};
 
@@ -343,6 +358,7 @@ public class FullPicture extends AppCompatActivity{
                         .show();
 
                 return true;
+            case android.R.id.
         }
 
         return super.onOptionsItemSelected(item);
