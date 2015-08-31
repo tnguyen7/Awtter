@@ -65,7 +65,7 @@ package com.example.tina.awtter;
  *  <li>v2.3.1 - Added {@link #encodeBytesToBytes(byte[], int, int, int)} and some
  *   similar helper methods to be more efficient with memory by not returning a
  *   String but just a byte array.</li>
- *  <li>v2.3 - <strong>This is not a drop-in replacement!</strong> This is two years of comments
+ *  <li>v2.3 - <strong>This is not a drop-in replacement!</strong> This is two years of new_comment
  *   and bug fixes queued up and finally executed. Thanks to everyone who sent
  *   me stuff, and I'm sorry I wasn't able to distribute your fixes to everyone else.
  *   Much bad coding was cleaned up including throwing exceptions where necessary
@@ -107,7 +107,7 @@ package com.example.tina.awtter;
  *   for contributing the new Base64 dialects.
  *  </li>
  *
- *  <li>v2.1 - Cleaned up javadoc comments and unused variables and methods. Added
+ *  <li>v2.1 - Cleaned up javadoc new_comment and unused variables and methods. Added
  *   some convenience methods for reading and writing to and from files.</li>
  *  <li>v2.0.2 - Now specifies UTF-8 encoding in places where the code fails on systems
  *   with other encodings (like EBCDIC).</li>
