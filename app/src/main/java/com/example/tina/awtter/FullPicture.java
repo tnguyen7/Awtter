@@ -1,6 +1,7 @@
 package com.example.tina.awtter;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -186,7 +187,9 @@ public class FullPicture extends AppCompatActivity{
             @Override
             public void onClick(View v) {
 
-                if
+                Intent intent = new Intent(context, CommentActivity.class);
+                intent.putExtra("animalid", animalid);
+                context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
 
             }
 
@@ -358,7 +361,6 @@ public class FullPicture extends AppCompatActivity{
                         .show();
 
                 return true;
-            case android.R.id.
         }
 
         return super.onOptionsItemSelected(item);
