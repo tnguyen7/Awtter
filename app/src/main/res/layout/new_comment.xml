@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:ems="10"
-        android:id="@+id/commenttext"
+        android:id="@+id/newcommenttext"
         android:layout_weight="0.25"
         android:editable="true"
         android:textIsSelectable="false" />

@@ -1,9 +1,12 @@
 package com.example.tina.awtter;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,9 +50,12 @@ public class CommentActivity extends Activity {
 
         Button createComment = (Button) findViewById(R.id.new_comment_button);
         createComment.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                setContentView(R.layout.new_comment);
+                Context context = getApplicationContext();
+                Intent intent = new Intent(context, NewCommentActivity.class);
+                context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
             }
 
         });
