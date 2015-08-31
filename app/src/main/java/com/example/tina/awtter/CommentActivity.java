@@ -3,6 +3,7 @@ package com.example.tina.awtter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -15,24 +16,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Comment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 
-public class CommentActivity extends Activity {
+public class CommentActivity extends ListActivity {
 
     private String startPoint = "0";
     private String id;
+    Context context;
+    ListView commentList;
     private static final String TAG_START_POINT = "start";
-    private static final String TAG_ID = "id";
+    private static final String TAG_ID = "__id";
     private static final String TAG_NAME = "__name";
     private static final String TAG_COMMENT = "__comment";
     private static final String TAG_CREATEDAT = "__createdAt";
@@ -44,18 +49,25 @@ public class CommentActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.comments_view);
 
+        Intent intent = getIntent();
+        id = String.valueOf(intent.getIntExtra("animalid", -1));
+
         new LoadComments().execute();
 
-        ListView commentList = (ListView) findViewById(R.id.comment_listview);
+        commentList = (ListView) findViewById(android.R.id.list);
+
+        context = this;
 
         Button createComment = (Button) findViewById(R.id.new_comment_button);
+
         createComment.setOnClickListener(new View.OnClickListener() {
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                Context context = getApplicationContext();
-                Intent intent = new Intent(context, NewCommentActivity.class);
-                context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
+                Intent intent = new Intent(CommentActivity.this, NewCommentActivity.class);
+                intent.putExtra("animalid", id);
+                CommentActivity.this.startActivity(intent);
+
             }
 
         });
@@ -78,7 +90,7 @@ public class CommentActivity extends Activity {
             super.onPreExecute();
 
             jParser = new JSONParser();
-            comments = new ArrayList<>();
+            comments = new ArrayList<HashMap<String, String>>();
 
         }
 
@@ -145,9 +157,10 @@ public class CommentActivity extends Activity {
 
             return null;
         }
-    }
 
-    protected void onPostExecute(String file_url) {
+        protected void onPostExecute(String file_url) {
+            commentList.setAdapter(new LVAdapter(context, comments));
+        }
     }
 
 }

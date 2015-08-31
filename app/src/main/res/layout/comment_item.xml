@@ -11,7 +11,7 @@
         android:text="username"
         android:id="@+id/user_comment" />
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"

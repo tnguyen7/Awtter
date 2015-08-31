@@ -61,14 +61,12 @@ public class FullPicture extends AppCompatActivity{
 
     private Context context;
 
-    Button button;
+    Button favoriteButton, commentButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_picture);
-
-
 
         Intent intent = getIntent();
         animalid = intent.getIntExtra("animalid", -1);
@@ -147,30 +145,30 @@ public class FullPicture extends AppCompatActivity{
     }
 
     public void setUpFavorite() {
-        button = (Button) findViewById(R.id.favoriteButton);
+        favoriteButton = (Button) findViewById(R.id.favoriteButton);
 
         databaseHandler = new DatabaseHandler(getApplicationContext());
 
         if(databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
-            button.setTextColor(getResources().getColor(R.color.white));
+            favoriteButton.setTextColor(getResources().getColor(R.color.white));
         } else {
-            button.setTextColor(getResources().getColor(R.color.accent));
+            favoriteButton.setTextColor(getResources().getColor(R.color.accent));
         }
 
-        button.setOnClickListener(new View.OnClickListener() {
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // If not in favorites, then increment, otherwise decrement
                 if (databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
-                    button.setTextColor(getResources().getColor(R.color.accent));
+                    favoriteButton.setTextColor(getResources().getColor(R.color.accent));
                     databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
-                    new IncUpAws(context, String.valueOf(animalid), true, button).execute();
+                    new IncUpAws(context, String.valueOf(animalid), true, favoriteButton).execute();
                     gs.incUpAws();
                     tv.setText(gs.getUpAws() + UPAWS);
                 } else {
-                    button.setTextColor(getResources().getColor(R.color.white));
+                    favoriteButton.setTextColor(getResources().getColor(R.color.white));
                     databaseHandler.deleteFavoriteFromAnimalID(animalid);
-                    new IncUpAws(context, String.valueOf(animalid), false, button).execute();
+                    new IncUpAws(context, String.valueOf(animalid), false, favoriteButton).execute();
                     gs.decUpAws();
                     tv.setText(gs.getUpAws() + UPAWS);
                 }
@@ -180,12 +178,12 @@ public class FullPicture extends AppCompatActivity{
         });
     }
 
-    public void setUpComment(){
-        button = (Button) findViewById(R.id.commentButton);
+    public void setUpComment() {
+        commentButton = (Button) findViewById(R.id.commentButton);
 
         databaseHandler = new DatabaseHandler(getApplicationContext());
 
-        button.setOnClickListener(new View.OnClickListener() {
+        commentButton.setOnClickListener(new View.OnClickListener() {
             @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
@@ -249,7 +247,7 @@ public class FullPicture extends AppCompatActivity{
 
             if (databaseHandler.getFavoriteFromAnimalID(animalid) == -1) {
                 databaseHandler.createFavorite(databaseHandler.getLastIDMyFavorites(), animalid);
-                new IncUpAws(context, String.valueOf(animalid), true, button).execute();
+                new IncUpAws(context, String.valueOf(animalid), true, favoriteButton).execute();
 
                 Log.v(TAG, "double tap if");
 
@@ -272,7 +270,7 @@ public class FullPicture extends AppCompatActivity{
 
             } else {
                 databaseHandler.deleteFavoriteFromAnimalID(animalid);
-                new IncUpAws(context, String.valueOf(animalid), false, button).execute();
+                new IncUpAws(context, String.valueOf(animalid), false, favoriteButton).execute();
                 Log.v(TAG, "double tap else");
 
                 heart.setVisibility(View.VISIBLE);
