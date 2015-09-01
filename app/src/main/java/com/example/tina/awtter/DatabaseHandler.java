@@ -170,6 +170,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteFavoriteFromIndex(int id) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        db.delete(TABLE_FAVORITES, KEY_ID + "=?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+
     public int getFavoriteCount() {
         int count = 0;
         SQLiteDatabase db = getReadableDatabase();

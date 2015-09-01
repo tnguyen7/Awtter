@@ -17,6 +17,7 @@ public class LVAdapter extends BaseAdapter {
     private static LayoutInflater inflater = null;
     private static final String TAG_NAME = "__name";
     private static final String TAG_COMMENT = "__comment";
+    private static final String TAG_CREATEDAT = "__createdAt";
 
     public LVAdapter(Context context, ArrayList<HashMap<String, String>> comments) {
         // TODO Auto-generated constructor stub
@@ -52,8 +53,11 @@ public class LVAdapter extends BaseAdapter {
             vi = inflater.inflate(R.layout.comment_item, null);
         TextView userText = (TextView) vi.findViewById(R.id.user_comment);
         TextView commentText = (TextView) vi.findViewById(R.id.comment_text);
+        TextView dateTimeText = (TextView) vi.findViewById(R.id.datetime);
+
         userText.setText(comments.get(position).get(TAG_NAME)); //name
         commentText.setText(comments.get(position).get(TAG_COMMENT)); //comment
+        //dateTimeText.setText(comments.get(position).get(TAG_CREATEDAT)); //date
         //text.setText(comments.get(position).get(2)); //createdat
 
         return vi;

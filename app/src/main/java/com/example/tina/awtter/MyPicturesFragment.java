@@ -196,13 +196,14 @@ public class MyPicturesFragment extends Fragment {
                 while (animals.size() > 0) {
                     animals.remove(--i);
                 }
+                adapter.notifyDataSetChanged();
 
                 i = porOrLan.size();
                 while (porOrLan.size() > 0) {
                     porOrLan.remove(--i);
                 }
 
-                loading = true;
+                loading = false;
                 startPoint = "0";
                 topPadding = true;
                 stillLeft = 0;

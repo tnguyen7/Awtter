@@ -116,9 +116,13 @@ public class FavoritesFragment extends Fragment {
             @Override
             public int getSpanSize(int position) {
 
-                // if it's a progress bar
-                if (animals.get(position) == null) {
-                    return 3;
+                try {
+                    // if it's a progress bar
+                    if (animals.get(position) == null) {
+                        return 3;
+                    }
+                } catch (IndexOutOfBoundsException e) {
+                    return -1;
                 }
 
                 switch (animals.get(position).sizeOrient) {
@@ -192,13 +196,14 @@ public class FavoritesFragment extends Fragment {
                 while (animals.size() > 0) {
                     animals.remove(--i);
                 }
+                adapter.notifyDataSetChanged();
 
                 i = porOrLan.size();
                 while (porOrLan.size() > 0) {
                     porOrLan.remove(--i);
                 }
 
-                loading = true;
+                loading = false;
                 startPoint = "0";
                 topPadding = true;
                 stillLeft = 0;
@@ -355,7 +360,7 @@ public class FavoritesFragment extends Fragment {
                             animalsList.add(map);
                         } catch (JSONException e) {
                             Log.v(TAG, "a picture has been deleted and cannot be loaded in favorites fragment");
-                            databaseHandler.deleteFavoriteFromAnimalID(Integer.valueOf(favorites.get(index)));
+                            databaseHandler.deleteFavoriteFromIndex(Integer.valueOf(favorites.get(index)));
                         }
 
                     }

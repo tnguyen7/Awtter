@@ -8,20 +8,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.widget.AdapterViewCompat;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
+
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -51,6 +59,8 @@ public class CommentActivity extends AppCompatActivity {
     int position;
     boolean loading = true;
     boolean runOnce = false;
+    private GestureDetector gestureDetector;
+    View.OnTouchListener gestureListener;
     private static final String TAG_START_POINT = "start";
     private static final String TAG_AUTO = "__auto";
     private static final String TAG_ID = "__id";
@@ -123,13 +133,10 @@ public class CommentActivity extends AppCompatActivity {
 
         commentList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-            {
-                if(loading)
-                {
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (loading) {
 
-                    if(firstVisibleItem + visibleItemCount >= totalItemCount)
-                    {
+                    if (firstVisibleItem + visibleItemCount >= totalItemCount) {
                         Log.v("commact", "end of list");
                         new LoadComments().execute();
 
@@ -140,12 +147,20 @@ public class CommentActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState)
-            {
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
 
             }
         });
 
+        // Gesture detection
+        gestureDetector = new GestureDetector(this, new MyGestureListener());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        };
+        RelativeLayout rl = (RelativeLayout) findViewById(R.id.fullpicturelayout);
+        rl.setOnTouchListener(gestureListener);
     }
 
     class LoadComments extends AsyncTask<String, String, String> {
@@ -334,6 +349,39 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
 
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final int SWIPE_MIN_DISTANCE = 120;
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent event) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2,
+                               float velocityX, float velocityY) {
+
+            /*
+            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Right to left
+            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Left to right
+            }*/
+
+            if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+                finish();
+                overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
+            }
+            return false;
+        }
+
+    }
+
     @Override
     public void onPause() {
         super.onPause();  // Always call the superclass method first
@@ -346,4 +394,5 @@ public class CommentActivity extends AppCompatActivity {
         Log.v(TAG, "in resume");
 
     }
+
 }

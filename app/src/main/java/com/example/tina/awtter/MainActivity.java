@@ -83,7 +83,11 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 return true;
             }
             case (R.id.action_add): {
-                addFragment.show(getSupportFragmentManager(), "Add a Picture");
+                try {
+                    addFragment.show(getSupportFragmentManager(), "Add a Picture");
+                } catch (NullPointerException npe) {
+
+                }
                 return true;
             }
             case (R.id.action_settings): {
