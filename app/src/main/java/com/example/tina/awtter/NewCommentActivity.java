@@ -63,7 +63,7 @@ public class NewCommentActivity extends Activity {
         });
 
         databaseHandler = new DatabaseHandler(this);
-        name = databaseHandler.getName();
+        //name = databaseHandler.getName();
     }
 
     class LoadComments extends AsyncTask<String, String, String> {
@@ -112,5 +112,8 @@ public class NewCommentActivity extends Activity {
             return null;
         }
     }
-
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
 }

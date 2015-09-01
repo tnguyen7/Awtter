@@ -63,7 +63,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         Cursor cursor  = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
 
-
         result = cursor.getString(0);
 
         cursor.close();
@@ -71,6 +70,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Log.v("Databasehandler name ", result);
 
         return result;
+    }
+
+    public int updateName(String newName, String oldName) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_NAME, newName);
+
+        int rowsAffected = db.update(TABLE_NAME, values, KEY_ID + "=?", new String[]{ oldName });
+        db.close();
+
+        return rowsAffected;
+    }
+
+    public int nameCount() {
+        int count = 0;
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+        count = cursor.getCount();
+
+        cursor.close();
+        db.close();
+
+        return count;
     }
 
     public void createFavorite(int id, int favoriteNum) {
