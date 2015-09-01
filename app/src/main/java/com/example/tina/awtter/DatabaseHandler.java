@@ -21,7 +21,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     KEY_ID = "id",
     KEY_FAV = "fav",
     TABLE_MY_PICTURES = "myPictures",
-    KEY_MY_PIC = "mypic";
+    KEY_MY_PIC = "mypic",
+    TABLE_NAME = "myName",
+    KEY_NAME = "name";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,14 +34,68 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // Execute an SQL query
         db.execSQL("CREATE TABLE " + TABLE_FAVORITES + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FAV + " INTEGER)");
         db.execSQL("CREATE TABLE " + TABLE_MY_PICTURES + "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_MY_PIC + " INTEGER)");
+        db.execSQL("CREATE TABLE " + TABLE_NAME + "(" + KEY_NAME + " TEXT)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_FAVORITES);
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_MY_PICTURES);
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_NAME);
 
         onCreate(db);
+    }
+
+    public void createName(String name) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_NAME, name);
+
+        db.insert(TABLE_NAME, null, values);
+        db.close();
+    }
+
+    public String getName() {
+        String result;
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor  = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+
+        result = cursor.getString(0);
+
+        cursor.close();
+
+        Log.v("Databasehandler name ", result);
+
+        return result;
+    }
+
+    public int updateName(String newName, String oldName) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_NAME, newName);
+
+        int rowsAffected = db.update(TABLE_NAME, values, KEY_ID + "=?", new String[]{ oldName });
+        db.close();
+
+        return rowsAffected;
+    }
+
+    public int nameCount() {
+        int count = 0;
+        SQLiteDatabase db = getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+        count = cursor.getCount();
+
+        cursor.close();
+        db.close();
+
+        return count;
     }
 
     public void createFavorite(int id, int favoriteNum) {

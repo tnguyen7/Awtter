@@ -9,14 +9,18 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="username"
-        android:id="@+id/user_comment" />
+        android:id="@+id/user_comment"
+        android:layout_margin="3dp" />
 
-    <EditText
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/comment_text"
-        android:layout_weight="0.07" />
+        android:layout_weight="0.07"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp" />
 
 </LinearLayout>

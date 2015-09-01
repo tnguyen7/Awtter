@@ -81,7 +81,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 return true;
             }
             case (R.id.action_add): {
-                //TODO: move this to dialogfragment
                 addFragment.show(getSupportFragmentManager(), "Add a Picture");
                 return true;
             }

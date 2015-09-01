@@ -6,12 +6,13 @@
     android:id="@+id/newcommentlayout">
 
     <TextView
-        android:layout_width="231dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Name"
         android:id="@+id/user_comment"
-        android:layout_weight="0.05" />
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp" />
 
     <EditText
         android:layout_width="match_parent"
@@ -19,9 +20,9 @@
         android:inputType="textMultiLine"
         android:ems="10"
         android:id="@+id/newcommenttext"
-        android:layout_weight="0.25"
         android:editable="true"
-        android:textIsSelectable="false" />
+        android:textIsSelectable="false"
+        android:layout_margin="5dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
