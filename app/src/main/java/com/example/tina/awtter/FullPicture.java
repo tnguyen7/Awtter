@@ -6,8 +6,10 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBar;
@@ -36,6 +38,8 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.io.ByteArrayOutputStream;
+
 public class FullPicture extends AppCompatActivity{
 
 
@@ -60,8 +64,9 @@ public class FullPicture extends AppCompatActivity{
     private boolean needToRefresh = false;
 
     private Context context;
+    Bitmap image;
 
-    Button favoriteButton, commentButton;
+    Button favoriteButton, commentButton, shareButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +109,7 @@ public class FullPicture extends AppCompatActivity{
 
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+            image = bitmap;
             imageView.setImageBitmap(bitmap);
         }
 
@@ -198,7 +204,28 @@ public class FullPicture extends AppCompatActivity{
 
     }
 
-    public void setUpShare() {};
+    public void setUpShare() {
+        shareButton = (Button) findViewById(R.id.shareButton);
+
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v) {
+
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+                String path = MediaStore.Images.Media.insertImage(getContentResolver(), image, "Title", null);
+
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("image/jpg");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
+                startActivity(Intent.createChooser(intent, "Share picture with..."));
+
+            }
+
+        });
+
+    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event){

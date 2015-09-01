@@ -113,7 +113,7 @@ public class CommentActivity extends AppCompatActivity {
 
                 startPoint = "0";
                 runOnce = false;
-                comments = new ArrayList<HashMap<String, String>>();
+
                 new LoadComments().execute();
 
             }
@@ -247,9 +247,14 @@ public class CommentActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
 
+            if (animals_all.length() == 0) {
+                loading = false;
+            } else {
+                loading = true;
+            }
+
             // Stop refreshing sign
             mySwipeRefreshLayout.setRefreshing(false);
-            loading = true;
         }
     }
 
