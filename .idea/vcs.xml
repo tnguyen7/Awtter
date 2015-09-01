@@ -7,9 +7,13 @@
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+<<<<<<< HEAD
+    <mapping directory="$PROJECT_DIR$/AndroidViewAnimations" vcs="Git" />
+=======
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+>>>>>>> 28befa59dd8ba8457e53e51a0924909be3fec8b4
     <mapping directory="$PROJECT_DIR$/AndroidViewAnimations" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/AndroidViewAnimations" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/AndroidViewAnimations" vcs="Git" />
