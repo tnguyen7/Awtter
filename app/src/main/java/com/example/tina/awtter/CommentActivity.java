@@ -113,6 +113,7 @@ public class CommentActivity extends AppCompatActivity {
 
                 startPoint = "0";
                 runOnce = false;
+                comments = new ArrayList<HashMap<String, String>>();
 
                 new LoadComments().execute();
 
