@@ -1,16 +1,23 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" 	android:gravity="center" android:orientation="vertical"
+    android:layout_width="fill_parent" 	android:orientation="vertical"
     android:layout_height="fill_parent" android:background="#E5E5E5">
 
-    <TextView android:text="Please wait while your data gets loaded..."
+    <TextView android:text="Awtter"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:textColor="#000000">
+        android:textColor="#7986CB"
+        android:textSize="70dp"
+        android:textStyle="bold"
+        android:layout_marginBottom="39dp"
+        android:layout_above="@+id/mainSpinner1"
+        android:layout_centerHorizontal="true">
     </TextView>
     <ProgressBar android:id="@+id/mainSpinner1" android:layout_gravity="center"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:indeterminate="true"
-        style="?android:attr/progressBarStyleInverse">
+        style="?android:attr/progressBarStyleInverse"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true">
     </ProgressBar>
 
-</LinearLayout>
+</RelativeLayout>
