@@ -12,6 +12,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -34,7 +37,7 @@ import static com.google.android.gms.internal.zzhl.runOnUiThread;
 public class UploadImage extends AsyncTask<String, String, String> {
 
     private static final String TAG = "UploadImage";
-    private static final String url = "http://76.244.35.83/upload_image.php";
+    private static final String url = "http://awtter.website/upload_image.php";
 
     private Context context;
     private Uri uri;
@@ -50,6 +53,7 @@ public class UploadImage extends AsyncTask<String, String, String> {
 
     private boolean portrait;
     Handler myHandler;
+    JSONParser jParser;
 
     public UploadImage (Context context, Uri imageUri) {
         this.context = context;
@@ -135,34 +139,25 @@ public class UploadImage extends AsyncTask<String, String, String> {
 
         nameValuePairs.add(new BasicNameValuePair("image", image_str));
         nameValuePairs.add(new BasicNameValuePair("portrait", String.valueOf(portrait)));
+        System.out.println(String.valueOf(portrait));
+        jParser = new JSONParser();
 
-        Thread t = new Thread(new Runnable() {
+        try {
 
-            @Override
-            public void run() {
-                try{
-                    HttpClient httpclient = new DefaultHttpClient();
-                    HttpPost httppost = new HttpPost(url);
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                    HttpResponse response = httpclient.execute(httppost);
-                    final String the_string_response = convertResponseToString(response);
-                    Log.v(TAG, the_string_response);
+            JSONObject json = jParser.makeHttpRequest(url, "POST", nameValuePairs);
+            Log.d("All Products: ", json.toString());
+            databaseHandler.createMyPicture(databaseHandler.getLastIDMyPicture(),Integer.valueOf(json.getString("id")));
 
-                    databaseHandler.createMyPicture(databaseHandler.getLastIDMyPicture(), Integer.valueOf(the_string_response));
+        } catch(final Exception e) {
+            runOnUiThread(new Runnable() {
 
-                }catch(final Exception e){
-                    runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            Log.v(TAG, "ERROR " + e.getMessage());
-                        }
-                    });
-                    System.out.println("Error in http connection "+e.toString());
+                @Override
+                public void run() {
+                    Log.v(TAG, "ERROR " + e.getMessage());
                 }
-            }
-        });
-        t.start();
+            });
+            System.out.println("Error in http connection " + e.toString());
+        }
 
         return null;
     }

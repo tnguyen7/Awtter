@@ -88,7 +88,7 @@ public class NewCommentActivity extends Activity {
 
     class LoadComments extends AsyncTask<String, String, String> {
 
-        private static final String url_all_products = "http://76.244.35.83/add_comment.php";
+        private static final String url_all_products = "http://awtter.website/add_comment.php";
 
         JSONParser jParser;
 
@@ -114,7 +114,7 @@ public class NewCommentActivity extends Activity {
             params.add(new BasicNameValuePair(TAG_COMMENT, comment));
 
             JSONObject json = jParser.makeHttpRequest(url_all_products, "POST", params);
-
+            Log.d("New Comment Success: ", json.toString());
             // Checking for SUCCESS TAG
             int success = 0;
             try {

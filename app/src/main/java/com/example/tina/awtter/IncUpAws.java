@@ -29,7 +29,7 @@ class IncUpAws extends AsyncTask<String, String, String> {
 
     private JSONParser jParser;
 
-    private String url_upAw = "http://76.244.35.83/upAw.php";
+    private String url_upAw = "http://awtter.website/upAw.php";
 
     private String __id;
     private Context context;

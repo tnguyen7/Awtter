@@ -29,7 +29,7 @@ public class DeleteAnimal extends AsyncTask<String, String, String> {
     // Creating JSON Parser object
     JSONParser jParser;
 
-    private String url_delete_animal = "http://76.244.35.83/delete_animal.php";
+    private String url_delete_animal = "http://awtter.website/delete_animal.php";
     private String __id;
     private Context context;
     private GlobalState gs;

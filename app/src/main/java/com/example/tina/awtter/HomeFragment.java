@@ -230,12 +230,13 @@ public class HomeFragment extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+
     /**
      * Background Async Task to Load all animals by making HTTP Request
      * */
     class LoadAnimals extends AsyncTask<String, String, String> {
 
-        private static final String url_all_products = "http://76.244.35.83/get_animals.php";
+        private static final String url_all_products = "http://awtter.website/get_animals.php";
         private static final String filter = "popularity";
 
         JSONParser jParser;

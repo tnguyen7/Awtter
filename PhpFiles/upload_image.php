@@ -4,53 +4,50 @@
   
  // check for required fields
  if (isset($_POST['portrait'])) {
-
     $portrait = $_POST['portrait'];
-	$servername = "sql3.freemysqlhosting.net";
-	$username = "sql383327";
-	$password = "jT8!eC1%";
-	
-	$target_dir = "media/";
+    $servername = "server170.web-hosting.com";
+    $username = "awttwbdi_user";
+    $password = "awtter();";
+    $database = "awttwbdi_db";
+  
+    $target_dir = "../public_ftp/media/";
+    // Create connction
+    $conn = new mysqli($servername, $username, $password, $database);
+    //Check conection
+    if ($conn->connect_error) {
+      die("Connection failed: " . $conn->connect_error);
+      $uploadOk = 0;
+      echo "\nConnection to database has failed.";
+    }
 
-	// Create connction
-	$conn = new mysqli($servername, $username, $password, $username);
+    $max = "SHOW TABLE STATUS LIKE 'MediaEntries'";
 
-	//Check conection
-	if ($conn->connect_error) {
-		die("Connection failed: " . $conn->connect_error);
-		$uploadOk = 0;
-		echo "\nConnection to database has failed.";
-	}
+    $result = $conn->query($max)->fetch_assoc();
 
-	$max = "SHOW TABLE STATUS LIKE 'MediaEntries'";
+    $hi = $result['Auto_increment'];
 
-	$result = $conn->query($max)->fetch_assoc();
+    $target_url = $target_dir . ($hi);
 
-	$hi = $result['Auto_increment'];
+    $base=$_POST['image'];
+    $binary=base64_decode($base);
+    header('Content-Type: bitmap; charset=utf-8');
+    
+    // Getting image type
+    $finfo = finfo_open();
+    $image_type = finfo_buffer($f, $binary, FILEINFO_MIME_TYPE);
 
-	$target_url = $target_dir . ($hi);
+    $file=fopen($target_url, 'wb');
+    fwrite($file, $binary);
+    fclose($file);
 
-	$base=$_POST['image'];
-	$binary=base64_decode($base);
-	header('Content-Type: bitmap; charset=utf-8');
-	
-	// Getting image type
-	$finfo = finfo_open();
-	$image_type = finfo_buffer($f, $binary, FILEINFO_MIME_TYPE);
-
-	$file=fopen($target_url, 'wb');
-	fwrite($file, $binary);
-	fclose($file);
-
-$sql = "INSERT INTO MediaEntries (__createdAt, __portrait) VALUES (NOW(), $portrait)";
-
-	if ($conn->query($sql) === TRUE) {
-		echo $hi;
-	} else {
-		echo "Error: ". $sql . "<br>". $conn->error;
-	}
-} else {
-	echo "Error with receiving portrait boolean";
-}
-
+    $sql = "INSERT INTO MediaEntries (__createdAt, __portrait) VALUES (NOW(), $portrait)";
+    
+    if ($conn->query($sql) === TRUE) {
+      echo $hi;
+    } else {
+      echo "Error: ". $sql . "<br>". $conn->error;
+    }
+  } else {
+    echo "Error with receiving portrait boolean";
+  }
 ?>

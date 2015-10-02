@@ -165,7 +165,7 @@ public class CommentActivity extends AppCompatActivity {
 
     class LoadComments extends AsyncTask<String, String, String> {
 
-        private static final String url_all_products = "http://76.244.35.83/get_comments.php";
+        private static final String url_all_products = "http://awtter.website/get_comments.php";
 
         JSONParser jParser;
         JSONArray animals_all = null;
@@ -263,7 +263,7 @@ public class CommentActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
 
-            if (animals_all.length() == 0) {
+            if (animals_all != null && animals_all.length() == 0) {
                 loading = false;
             } else {
                 loading = true;
@@ -288,7 +288,7 @@ public class CommentActivity extends AppCompatActivity {
         // Creating JSON Parser object
         JSONParser jParser;
 
-        private String url_delete_animal = "http://76.244.35.83/delete_comment.php";
+        private String url_delete_animal = "http://awtter.website/delete_comment.php";
         private String __auto;
 
 

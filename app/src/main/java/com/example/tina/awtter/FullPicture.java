@@ -43,7 +43,7 @@ import java.io.ByteArrayOutputStream;
 public class FullPicture extends AppCompatActivity{
 
 
-    private static final String url = "http://76.244.35.83/media/";
+    private static final String url = "http://awtter.website/media/";
     private static final String homeFragment = "homeFragment";
     private static final String favoriteFragment = "myFavoritesFragment";
     private static final String myPicturesFragment = "myPicturesFragment";
